@@ -6,7 +6,9 @@
 from __future__ import print_function
 import os
 from pocketsphinx import Pocketsphinx, get_model_path, get_data_path
+import time
 
+s = time.time()
 model_path = get_model_path()
 data_path = get_data_path()
 
@@ -18,10 +20,11 @@ config = {
 
 ps = Pocketsphinx(**config)
 ps.decode(
-audio_file=os.path.join(data_path, '/tmp/test1-mic.wav'), # add your audio file here
+audio_file=os.path.join(data_path, '/home/pi/Documents/voice_rec/downSamp.wav'), # add your audio file here
 buffer_size=2048,
 no_search=False,
 full_utt=False,
 )
 
 print(ps.hypothesis())
+print("--- %s seconds ---" % (time.time() - s))
