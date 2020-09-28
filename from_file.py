@@ -20,7 +20,8 @@ config = {
 
 ps = Pocketsphinx(**config)
 ps.decode(
-audio_file=os.path.join(data_path, '/home/pi/Documents/voice_rec/downSamp.wav'), # add your audio file here
+#audio_file=os.path.join(data_path, '/home/pi/Documents/voice_rec/downSamp.wav'), # add your audio file here
+audio_file=os.path.join(os.getcwd(),'downSamp.wav'),
 buffer_size=2048,
 no_search=False,
 full_utt=False,
