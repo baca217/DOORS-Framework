@@ -30,3 +30,4 @@ def decode_file(f_name):
 
     print(ps.hypothesis())
     print("--- %s seconds ---" % (time.time() - s))
+    return ps.hypothesis()
