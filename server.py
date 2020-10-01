@@ -13,18 +13,16 @@ def listen_to_homie():
         connection, client_address = sock.accept();
         try:
             print ('connection from', client_address)
-
+            f = open("recv.wav", "wb")
+            data = connection.recv(1024)
             # Receive the data in small chunks and retransmit it
-            while True:
-                data = connection.recv(16)
-                print ('received "{}"'.format(data))
-                if data:
-                    print ('sending data back to the client')
-                    connection.sendall(data)
-                else:
-                    print ('no more data from {}'.format(client_address))
-                    break
-
+            while(data):
+                size = sys.getsizeof(data)
+                print ('received {} bytes'.format(size))
+                f.write(data)
+                data = connection.recv(1024)
+            print("finished writing to file")
+            f.close()
         finally:
             # Clean up the connection
             connection.close()
