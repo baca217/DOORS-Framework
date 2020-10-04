@@ -1,0 +1,4 @@
+Homie turn on the lights
+Homie play my music
+Homie what's the weather like today
+Homie set a timer

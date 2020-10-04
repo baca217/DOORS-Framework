@@ -16,17 +16,15 @@ def cosine_sim_vectors(vec1, vec2): #comparison of two sentences
     vec2 = vec2.reshape(1, -1)
     return cosine_similarity(vec1, vec2)[0][0]
 
-def compare_command(command):
+def compare_command(commands):
     #words that don't mean anything overall, may be removed, needs adjusting
     #stopwords = stopwords.words('english')
 
-    sentences = [
-            command,
-            'Homie turn on the lights',
-            'Homie the lights must be turned on',
-            'Homie can you turn on the lights please',
-            'Homie the lights on they must be'
-            ]
+    c_len = len(commands)
+    c_file = open("commands.txt", "r")
+    sentences = c_file.read()
+    sentences = sentences.split("\n")
+    sentences = commands + [x for x in sentences if x != ""]
 
     #algorithm needs some adjusment
     #cleaned = list(map(clean_string, sentences))
@@ -35,11 +33,11 @@ def compare_command(command):
     vectorizer = CountVectorizer().fit_transform(sentences)
     vectors = vectorizer.toarray()
     print(vectors)
-    v1 = 0
-    v2 = 0
-    for x in range (1, len(sentences)):
-        print("X=== ",x)
-        ret = cosine_sim_vectors(vectors[0], vectors[x])
-        print("sentence 1: ",sentences[0])
-        print("sentence 2: ",sentences[x])
-        print("similarity: ",ret,"\n")
+
+    for y in range (c_len): 
+        print("--------------------------------------")
+        for x in range (c_len, len(sentences)):
+            ret = cosine_sim_vectors(vectors[y], vectors[x])
+            print("sentence 1: ",sentences[y])
+            print("sentence 2: ",sentences[x])
+            print("similarity: ",ret,"\n")
