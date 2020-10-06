@@ -26,6 +26,7 @@ def decode_file(f_rec):
             results.append(rec.Result())
 
     print("Final Result: ", rec.FinalResult())
+
     for i in results:
         y = json.loads(i)
         print(y["result"])
