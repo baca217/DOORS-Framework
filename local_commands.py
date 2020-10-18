@@ -2,13 +2,67 @@ import time #for stopwatch
 import requests, json #for weather
 from fuzzywuzzy import fuzz #for music
 from fuzzywuzzy import process #for music
-import os #for muci
+import os #for music
 import pwd #for music
-import eyed3
+import eyed3 #for mp3 metadata pulling
+from word2number import w2n #for settting reminder
+import signal #for setting a reminder
 
+class Stopwatch:
+    
+    def __init__(self):
+        self.start = 0.0
 
-def setReminder(dateStr): #only going to focus on time for now
-    yourdate = dateutil.parser.parse(dateStr)
+    def handler(self, task):
+        if task == "start":
+            self.start = time.time()
+            print("started",self.start)
+        elif task == "stop":
+            print("in stop",self.start)
+            if(self.start != 0):
+                stop = time.time() - self.start 
+                print("stopwatch ran for",stop,"seconds")
+                self.start = 0
+            else:
+                print("stopwatch was never started")
+        else:
+            print(task,"is not a known task")
+
+def handler(signal, frame):
+    print("time is up!!!")
+
+def setReminder(timeStr): #only going to focus on time for now
+    temp = ""
+    timeSwitch = { #dicionary for scaling the time
+            "second": 1,
+            "minute": 60,
+            "hour": 3600,
+            }
+    for f in timeStr.split():
+        try:
+            numTemp = w2n.word_to_num(f)
+            temp = temp + str(numTemp) + " "
+        except ValueError:
+            temp = temp + f + " "
+    found = False
+    num = 0
+    timeFormat = ""
+    for f in temp.split():
+        if found:
+            timeFormat = f
+            break
+        if f.isnumeric():
+            num = int(f)
+            found = True
+    if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
+        timeFormat = timeFormat[:-1]
+    if timeFormat in timeSwitch:
+        print("setting timer for",num,timeFormat)
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(num * timeSwitch[timeFormat])
+        #time.sleep(num * timeSwitch[timeFormat] + 1)
+    else:
+        print(timeFormat,"is not a supported time format")
     return 0
 
 def playSong(songName):
@@ -21,9 +75,9 @@ def playSong(songName):
         audFile = eyed3.load(path+i)
         print("artist: ",audFile.tag.artist," album: ",audFile.tag.album," title: ",audFile.tag.title) #check metadata of mp3 file
         dis = fuzz.ratio(songName.lower(), audFile.tag.title.lower())
-        if dis > 80:
+        if dis > 79: # 80% similarity or more is saved
             songs.append([dis, audFile.tag.title])
-            if dis > highDis:
+            if dis > highDis: #getting the most similar
                 highDis = dis
                 highTitle = audFile.tag.title
         print("ratio", dis)
@@ -82,18 +136,4 @@ def getWeather():
 
     else:
         print(" City Not Found ")
-    return 0
-
-def startStopwatch(): #not the cleanest way, maybe store time in main
-    startTime = time.time() 
-    f = open("time.txt", mode = "w")
-    f.write(str(startTime))
-    f.close()
-    return 0
-
-def stopStopwatch(): #using time from main, check if clock is even running
-    stopTime = time.time()
-    f = open("time.txt", mode = "r")
-    startTime = float(f.read())
-    print("tot time: ", stopTime - startTime) 
     return 0
