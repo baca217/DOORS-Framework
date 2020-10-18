@@ -1,0 +1,2 @@
+all commands are tested in main.py
+uncomment and comment the tests that you want. Reduces number of output

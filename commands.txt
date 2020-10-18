@@ -1,5 +1,5 @@
-Homie set a reminder
-Homie play the song
-Homie what's the weather like
-Homie start a stopwatch
-Homie stop the stopwatch
+homie set a reminder
+homie play the song
+homie what's the weather like
+homie start a stopwatch
+homie stop the stopwatch
