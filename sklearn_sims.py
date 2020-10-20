@@ -24,7 +24,13 @@ def compare_command(command):
     sentences = c_file.read()
     sentences = sentences.split("\n")
     sentences = [x for x in sentences if x != ""]
-    sentences.insert(0, command)
+
+    if "homie" in command:
+        command = command.replace("homie ",  "")
+    else:
+        print("homie was not detected! Exiting....")
+        exit()
+    sentences.insert(0, command.strip())
 
     print("sent:", sentences)
 
@@ -40,6 +46,6 @@ def compare_command(command):
         print("sentence 1: ",sentences[0])
         print("sentence 2: ",sentences[x])
         print("similarity: ",ret,"\n")
-        if ret > .8:
-            results.append([sentences[x], ret])
-    return results
+        if ret > .8 or sentences[x] in sentences[0]:
+            results.append([sentences[x], ret])      
+    return sentences[0], results

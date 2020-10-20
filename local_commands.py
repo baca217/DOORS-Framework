@@ -5,8 +5,8 @@ from fuzzywuzzy import process #for music
 import os #for music
 import pwd #for music
 import eyed3 #for mp3 metadata pulling
-from word2number import w2n #for settting reminder
-import signal #for setting a reminder
+from word2number import w2n #for settting timer
+import signal #for setting a timer
 
 class Stopwatch:
     
@@ -31,7 +31,7 @@ class Stopwatch:
 def handler(signal, frame): #handler for timer
     print("time is up!!!")
 
-def setReminder(timeStr): #only going to focus on time for now
+def setTimer(timeStr): #only going to focus on time for now
     temp = ""
     timeSwitch = { #dicionary for scaling the time
             "second": 1,
@@ -61,6 +61,7 @@ def setReminder(timeStr): #only going to focus on time for now
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(num * timeSwitch[timeFormat])
         #time.sleep(num * timeSwitch[timeFormat] + 1)
+        time.sleep(num * timeSwitch[timeFormat])
     else:
         print(timeFormat,"is not a supported time format")
     return 0
@@ -138,19 +139,26 @@ def getWeather():
         print(" City Not Found ")
     return 0
 
-def check_command(match, original):
-    if(match == "homie set a reminder"):
+def check_command(matchs, original):
+    match = "" 
+    matchNum = 0
+    for i in matchs:        
+        if i[1] > matchNum:
+            matchNum = i[1]
+            match = i[0]
+    print("best match:",match,"\npercent match:",matchNum)
+    if(match == "set a timer for"):
         data = original.replace(match, "")
-        setReminder(data)
-    elif(match == "homie play the song"):
+        setTimer(data)
+    elif(match == "play the song"):
         data = original.replace(match, "")
         playSong(data)
-    elif(match == "homie what's the weather like"):
+    elif(match == "what's the weather"):
         getWeather()
-    elif(match == "homie start a stopwatch"):
+    elif(match == "start a stopwatch"):
         original.handler("start")
         return original
-    elif(match == "homie stop the stopwatch"):
+    elif(match == "stop the stopwatch"):
         original.handler("stop")
         return original
     else:

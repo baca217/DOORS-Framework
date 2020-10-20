@@ -138,7 +138,10 @@ def getWeather():
         print(" City Not Found ")
     return 0
 
-def check_command(match, original):
+def check_command(matchs, original):
+    for i in matchs:
+        print(i)
+    match = "none"
     if(match == "homie set a reminder"):
         data = original.replace(match, "")
         setReminder(data)
