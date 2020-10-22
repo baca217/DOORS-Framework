@@ -20,7 +20,7 @@ def compare_command(command):
     #words that don't mean anything overall, may be removed, needs adjusting
     #stopwords = stopwords.words('english')
     results = []
-    c_file = open("commands.txt", "r")
+    c_file = open("modules/commands.txt", "r")
     sentences = c_file.read()
     sentences = sentences.split("\n")
     sentences = [x for x in sentences if x != ""]

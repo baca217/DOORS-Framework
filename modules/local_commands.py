@@ -139,7 +139,7 @@ def getWeather():
         print(" City Not Found ")
     return 0
 
-def check_command(matchs, original):
+def check_command(matchs, original, stopwatch):
     match = "" 
     matchNum = 0
     for i in matchs:        
@@ -156,10 +156,8 @@ def check_command(matchs, original):
     elif(match == "what's the weather"):
         getWeather()
     elif(match == "start a stopwatch"):
-        original.handler("start")
-        return original
+        stopwatch.handler("start")
     elif(match == "stop the stopwatch"):
-        original.handler("stop")
-        return original
+        stopwatch.handler("stop")
     else:
         print(match, "is not a known command")

@@ -1,4 +1,4 @@
 /ignore_files/*
 *.swp
 /__pycache__/*
-/model/*
+modules/model/*
