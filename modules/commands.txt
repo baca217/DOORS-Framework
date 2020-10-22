@@ -1,5 +1,6 @@
 set a timer for
 play the song
+stop playing music
 what's the weather
 start a stopwatch
 stop the stopwatch

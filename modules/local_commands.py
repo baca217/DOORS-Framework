@@ -7,6 +7,7 @@ import pwd #for music
 import eyed3 #for mp3 metadata pulling
 from word2number import w2n #for settting timer
 import signal #for setting a timer
+from pygame import mixer #for playing music
 
 class Stopwatch:
     
@@ -70,6 +71,7 @@ def playSong(songName):
     songs = []
     highDis = 0
     highTitle = ""
+    highPath = ""
     path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
     onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3")] #only mp3 files pulled
     for i in onlyfiles:
@@ -81,12 +83,21 @@ def playSong(songName):
             if dis > highDis: #getting the most similar
                 highDis = dis
                 highTitle = audFile.tag.title
+                highPath = i
         print("ratio", dis)
     print("songs")
     for j in songs:
         print("comparison: ", j[0], " title:", j[1])
-    print("highest", highDis, highTitle)
+    print("highest", highDis)
+    if(highPath):
+        mixer.init()
+        mixer.music.load(path+highPath)
+        mixer.music.play()
     return 0
+
+def stopSong():
+    mixer.init()
+    mixer.music.pause()
 
 def getWeather():
     #reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
@@ -159,5 +170,7 @@ def check_command(matchs, original, stopwatch):
         stopwatch.handler("start")
     elif(match == "stop the stopwatch"):
         stopwatch.handler("stop")
+    elif(match == "stop playing music"):
+        stopSong()
     else:
         print(match, "is not a known command")

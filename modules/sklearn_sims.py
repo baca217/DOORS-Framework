@@ -8,7 +8,7 @@ def clean_string(text): #removes words that might be uncessary for overall struc
     #still needs some adjusment
     text = ''.join([word for word in text if word not in string.punctuation])
     text = text.lower()
-    text = ' '.join([word for word in text.split() if word not in stopwords])
+    text = ' '.join([word for word in text.split() if word not in stopwords.words('english')])
     return text
 
 def cosine_sim_vectors(vec1, vec2): #comparison of two sentences
@@ -32,11 +32,10 @@ def compare_command(command):
         exit()
     sentences.insert(0, command.strip())
 
-    print("sent:", sentences)
-
     #algorithm needs some adjusment
-    #cleaned = list(map(clean_string, sentences))
-    #print(cleaned)
+    cleaned = list(map(clean_string, sentences))
+    #sentences = cleaned
+    print(cleaned)
 
     vectorizer = CountVectorizer().fit_transform(sentences)
     vectors = vectorizer.toarray()

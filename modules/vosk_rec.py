@@ -27,11 +27,10 @@ class Decoder:
                 break
             if self.rec.AcceptWaveform(data):
                 results.append(self.rec.Result())
-
-        print("Final Result: ", self.rec.FinalResult())
-
+ 
         for i in results:
             y = json.loads(i)
-            print(y["result"])
+            for j in y["result"]:
+                print(j)
             print(y["text"])
         return results
