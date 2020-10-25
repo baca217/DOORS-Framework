@@ -99,12 +99,11 @@ def stopSong():
     mixer.init()
     mixer.music.pause()
 
-def getWeather():
+def getWeather(city_name):
     #reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
     api_key = "5985bc671ecc377555ecb761fbc53914"
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    city_name = "Denver"
-    print("using city,",city_name,"\n")
+    print("\nusing city:",city_name)
 
     complete_url = base_url + "appid=" + api_key + "&q=" + city_name
     response = requests.get(complete_url)
@@ -137,17 +136,18 @@ def getWeather():
         weather_description = z[0]["description"] 
       
         # print following values 
-        print(" Temperature (in kelvin unit) = " +
-                        str(current_temperature) + 
+        print(" Temperature (in degrees Fahrenheit) = " +
+                        str(current_temperature * 9 / 5 - 459.65) + 
               "\n atmospheric pressure (in hPa unit) = " +
                         str(current_pressure) +
               "\n humidity (in percentage) = " +
                         str(current_humidiy) +
               "\n description = " +
-                        str(weather_description)) 
+                        str(weather_description) +
+                        "\n") 
 
     else:
-        print(" City Not Found ")
+        print(" City Not Found \n")
     return 0
 
 def check_command(match, original, stopwatch):
@@ -158,7 +158,11 @@ def check_command(match, original, stopwatch):
         data = original.replace(match, "")
         playSong(data)
     elif(match == "what's the weather"):
-        getWeather()
+            if "what's the weather in" in original:
+                city = original.replace(match+" in", "")
+                getWeather(city)
+            else:
+                getWeather("Denver")
     elif(match == "start a stopwatch"):
         stopwatch.handler("start")
     elif(match == "stop the stopwatch"):

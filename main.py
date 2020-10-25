@@ -21,7 +21,7 @@ def main():
         elif(record == "r"):
             os.system("./rec_resamp.sh")
         elif(record != "reuse"):
-            print(record,"is not an option")
+            print(record,"is not an option \n")
             continue
         rec_info = decoder.decode_file(filename)
         sentence = info_digest.return_sentence(rec_info)
