@@ -30,7 +30,5 @@ class Decoder:
  
         for i in results:
             y = json.loads(i)
-            for j in y["result"]:
-                print(j)
             print(y["text"])
         return results

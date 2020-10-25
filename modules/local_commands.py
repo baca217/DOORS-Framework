@@ -150,14 +150,7 @@ def getWeather():
         print(" City Not Found ")
     return 0
 
-def check_command(matchs, original, stopwatch):
-    match = "" 
-    matchNum = 0
-    for i in matchs:        
-        if i[1] > matchNum:
-            matchNum = i[1]
-            match = i[0]
-    print("best match:",match,"\npercent match:",matchNum)
+def check_command(match, original, stopwatch):
     if(match == "set a timer for"):
         data = original.replace(match, "")
         setTimer(data)

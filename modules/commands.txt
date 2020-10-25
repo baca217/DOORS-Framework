@@ -1,6 +1,6 @@
-set a timer for
-play the song
-stop playing music
-what's the weather
-start a stopwatch
-stop the stopwatch
+set a timer for exact
+play the song exact
+stop playing music cosine
+what's the weather cosine
+start a stopwatch cosine
+stop the stopwatch cosine

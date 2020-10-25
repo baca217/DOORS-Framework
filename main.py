@@ -25,8 +25,8 @@ def main():
             continue
         rec_info = decoder.decode_file(filename)
         sentence = info_digest.return_sentence(rec_info)
-        sentence, results = sklearn_sims.compare_command(sentence)
-        local_commands.check_command(results, sentence, stopwatch)
+        sentence, result = sklearn_sims.compare_command(sentence)
+        local_commands.check_command(result, sentence, stopwatch)
 
 
 if __name__ == "__main__":
