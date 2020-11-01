@@ -78,8 +78,6 @@ def comp_work(spoken, commands, comTypes):
 
 
 def compare_command(spoken):
-    #words that don't mean anything overall, may be removed, needs adjusting
-    #stopwords = stopwords.words('english')
     c_file = open("/home/pi/Documents/DOORS/modules/commands.txt", "r")
     commands = c_file.read()
     commands = commands.split("\n")
