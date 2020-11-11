@@ -11,7 +11,7 @@ def main():
     filename = "downSamp.wav"
     stopwatch = local_commands.Stopwatch()
     #ignoring for now, just gets in the way
-    #server.listen_to_homie()
+    #server.listen_to_homie)
     while True:
         print("enter \"reuse\" to use previous recording")
         record = input("enter \"r\" to record for 10 seconds\nenter \"exit\" to exit the program: ")

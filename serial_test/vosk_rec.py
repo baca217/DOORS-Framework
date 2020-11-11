@@ -34,7 +34,6 @@ class Decoder:
         for i in results:
             y = json.loads(i)
             print("---VOSK TEXT---",y["text"])
-        print("results size", len(results))
         print("results:", results)
         return results
 
