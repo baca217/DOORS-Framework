@@ -50,19 +50,17 @@ def clean_comp_work(spoken, commands, comTypes):
 
 
 def comp_work(spoken, commands, comTypes):
-    print("------NORMAL-------")
+    #print("------NORMAL-------")
 
-    #vectorizer = CountVectorizer().fit_transform(commands)
-    #vectors = vectorizer.toarray()
     bScore = 0 #keeping track of the best score for cosine comparison
     bComm = "" #best sentence matched
     bOrig = "" #representation of best sentence
 
     for i in range(len(comTypes)):
         if comTypes[i].strip() == "exact":
-            print("exact matching")
-            print("sentence 1: ", commands[i][0])
-            print("sentence 2: ", spoken)
+            #print("exact matching")
+            #print("sentence 1: ", commands[i][0])
+            #print("sentence 2: ", spoken)
             if commands[i][0] in spoken: #exact matches will return immediately
                     return commands[i][0]
         if comTypes[i].strip() == "cosine":
@@ -72,15 +70,15 @@ def comp_work(spoken, commands, comTypes):
             vectors = vectorizer.toarray() #turn to array
             for j in range(len(tempArr)-1):
                 ret = cosine_sim_vectors(vectors[-1], vectors[j]) #compare spoken vector to command vector
-                print("sentence 1: ", tempArr[-1])
-                print("sentence 2: ", tempArr[j])
-                print("similarity: ", ret)
-                print("distance:",Levenshtein.distance(spoken, tempArr[j]),"\n")
+                #print("sentence 1: ", tempArr[-1])
+                #print("sentence 2: ", tempArr[j])
+                #print("similarity: ", ret)
+                #print("distance:",Levenshtein.distance(spoken, tempArr[j]),"\n")
                 if ret > .8 and ret > bScore:
                     bScore = ret
                     bComm = tempArr[j]
                     bOrig = tempArr[0]
-    print("bScore:",bScore,"\nbComm:",bComm,"\nbOrig:",bOrig)
+    print("Best score:",bScore,"\nBest match:",bComm)
     return bOrig
 
 
@@ -107,6 +105,6 @@ def compare_command(spoken):
 
     result = comp_work(spoken, arrCommands, classify)
     #clean_comp_work(spoken, arrCommands, classify)
-    print("result:",result)
+    #print("result:",result)
 
     return spoken, result

@@ -8,6 +8,7 @@ import eyed3 #for mp3 metadata pulling
 from word2number import w2n #for settting timer
 import signal #for setting a timer
 from pygame import mixer #for playing music
+from copy import deepcopy
 
 class Stopwatch:
     
@@ -20,7 +21,7 @@ class Stopwatch:
             #t = time.localtime()
             #cur_time = time.strftime("%H:%M:%S", t)
             #print("started stopwatch at:",cur_time)
-            print("Started the stopwatch")
+            print("\nStarted a stopwatch")
         elif task == "stop":
             if(self.start != 0):
                 #t = time.localtime()
@@ -41,38 +42,41 @@ def setTimer(timeStr): #only going to focus on time for now
     temp = ""
     arr = timeStr.split()
     num = 0
-    timeFormat = ""
-
+    strNum = ""
+    timeFormat = arr[-1] #get time format
+    arr = arr[:-1] #remove time format
     timeSwitch = { #dictionary for scaling the time
             "second": 1,
             "minute": 60,
             "hour": 3600,
             }
-    for f in range(len(arr)):
+
+    if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
+        timeFormat = timeFormat[:-1]
+    for f in range(len(arr),0,-1):
         try:
-            numTemp = w2n.word_to_num(arr[f])
+            strTemp = " ".join(arr[f-1:])
+            numTemp = w2n.word_to_num(strTemp)
             num = int(numTemp)
-            timeFormat = arr[f+1]
         except ValueError:
-            continue
+            break
     if(timeFormat == ""):
         print("no time format was detected for setting a timer")
         return 1
     elif(num == 0):
         print("can't set a timer for 0",timeFormat)
         return 1
-    if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
-        timeFormat = timeFormat[:-1]
-    if timeFormat in timeSwitch:
+    if timeFormat in timeSwitch: #
         print("\nsetting timer for",num,timeFormat)
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(num * timeSwitch[timeFormat])
         #time.sleep(num * timeSwitch[timeFormat])
     else:
-        print(timeFormat,"is not a supported time format")
+        print(timeFormat,"is not a known time format")
     return 0
 
 def playSong(songName):
+    songName = songName.strip()
     songs = []
     highDis = 0
     highTitle = ""
@@ -81,7 +85,7 @@ def playSong(songName):
     onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3")] #only mp3 files pulled
     for i in onlyfiles:
         audFile = eyed3.load(path+i)
-        print("artist: ",audFile.tag.artist," album: ",audFile.tag.album," title: ",audFile.tag.title) #check metadata of mp3 file
+        #print("artist: ",audFile.tag.artist," album: ",audFile.tag.album," title: ",audFile.tag.title) #check metadata of mp3 file
         dis = fuzz.ratio(songName.lower(), audFile.tag.title.lower())
         if dis > 79: # 80% similarity or more is saved
             songs.append([dis, audFile.tag.title])
@@ -89,15 +93,18 @@ def playSong(songName):
                 highDis = dis
                 highTitle = audFile.tag.title
                 highPath = i
-        print("ratio", dis)
-    print("songs")
-    for j in songs:
-        print("comparison: ", j[0], " title:", j[1])
-    print("highest", highDis)
+        #print("ratio", dis)
+    #print("songs")
+    #for j in songs:
+    #    print("comparison: ", j[0], " title:", j[1])
+    #print("highest", highDis)
     if(highPath):
+        print("Song",highTitle,"will be played")
         mixer.init()
         mixer.music.load(path+highPath)
         mixer.music.play()
+    else:
+        print("No songs matched in the local library matched",songName)
     return 0
 
 def stopSong():
