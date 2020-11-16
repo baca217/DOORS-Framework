@@ -11,7 +11,9 @@ def main():
     filename = "downSamp.wav"
     stopwatch = local_commands.Stopwatch()
     #ignoring for now, just gets in the way
+    #just the wifi socket communication we'll do later
     #server.listen_to_homie)
+    os.system("clear")
     while True:
         print("enter \"reuse\" to use previous recording")
         record = input("enter \"r\" to record for 10 seconds\nenter \"exit\" to exit the program: ")
@@ -19,7 +21,9 @@ def main():
         if(record == "exit"):
             exit()
         elif(record == "r"):
+            os.system("rm downSamp.wav")
             os.system("./rec_resamp.sh")
+            os.system("clear")
         elif(record == "serial"):
             serial_comm.rec_data()
         elif(record != "reuse"):
@@ -27,8 +31,16 @@ def main():
             continue
         rec_info = decoder.decode_file(filename)
         sentence = info_digest.return_sentence(rec_info)
+        print("vosk sentence: "+sentence)
         sentence, result = sklearn_sims.compare_command(sentence)
+        if(sentence == -1):
+            print()
+            continue
+        elif(result == ""):
+            print("\nNo command match was found\n")
+            continue
         local_commands.check_command(result, sentence, stopwatch)
+        print()
 
 
 if __name__ == "__main__":

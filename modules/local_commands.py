@@ -17,11 +17,16 @@ class Stopwatch:
     def handler(self, task):
         if task == "start":
             self.start = time.time()
-            print("started",self.start)
+            #t = time.localtime()
+            #cur_time = time.strftime("%H:%M:%S", t)
+            #print("started stopwatch at:",cur_time)
+            print("Started the stopwatch")
         elif task == "stop":
-            print("in stop",self.start)
             if(self.start != 0):
-                stop = time.time() - self.start 
+                #t = time.localtime()
+                #cur_time = time.strftime("%H:%M:%S", t)
+                #print("stopped stopwatch at:",cur_time)
+                stop = "{0:.2f}".format(time.time() - self.start)
                 print("stopwatch ran for",stop,"seconds")
                 self.start = 0
             else:
@@ -30,39 +35,39 @@ class Stopwatch:
             print(task,"is not a known task")
 
 def handler(signal, frame): #handler for timer
-    print("time is up!!!")
+    print("\nTime is up for timer!\n")
 
 def setTimer(timeStr): #only going to focus on time for now
     temp = ""
-    timeSwitch = { #dicionary for scaling the time
+    arr = timeStr.split()
+    num = 0
+    timeFormat = ""
+
+    timeSwitch = { #dictionary for scaling the time
             "second": 1,
             "minute": 60,
             "hour": 3600,
             }
-    for f in timeStr.split():
+    for f in range(len(arr)):
         try:
-            numTemp = w2n.word_to_num(f)
-            temp = temp + str(numTemp) + " "
+            numTemp = w2n.word_to_num(arr[f])
+            num = int(numTemp)
+            timeFormat = arr[f+1]
         except ValueError:
-            temp = temp + f + " "
-    found = False
-    num = 0
-    timeFormat = ""
-    for f in temp.split():
-        if found:
-            timeFormat = f
-            break
-        if f.isnumeric():
-            num = int(f)
-            found = True
+            continue
+    if(timeFormat == ""):
+        print("no time format was detected for setting a timer")
+        return 1
+    elif(num == 0):
+        print("can't set a timer for 0",timeFormat)
+        return 1
     if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
         timeFormat = timeFormat[:-1]
     if timeFormat in timeSwitch:
-        print("setting timer for",num,timeFormat)
+        print("\nsetting timer for",num,timeFormat)
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(num * timeSwitch[timeFormat])
-        #time.sleep(num * timeSwitch[timeFormat] + 1)
-        time.sleep(num * timeSwitch[timeFormat])
+        #time.sleep(num * timeSwitch[timeFormat])
     else:
         print(timeFormat,"is not a supported time format")
     return 0
@@ -102,10 +107,10 @@ def stopSong():
 def getWeather(city_name):
     #reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
     api_key = "5985bc671ecc377555ecb761fbc53914"
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    base_url = "http://api.openweathermap.org/data/2.5/weather?q="
     print("\nusing city:",city_name)
 
-    complete_url = base_url + "appid=" + api_key + "&q=" + city_name
+    complete_url = base_url + city_name + "&appid=" + api_key 
     response = requests.get(complete_url)
     x = response.json()
 
@@ -134,10 +139,11 @@ def getWeather(city_name):
         # to the "description" key at  
         # the 0th index of z 
         weather_description = z[0]["description"] 
-      
+
+        temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65)
         # print following values 
         print(" Temperature (in degrees Fahrenheit) = " +
-                        str(current_temperature * 9 / 5 - 459.65) + 
+                        temperature + 
               "\n atmospheric pressure (in hPa unit) = " +
                         str(current_pressure) +
               "\n humidity (in percentage) = " +

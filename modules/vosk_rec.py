@@ -31,11 +31,11 @@ class Decoder:
             if self.rec.AcceptWaveform(data):
                 results.append(self.rec.Result())
  
-        for i in results:
-            y = json.loads(i)
-            print("---VOSK TEXT---",y["text"])
-        print("results size", len(results))
-        print("results:", results)
+        #for i in results:
+        #    y = json.loads(i)
+        #    print("---VOSK TEXT---",y["text"])
+        #print("results size", len(results))
+        #print("results:", results)
         return results
 
     def decode_stream(self, socket, initData):

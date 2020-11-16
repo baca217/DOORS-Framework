@@ -60,8 +60,11 @@ def comp_work(spoken, commands, comTypes):
 
     for i in range(len(comTypes)):
         if comTypes[i].strip() == "exact":
+            print("exact matching")
+            print("sentence 1: ", commands[i][0])
+            print("sentence 2: ", spoken)
             if commands[i][0] in spoken: #exact matches will return immediately
-                    return commands[i]
+                    return commands[i][0]
         if comTypes[i].strip() == "cosine":
             tempArr = commands[i] #pulling similar commands
             tempArr.append(spoken) #adding spoken command to vectorize it
@@ -78,7 +81,6 @@ def comp_work(spoken, commands, comTypes):
                     bComm = tempArr[j]
                     bOrig = tempArr[0]
     print("bScore:",bScore,"\nbComm:",bComm,"\nbOrig:",bOrig)
-    exit()
     return bOrig
 
 
@@ -95,11 +97,13 @@ def compare_command(spoken):
     arrCommands = []
     for i in commands:
         arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
-    if "homie" in spoken:
+    if "hey homie" in spoken:
+        spoken = spoken.replace("hey homie ", "").strip()
+    elif "homie" in spoken:
         spoken = spoken.replace("homie ",  "").strip()
     else:
-        print("homie was not detected! Exiting....")
-        exit()
+        print("homie was not detected!")
+        return -1, -1
 
     result = comp_work(spoken, arrCommands, classify)
     #clean_comp_work(spoken, arrCommands, classify)
