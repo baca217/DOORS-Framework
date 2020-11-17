@@ -78,7 +78,7 @@ def comp_work(spoken, commands, comTypes):
                     bScore = ret
                     bComm = tempArr[j]
                     bOrig = tempArr[0]
-    print("Best score:",bScore,"\nBest match:",bComm)
+    #print("Best score:",bScore,"\nBest match:",bComm)
     return bOrig
 
 
@@ -99,6 +99,11 @@ def compare_command(spoken):
         spoken = spoken.replace("hey homie ", "").strip()
     elif "homie" in spoken:
         spoken = spoken.replace("homie ",  "").strip()
+    elif "hey homey" in spoken:
+        spoken = spoken.replace("hey homey ", "").strip()
+    elif "homey" in spoken:
+        spoken = spoken.replace("homey ",  "").strip()
+
     else:
         print("homie was not detected!")
         return -1, -1

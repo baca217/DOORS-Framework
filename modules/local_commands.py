@@ -28,15 +28,15 @@ class Stopwatch:
                 #cur_time = time.strftime("%H:%M:%S", t)
                 #print("stopped stopwatch at:",cur_time)
                 stop = "{0:.2f}".format(time.time() - self.start)
-                print("stopwatch ran for",stop,"seconds")
+                print("\nstopwatch ran for",stop,"seconds")
                 self.start = 0
             else:
-                print("stopwatch was never started")
+                print("\nstopwatch was never started")
         else:
             print(task,"is not a known task")
 
 def handler(signal, frame): #handler for timer
-    print("\nTime is up for timer!\n")
+    print("\n\nTime is up for timer!\n")
 
 def setTimer(timeStr): #only going to focus on time for now
     temp = ""
@@ -110,6 +110,7 @@ def playSong(songName):
 def stopSong():
     mixer.init()
     mixer.music.pause()
+    print("music is stopped")
 
 def getWeather(city_name):
     #reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
