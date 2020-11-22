@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
+
 import socket
 import os
 
 CHUNK = 1024
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 10000))
+s.connect(("0.0.0.0", 9998))
 
 f_size = os.path.getsize("downSamp.wav")
 fd = open("downSamp.wav", "rb")
