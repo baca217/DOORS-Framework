@@ -5,6 +5,7 @@ from subprocess import call
 
 class VoiceSynth:
 
-    def speak(self,sentence):
+    def speak(self, sentence):
+	sentence = sentence.replace(" ","_")
         command = 'espeak {} --stdout |aplay 2>/dev/null'.format(sentence)
         call([command], shell=True)
