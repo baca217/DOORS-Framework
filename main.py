@@ -21,8 +21,8 @@ def main():
         if(record == "exit"):
             exit()
         elif(record == "r"):
-            os.system("rm downSamp.wav")
-            os.system("./rec_resamp.sh")
+            os.system("rm modules/downSamp.wav")
+            os.system("./modules/rec_resamp.sh")
             os.system("clear")
         elif(record == "serial"):
             serial_comm.rec_data()
