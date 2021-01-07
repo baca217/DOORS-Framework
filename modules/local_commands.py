@@ -9,6 +9,7 @@ from word2number import w2n #for settting timer
 import signal #for setting a timer
 from pygame import mixer #for playing music
 from copy import deepcopy
+import modules.voice_synth as vs
 
 class Stopwatch:
     
@@ -38,11 +39,12 @@ class Stopwatch:
 def handler(signal, frame): #handler for timer
     print("\n\nTime is up for timer!\n")
 
-def setTimer(timeStr): #only going to focus on time for now
+def setTimer(timeStr, voice): #only going to focus on time for now
     temp = ""
     arr = timeStr.split()
     num = 0
     strNum = ""
+    msg = ""
     timeFormat = arr[-1] #get time format
     arr = arr[:-1] #remove time format
     timeSwitch = { #dictionary for scaling the time
@@ -60,19 +62,28 @@ def setTimer(timeStr): #only going to focus on time for now
             num = int(numTemp)
         except ValueError:
             break
-    if(timeFormat == ""):
-        print("no time format was detected for setting a timer")
+
+    if(timeFormat == ""): #error 1: no time format
+	msg = "no time format was detected for setting a timer"
+        print(msg)
+	voice.speak(msg)
         return 1
-    elif(num == 0):
-        print("can't set a timer for 0",timeFormat)
+    elif(num == 0): #error 2: time requested is 0 for timer
+	msg = "can't set a timer for 0",timeFormat
+        print(msg)
+	voice.speak(msg)
         return 1
-    if timeFormat in timeSwitch: #
-        print("\nsetting timer for",num,timeFormat)
+    if timeFormat in timeSwitch:
+	msg = "\nsetting timer for",num,timeFormat
+        print(msg)
+	voice.speak(msg)
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(num * timeSwitch[timeFormat])
         #time.sleep(num * timeSwitch[timeFormat])
     else:
-        print(timeFormat,"is not a known time format")
+	msg = timeFormat,"is not a known time format"
+	voice.speak(msg)
+        print(msg)
     return 0
 
 def playSong(songName):
@@ -164,24 +175,24 @@ def getWeather(city_name):
         print(" City Not Found \n")
     return 0
 
-def check_command(match, original, stopwatch):
+def check_command(match, original, stopwatch, voice):
     if(match == "set a timer for"):
         data = original.replace(match, "")
-        setTimer(data)
+        setTimer(data, voice)
     elif(match == "play the song"):
         data = original.replace(match, "")
-        playSong(data)
+        playSong(data, voice)
     elif(match == "what's the weather"):
             if "what's the weather in" in original:
                 city = original.replace(match+" in", "")
-                getWeather(city)
+                getWeather(city, voice)
             else:
-                getWeather("Denver")
+                getWeather("Denver", voice)
     elif(match == "start a stopwatch"):
-        stopwatch.handler("start")
+        stopwatch.handler("start", voice)
     elif(match == "stop the stopwatch"):
-        stopwatch.handler("stop")
+        stopwatch.handler("stop", voice)
     elif(match == "stop playing music"):
-        stopSong()
+        stopSong(voice)
     else:
         print(match, "is not a known command")

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3 
 import modules.vosk_rec as vosk_rec
-#import modules.info_digest as info_digest
 import modules.sklearn_sims as sklearn_sims
 import modules.local_commands as local_commands
 import modules.serial_comm as serial_comm
+import modules.voice_synth as vs
 import os #for recording, temporary usage
 
 def main():
 	decoder = vosk_rec.Decoder()
+	voice = vs.VoiceSynth()
 	filename = "downSamp.wav"
 	stopwatch = local_commands.Stopwatch()
 	#ignoring for now, just gets in the way
@@ -37,7 +38,7 @@ def main():
 			elif(result == ""):
 			    print("\nNo command match was found\n")
 			    continue
-			local_commands.check_command(result, sentence, stopwatch)
+			local_commands.check_command(result, sentence, stopwatch, voice)
 			print()
 
 		else:
