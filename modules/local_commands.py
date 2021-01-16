@@ -39,67 +39,64 @@ class Stopwatch:
 def handler(signal, frame): #handler for timer
     print("\n\nTime is up for timer!\n")
 
-def setTimer(timeStr, voice): #only going to focus on time for now
-    temp = ""
-    arr = timeStr.split()
-    num = 0
-    strNum = ""
-    msg = ""
-    timeFormat = arr[-1] #get time format
-    arr = arr[:-1] #remove time format
-    timeSwitch = { #dictionary for scaling the time
+def setTimer(timeStr): #only going to focus on time for now
+	temp = ""
+	arr = timeStr.split()
+	num = 0
+	strNum = ""
+	msg = ""
+	timeFormat = arr[-1] #get time format
+	arr = arr[:-1] #remove time format
+	timeSwitch = { #dictionary for scaling the time
             "second": 1,
             "minute": 60,
             "hour": 3600,
             }
 
-    if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
-        timeFormat = timeFormat[:-1]
-    for f in range(len(arr),0,-1):
-        try:
-            strTemp = " ".join(arr[f-1:])
-            numTemp = w2n.word_to_num(strTemp)
-            num = int(numTemp)
-        except ValueError:
-            break
+	if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
+		timeFormat = timeFormat[:-1]
+	for f in range(len(arr),0,-1):
+		try:
+			strtemp = " ".join(arr[f-1:])
+			numtemp = w2n.word_to_num(strtemp)
+			num = int(numtemp)
+		except valueerror:
+			break
 
-    if(timeFormat == ""): #error 1: no time format
-	msg = "no time format was detected for setting a timer"
-        print(msg)
-	voice.speak(msg)
-        return 1
-    elif(num == 0): #error 2: time requested is 0 for timer
-	msg = "can't set a timer for 0",timeFormat
-        print(msg)
-	voice.speak(msg)
-        return 1
-    if timeFormat in timeSwitch:
-	msg = "\nsetting timer for",num,timeFormat
-        print(msg)
-	voice.speak(msg)
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(num * timeSwitch[timeFormat])
-        #time.sleep(num * timeSwitch[timeFormat])
-    else:
-	msg = timeFormat,"is not a known time format"
-	voice.speak(msg)
-        print(msg)
-    return 0
+	if(timeformat == ""): #error 1: no time format
+		msg = "no time format was detected for setting a timer"
+		print(msg)
+		return msg, None
+	elif(num == 0): #error 2: time requested is 0 for timer
+		msg = "can't set a timer for 0",timeformat
+		print(msg)
+		return msg, None
+	if timeformat in timeswitch:
+		msg = "\nsetting timer for",num,timeformat
+		print(msg)
+		def setsignal():
+			signal.signal(signal.sigalrm, handler)
+			signal.alarm(num * timeswitch[timeformat])
+		return msg, None #needs to return function!!!
+	else:
+		msg = timeformat,"is not a known time format"
+		return msg, None
+	return 0
 
-def playSong(songName):
-    songName = songName.strip()
+def playsong(songname):
+    songname = songname.strip()
     songs = []
-    highDis = 0
-    highTitle = ""
-    highPath = ""
-    path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
+    highdis = 0
+    hightitle = ""
+    highpath = ""
+    path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/music/" #dir for music for current user
     onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3")] #only mp3 files pulled
     for i in onlyfiles:
-        audFile = eyed3.load(path+i)
-        #print("artist: ",audFile.tag.artist," album: ",audFile.tag.album," title: ",audFile.tag.title) #check metadata of mp3 file
-        dis = fuzz.ratio(songName.lower(), audFile.tag.title.lower())
+        audfile = eyed3.load(path+i)
+        #print("artist: ",audfile.tag.artist," album: ",audfile.tag.album," title: ",audfile.tag.title) #check metadata of mp3 file
+        dis = fuzz.ratio(songname.lower(), audfile.tag.title.lower())
         if dis > 79: # 80% similarity or more is saved
-            songs.append([dis, audFile.tag.title])
+            songs.append([dis, audfile.tag.title])
             if dis > highDis: #getting the most similar
                 highDis = dis
                 highTitle = audFile.tag.title
@@ -176,23 +173,25 @@ def getWeather(city_name):
     return 0
 
 def check_command(match, original, stopwatch, voice):
+    sentence = ""
+    command = None
     if(match == "set a timer for"):
-        data = original.replace(match, "")
-        setTimer(data, voice)
+        data = original.replace(match, "") #removing matched string for easier comparison
+        sentence, command = setTimer(data, voice)
     elif(match == "play the song"):
         data = original.replace(match, "")
-        playSong(data, voice)
+        sentence, command = playSong(data, voice)
     elif(match == "what's the weather"):
             if "what's the weather in" in original:
                 city = original.replace(match+" in", "")
-                getWeather(city, voice)
+                sentence, command = getWeather(city, voice)
             else:
-                getWeather("Denver", voice)
+                sentence, command = getWeather("Denver", voice)
     elif(match == "start a stopwatch"):
-        stopwatch.handler("start", voice)
+        sentence, command = stopwatch.handler("start", voice)
     elif(match == "stop the stopwatch"):
-        stopwatch.handler("stop", voice)
+        sentence, command = stopwatch.handler("stop", voice)
     elif(match == "stop playing music"):
-        stopSong(voice)
+        sentence, command = stopSong(voice)
     else:
-        print(match, "is not a known command")
+	sentence = match, "is not a known command"
