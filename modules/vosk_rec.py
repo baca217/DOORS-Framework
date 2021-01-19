@@ -23,19 +23,23 @@ class Decoder:
 			print ("Audio aud_file must be WAV format mono PCM.")
 			exit (1)
 
-		results = []
+		results = ""
 
 		while True:
 			data = wf.readframes(4000)
 			if len(data) == 0:
 				break
 			if self.rec.AcceptWaveform(data):
-				results.append(self.rec.Result())
-
-		for i in results:
-			sentence += json.loads(i)
-		print("results size", len(results))
-		print("sentence:", sentence)
+				results += self.rec.Result()
+		print("\n",results,"\n")
+		temp = json.loads(results)
+		print(temp["text"])
+		#---------------------------------------------------------------
+		#need to do some confidence checking here. 
+		#temp2 = json.loads(temp["result"])
+		#for i in temp["result"]:
+		#	print(i["conf"])
+		sentence = temp["text"]
 		return sentence
 
 	def decode_stream(self, socket, initData):

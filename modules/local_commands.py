@@ -57,23 +57,22 @@ def setTimer(timeStr): #only going to focus on time for now
 		except valueerror:
 			break
 
-	if(timeformat == ""): #error 1: no time format
+	if(timeFormat == ""): #error 1: no time format
 		msg = "no time format was detected for setting a timer"
 		print(msg)
 		return msg, None
 	elif(num == 0): #error 2: time requested is 0 for timer
-		msg = "can't set a timer for 0",timeformat
+		msg = "can't set a timer for 0",timeFormat
 		print(msg)
 		return msg, None
-	if timeformat in timeswitch:
-		msg = "\nsetting timer for",num,timeformat
-		print(msg)
-		def setsignal():
-			signal.signal(signal.sigalrm, handler)
-			signal.alarm(num * timeswitch[timeformat])
-		return msg, None #needs to return function!!!
+	if timeFormat in timeSwitch:
+		msg = "\nsetting timer for "+str(num)+" "+timeFormat
+		def setSignal():
+			signal.signal(signal.SIGALRM, handler)
+			signal.alarm(num * timeSwitch[timeFormat])
+		return msg, setSignal #needs to return function!!!
 	else:
-		msg = timeformat,"is not a known time format"
+		msg = timeFormat,"is not a known time format"
 		return msg, None
 	return 0
 
@@ -171,7 +170,7 @@ def check_command(match, original, stopwatch, voice):
 	command = None
 	if(match == "set a timer for"):
 		data = original.replace(match, "") #removing matched string for easier comparison
-		sentence, command = setTimer(data, voice)
+		sentence, command = setTimer(data)
 	elif(match == "play the song"):
 		data = original.replace(match, "")
 		sentence, command = playSong(data, voice)
@@ -189,3 +188,7 @@ def check_command(match, original, stopwatch, voice):
 		sentence, command = stopSong(voice)
 	else:
 		sentence = match, "is not a known command"
+	print(sentence)
+	voice.speak(sentence)
+	if command != None:
+		command()

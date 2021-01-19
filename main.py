@@ -22,14 +22,26 @@ def main():
 		if(record == "exit"):
 			exit()
 		elif(record == "r"):
-			os.system("rm modules/downSamp.wav")
+			os.system("rm downSamp.wav")
 			os.system("./modules/rec_resamp.sh")
 			os.system("clear")
+
+			sentence = decoder.decode_file(filename)
+			print("vosk sentence: "+sentence)
+			sentence, result = sklearn_sims.compare_command(sentence)
+			if(sentence == -1):
+			    print("\n error occurred\n")
+			    continue
+			elif(result == ""):
+			    print("\nNo command match was found\n")
+			    continue
+			local_commands.check_command(result, sentence, stopwatch, voice)
+			print()
+
 		elif(record == "serial"):
 			serial_comm.rec_data()
 		elif(record == "reuse"):
-			rec_info = decoder.decode_file(filename)
-			sentence = info_digest.return_sentence(rec_info)
+			sentence = decoder.decode_file(filename)
 			print("vosk sentence: "+sentence)
 			sentence, result = sklearn_sims.compare_command(sentence)
 			if(sentence == -1):
