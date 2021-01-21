@@ -13,12 +13,13 @@ else
 	mv vosk-model/* $CURDIR$MODEL #move stuff to correct directory
 	rm -r vosk-model #rm temp directory
 fi
-#pip3 install vosk
-#pip3 install sklearn
-#pip3 install fuzzywuzzy
-#pip3 install eyed3
-#pip3 install word2number
-#sudo apt-get update
-#sudo apt-get install libgfortran5
-#sudo apt-get install libgfortran3
-#sudo apt-get install libatlas-base-dev
+pip3 install vosk
+pip3 install sklearn
+pip3 install fuzzywuzzy
+pip3 install eyed3
+pip3 install word2number
+pip3 install python-Levenshtein
+sudo apt-get update
+sudo apt-get install libgfortran5
+sudo apt-get install libgfortran3
+sudo apt-get install libatlas-base-dev

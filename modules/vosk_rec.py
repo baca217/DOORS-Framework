@@ -11,7 +11,7 @@ import random
 
 class Decoder:
 	def __init__(self):
-		model = Model("/home/pi/Documents/DOORS/modules/model")
+		model = Model(os.getcwd()+"/modules/model")
 		self.rec = KaldiRecognizer(model, 16000)
 
 	def decode_file(self, aud_file):

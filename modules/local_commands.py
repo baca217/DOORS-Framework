@@ -17,18 +17,24 @@ class Stopwatch:
 		self.start = 0.0
 
 	def handler(self, task):
+		msg = ""
 		if task == "start": #start a stopwatch
-			self.start = time.time()
-			print("\nStarted a stopwatch")
+			def startWatch():
+				self.start = time.time()
+			msg = "\nStarted a stopwatch"
+			return msg, startWatch()
 		elif task == "stop": #stop the stopwatch
 			if(self.start != 0):
 				stop = "{0:.2f}".format(time.time() - self.start)
-				print("\nstopwatch ran for",stop,"seconds")
 				self.start = 0
+				msg = "\nstopwatch ran for",stop,"seconds"
+				return msg, None
 			else:
-				print("\nstopwatch was never started")
+				msg = "\nstopwatch was never started"
+				return msg, None
 		else:
-			print(task,"is not a known task")
+			msg = task,"is not a known task"
+			return msg, None
 
 def handler(signal, frame): #handler for timer
 	print("\n\nTime is up for timer!\n")
@@ -100,24 +106,29 @@ def playsong(songname):
 	#print("comparison: ", j[0], " title:", j[1])
 	#print("highest", highDis)
 	if(highPath):
-		print("Song",highTitle,"will be played")
-		mixer.init()
-		mixer.music.load(path+highPath)
-		mixer.music.play()
+		msg = "Song",highTitle,"will be played"
+		def playSong():
+			mixer.init()
+			mixer.music.load(path+highPath)
+			mixer.music.play()
+		return msg, playSong
 	else:
-		print("No songs matched in the local library matched",songName)
+		msg = "No songs matched in the local library matched",songName
+		return msg, None
 	return 0
 
 def stopSong():
-	mixer.init()
-	mixer.music.pause()
-	print("music is stopped")
+	def stopMusicFunc():
+		mixer.init()
+		mixer.music.pause()
+	msg = "music is stopped"
+	return msg, stopMusicFunc()
 
 def getWeather(city_name):
 	#reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
 	api_key = "5985bc671ecc377555ecb761fbc53914"
 	base_url = "http://api.openweathermap.org/data/2.5/weather?q="
-	print("\nusing city:",city_name)
+	msg = "\nusing city:",city_name
 
 	complete_url = base_url + city_name + "&appid=" + api_key 
 	response = requests.get(complete_url)
@@ -151,18 +162,21 @@ def getWeather(city_name):
 
 		temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65)
 		# print following values 
-		print(" Temperature (in degrees Fahrenheit) = " +
+		msg = (msg + " Temperature in degrees Fahrenheit = " +
 				temperature + 
-			"\n atmospheric pressure (in hPa unit) = " +
+			"\n atmospheric pressure in hPa unit = " +
 				str(current_pressure) +
-			"\n humidity (in percentage) = " +
+			"\n humidity in percentage = " +
 				str(current_humidiy) +
 			"\n description = " +
 				str(weather_description) +
 				"\n") 
-
+		def doNothing():
+			return 0
+		return msg, doNothing()
 	else:
-		print(" City Not Found \n")
+		msg += " City Not Found \n"
+		return msg, None
 	return 0
 
 def check_command(match, original, stopwatch, voice):
