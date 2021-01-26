@@ -1,0 +1,6 @@
+set a timer for, exact
+play the song, exact
+stop playing music, you must stop the music, stop whatever music is playing, stop the music, the music must stop, cosine
+what's the weather, exact
+start a stopwatch, begin a stopwatch, setup a stopwatch, cosine
+stop the stopwatch, terminate the stopwatch, end the stopwatch, cosine

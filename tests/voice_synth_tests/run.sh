@@ -1,2 +1,2 @@
-cp /home/pi/Documents/DOORS/modules/voice_synth.py voice_synth.py
+cp /home/pi/Documents/DOORS/modules/* .
 python test.py
