@@ -1,2 +1,2 @@
-cp /home/pi/Documents/DOORS/modules/* .
+cp -r /home/pi/Documents/DOORS/modules/* .
 python test.py
