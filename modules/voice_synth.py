@@ -11,9 +11,12 @@ class VoiceSynth:
 
 	def speak(self, sentence):
 		if self.enabled:
-			sentence = sentence.replace(" ","_") #spaces must be replaced with _ for aplay to work		
-			sentence = sentence.replace("\n", "_")	
-			command = 'espeak {} --stdout |aplay 2>/dev/null'.format(sentence)
+			comb = ""
+			for i in sentence:
+				comb += i
+			comb = comb.replace(" ","_") #spaces must be replaced with _ for aplay to work		
+			comb = comb.replace("\n", "_")	
+			command = 'espeak {} --stdout |aplay 2>/dev/null'.format(comb)
 			print(command)
 #			call([command], shell=True)
 			system(command)

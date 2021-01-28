@@ -15,6 +15,7 @@ else
 fi
 pip3 install vosk
 pip3 install sklearn
+pip3 install scikit-learn
 pip3 install fuzzywuzzy
 pip3 install eyed3
 pip3 install word2number

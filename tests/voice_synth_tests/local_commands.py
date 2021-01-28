@@ -9,7 +9,6 @@ from word2number import w2n #for settting timer
 import signal #for setting a timer
 from pygame import mixer #for playing music
 from copy import deepcopy
-import modules.voice_synth as vs
 
 class Stopwatch:
     
