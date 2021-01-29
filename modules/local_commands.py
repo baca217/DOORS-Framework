@@ -44,42 +44,43 @@ def setTimer(timeStr): #only going to focus on time for now
 	num = 0
 	strNum = ""
 	msg = ""
-	timeFormat = arr[-1] #get time format
-	arr = arr[:-1] #remove time format
 	timeSwitch = { #dictionary for scaling the time
             "second": 1,
             "minute": 60,
             "hour": 3600,
             }
 
+	try:
+		timeFormat = arr[-1].strip() #get time format
+		arr = arr[:-1] #remove time format
+	except: #failed to pull timeformat from string
+		msg = "no time format was detected for setting a timer"
+		return msg, None
+
 	if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
 		timeFormat = timeFormat[:-1]
+
 	for f in range(len(arr),0,-1): #pulling time amount out of string
 		try:
-			strtemp = " ".join(arr[f-1:])
+			strtemp = " ".join(arr[f-1:]) #pull substring and see if it's a number
+			print("strtemp: "+strtemp)
 			numtemp = w2n.word_to_num(strtemp)
 			num = int(numtemp)
 		except valueerror:
 			break
 
-	if(timeFormat == ""): #error 1: no time format
-		msg = "no time format was detected for setting a timer"
-		print(msg)
+	if(timeFormat not in timeSwitch.keys()): #error 1: no time format
+		msg = timeFormat+" is not a valid time format"
 		return msg, None
 	elif(num == 0): #error 2: time requested is 0 for timer
-		msg = "can't set a timer for 0",timeFormat
-		print(msg)
+		msg = "can't set a timer for 0 "+timeFormat
 		return msg, None
-	if timeFormat in timeSwitch:
-		msg = "\nsetting timer for "+str(num)+" "+timeFormat
-		def setSignal():
-			signal.signal(signal.SIGALRM, handler)
-			signal.alarm(num * timeSwitch[timeFormat])
-		return msg, setSignal #needs to return function!!!
-	else:
-		msg = timeFormat,"is not a known time format"
-		return msg, None
-	return 0
+
+	msg = "\nsetting timer for "+str(num)+" "+timeFormat
+	def setSignal():
+		signal.signal(signal.SIGALRM, handler)
+		signal.alarm(num * timeSwitch[timeFormat])
+	return msg, setSignal
 
 def playsong(songname):
 	songname = songname.strip()

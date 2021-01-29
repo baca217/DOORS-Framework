@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
-import sklearn_sims as sklearn_sims
-import local_commands as lc
-import voice_synth as vs
+import modules.sklearn_sims as sklearn_sims
+import modules.local_commands as lc
+import modules.voice_synth as vs
 import os #for recording, temporary usage
 
 def main():
 	voice = vs.VoiceSynth()
 	stopwatch = lc.Stopwatch()
 
-	testSetTimer(voice)
-	#testPlaySong(voice)
+	#testSetTimer(voice)
+	testPlaySong(voice)
 	#testWeather(voice)
 	#testStartWatch(stopwatch, voice)
 	#testStopWatch(stopwatch, voice)
 	#testStopMusic(voice)
 		
 def testSetTimer(voice):
-	sent1 = "set a timer for 3 seconds"
-	sent2 = "set a timer for 0 seconds"
-	sent3 = "set a timer for seconds"
-	sent4 = "set a timer for 5"
-	sent5 = "set a timer for"
+	sent1 = "set a timer for 3 seconds" #works correctly
+	sent2 = "set a timer for 0 seconds" #works correctly
+	sent3 = "set a timer for seconds" #test defaults to 0 second error. Might change to no time detected error
+	sent4 = "set a timer for 5" #works correctly
+	sent5 = "set a timer for 33 seconds" #works correctly
+	sent6 = "set a timer for"
 	arr = [sent1, sent2, sent3, sent4, sent5]
 	match = "set a timer for"
 	title = "TESTING SET TIMER FUNCTIONALITY"
@@ -30,8 +31,8 @@ def testSetTimer(voice):
 	for i in range(0, len(arr)):
 		testInfo(arr[i], i)
 		lc.check_command(match, arr[i], None, voice)
-		input("press enter for the next test")
-	
+		input("press enter for the next test\n\n")
+	print("END*******************************************")	
 def testPlaySong(voice):
 	sent1 = "play the song country roads"
 	sent2 = "play the song"
