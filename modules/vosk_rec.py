@@ -33,12 +33,11 @@ class Decoder:
 				break
 			if self.rec.AcceptWaveform(data):
 				results += self.rec.Result()
-		print("RESULTS:",results,"\n")
 		try:		
 			temp = json.loads(results)
 		except:
+			print("NOTHING WAS READ!u")
 			return ""
-		print(temp["text"])
 		#---------------------------------------------------------------
 		#need to do some confidence checking here. 
 		#temp2 = json.loads(temp["result"])
@@ -63,16 +62,17 @@ class Decoder:
 				f = wave.open(fTot, 'wb')
 				f.setnchannels(1) #mono
 				f.setsampwidth(2)
-				f.setframerate(4000)
+				f.setframerate(8000)
 				f.close
 				holder = b"" #temporary holder for chunk of audio recognition
 				while True:
 					cur = 1
-					data = conn.recv(1024)
+					data = conn.recv(int(CHUNK/2))
 					if not data: #didn't receive any data
+						f.writeframesraw(holder)
 						f.close()
 						results = self.decode_file(fTot) #get results from file
-						print("results"+str(cur)+":"+results)
+						print("-----------------------------FINAL RESULT-----------------------------"+str(cur)+":"+results)
 						break
 					if data:
 						holder += data #aggregating total voice data
@@ -81,8 +81,9 @@ class Decoder:
 							temp = wave.open(fname, 'wb')
 							temp.setnchannels(1) #mono
 							temp.setsampwidth(2)
-							temp.setframerate(4000)
+							temp.setframerate(8000)
 							temp.writeframesraw(holder)
+							print("SIZE OF HOLDER AFTER WRITE"+str(len(holder)))
 							f.writeframesraw(holder)
 							temp.close
 							holder = b""
@@ -90,5 +91,6 @@ class Decoder:
 							results = self.decode_file(fname)
 							print("results "+str(cur)+":"+results)
 							temp.close()
+							cur += 1
 						else:
 							continue

@@ -4,4 +4,5 @@ import modules.vosk_rec as vr
 
 dec = vr.Decoder()
 
-dec.decode_file("tot.wav")
+print(dec.decode_file("tot.wav"))
+print(dec.decode_file("downSamp.wav"))
