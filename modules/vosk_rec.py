@@ -34,7 +34,10 @@ class Decoder:
 			if self.rec.AcceptWaveform(data):
 				results += self.rec.Result()
 		print("RESULTS:",results,"\n")
-		temp = json.loads(results)
+		try:		
+			temp = json.loads(results)
+		except:
+			return ""
 		print(temp["text"])
 		#---------------------------------------------------------------
 		#need to do some confidence checking here. 
@@ -60,48 +63,32 @@ class Decoder:
 				f = wave.open(fTot, 'wb')
 				f.setnchannels(1) #mono
 				f.setsampwidth(2)
-				f.setframerate(8000)
+				f.setframerate(4000)
 				f.close
 				holder = b"" #temporary holder for chunk of audio recognition
 				while True:
 					cur = 1
 					data = conn.recv(1024)
-					print("received "+str(len(data))+" bytes")
-					if not data:
+					if not data: #didn't receive any data
 						f.close()
-						results = self.decode_file(fTot)
-						print("results"+cur+":"+results)
+						results = self.decode_file(fTot) #get results from file
+						print("results"+str(cur)+":"+results)
 						break
 					if data:
-						holder += data
+						holder += data #aggregating total voice data
 						if len(holder) >= CHUNK:
 							fname = 'temp.wav'
 							temp = wave.open(fname, 'wb')
 							temp.setnchannels(1) #mono
 							temp.setsampwidth(2)
-							temp.setframerate(8000)
+							temp.setframerate(4000)
 							temp.writeframesraw(holder)
 							f.writeframesraw(holder)
 							temp.close
 							holder = b""
 
 							results = self.decode_file(fname)
-							print("results "+cur+":"+results)
+							print("results "+str(cur)+":"+results)
 							temp.close()
 						else:
 							continue
-
-
-		
-		"""
-		while true:
-		    obj = wave.open(fname, 'wb')
-		    obj.setchannels(1) #mono
-		    obj.setsampwidth(2)
-		    obj.setframerate(8000)
-		    obj.writeframesraw(socket.read(1024))
-		    obj.close
-		    results = self.decode_file(fname)
-		    print("results "+cur+":"+results)
-		    cur += 1
-		"""
