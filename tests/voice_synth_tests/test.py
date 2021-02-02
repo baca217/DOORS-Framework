@@ -32,7 +32,8 @@ def testSetTimer(voice):
 		testInfo(arr[i], i)
 		lc.check_command(match, arr[i], None, voice)
 		input("press enter for the next test\n\n")
-	print("END*******************************************")	
+	print("END*******************************************")
+	
 def testPlaySong(voice):
 	sent1 = "play the song country roads"
 	sent2 = "play the song"

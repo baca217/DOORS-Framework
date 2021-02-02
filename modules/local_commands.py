@@ -82,38 +82,45 @@ def setTimer(timeStr): #only going to focus on time for now
 		signal.alarm(num * timeSwitch[timeFormat])
 	return msg, setSignal
 
-def playsong(songname):
-	songname = songname.strip()
+def playSong(songName):
+	songName = songName.strip()
 	songs = []
-	highdis = 0
-	hightitle = ""
-	highpath = ""
-	path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/music/" #dir for music for current user
+	highDis = 0
+	highDitle = ""
+	highPath = ""
+	path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
 	onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3")] #only mp3 files pulled
+
+	if(len(songName) == 0):
+		msg = "No song name was given"
+		return msg, None
+
 	for i in onlyfiles:
-		audfile = eyed3.load(path+i)
-		#print("artist: ",audfile.tag.artist," album: ",audfile.tag.album," title: ",audfile.tag.title) #check metadata of mp3 file
-		dis = fuzz.ratio(songname.lower(), audfile.tag.title.lower())
+		fpath = path+i
+		try:
+			audFile = eyed3.load(fpath)
+		except:
+			print("files in Music directory must have no spaces in the file name")
+			continue
+		if audFile.tag.title is None:
+			print("file "+i+" doesn't have a song title in its metadata")
+			continue
+		dis = fuzz.ratio(songName.lower(), audFile.tag.title.lower())
 		if dis > 79: # 80% similarity or more is saved
-			songs.append([dis, audfile.tag.title])
+			songs.append([dis, audFile.tag.title])
 			if dis > highDis: #getting the most similar
 				highDis = dis
 				highTitle = audFile.tag.title
 				highPath = i
-		#print("ratio", dis)
-	#print("songs")
-	#for j in songs:
-	#print("comparison: ", j[0], " title:", j[1])
-	#print("highest", highDis)
 	if(highPath):
-		msg = "Song",highTitle,"will be played"
+		msg = "Song "+highTitle+" will be played"
 		def playSong():
 			mixer.init()
 			mixer.music.load(path+highPath)
 			mixer.music.play()
 		return msg, playSong
 	else:
-		msg = "No songs matched in the local library matched",songName
+		msg = "No songs in the local library matched "+songName
 		return msg, None
 	return 0
 
@@ -187,22 +194,22 @@ def check_command(match, original, stopwatch, voice):
 		sentence, command = setTimer(data)
 	elif(match == "play the song"):
 		data = original.replace(match, "")
-		sentence, command = playSong(data, voice)
+		sentence, command = playSong(data)
 	elif(match == "what's the weather"):
 		if "what's the weather in" in original:
 			city = original.replace(match+" in", "")
-			sentence, command = getWeather(city, voice)
+			sentence, command = getWeather(city)
 		else:
-			sentence, command = getWeather("Denver", voice)
+			sentence, command = getWeather("Denver")
 	elif(match == "start a stopwatch"):
-		sentence, command = stopwatch.handler("start", voice)
+		sentence, command = stopwatch.handler("start")
 	elif(match == "stop the stopwatch"):
-		sentence, command = stopwatch.handler("stop", voice)
+		sentence, command = stopwatch.handler("stop")
 	elif(match == "stop playing music"):
-		sentence, command = stopSong(voice)
+		sentence, command = stopSong()
 	else:
 		sentence = match, "is not a known command"
 	print(sentence)
-	voice.speak(sentence)
+	voice.speak(sentence)	
 	if command != None:
 		command()
