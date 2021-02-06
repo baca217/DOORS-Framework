@@ -26,7 +26,7 @@ class Stopwatch:
 			if(self.start != 0):
 				stop = "{0:.2f}".format(time.time() - self.start)
 				self.start = 0
-				msg = "\nstopwatch ran for",stop,"seconds"
+				msg = "\nstopwatch ran for "+stop+" seconds"
 				return msg, None
 			else:
 				msg = "\nstopwatch was never started"
@@ -62,8 +62,7 @@ def setTimer(timeStr): #only going to focus on time for now
 
 	for f in range(len(arr),0,-1): #pulling time amount out of string
 		try:
-			strtemp = " ".join(arr[f-1:]) #pull substring and see if it's a number
-			print("strtemp: "+strtemp)
+			strtemp = " ".join(arr[f-1:]) #pull substring and see if it's a number		
 			numtemp = w2n.word_to_num(strtemp)
 			num = int(numtemp)
 		except valueerror:
@@ -77,6 +76,8 @@ def setTimer(timeStr): #only going to focus on time for now
 		return msg, None
 
 	msg = "\nsetting timer for "+str(num)+" "+timeFormat
+	if num > 1:
+		msg += "s"
 	def setSignal():
 		signal.signal(signal.SIGALRM, handler)
 		signal.alarm(num * timeSwitch[timeFormat])
@@ -135,13 +136,13 @@ def getWeather(city_name):
 	#reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
 	api_key = "5985bc671ecc377555ecb761fbc53914"
 	base_url = "http://api.openweathermap.org/data/2.5/weather?q="
-	msg = "\nusing city:",city_name
+	msg = "\nusing city: "+city_name
 
 	complete_url = base_url + city_name + "&appid=" + api_key 
 	response = requests.get(complete_url)
 	x = response.json()
 
-	if x["cod"] != "404": #404 = city not found
+	if x["cod"] != "404" and city_name.strip() != "": #404 = city not found
 		# store the value of "main" 
 		# key in variable y 
 		y = x["main"] 
@@ -165,7 +166,8 @@ def getWeather(city_name):
 		# store the value corresponding  
 		# to the "description" key at  
 		# the 0th index of z 
-		weather_description = z[0]["description"] 
+		weather_description = z[0]["description"]
+		print(weather_description) 
 
 		temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65)
 		# print following values 
@@ -176,11 +178,9 @@ def getWeather(city_name):
 			"\n humidity in percentage = " +
 				str(current_humidiy) +
 			"\n description = " +
-				str(weather_description) +
+				weather_description +
 				"\n") 
-		def doNothing():
-			return 0
-		return msg, doNothing()
+		return msg, None
 	else:
 		msg += " City Not Found \n"
 		return msg, None

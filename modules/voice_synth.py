@@ -16,8 +16,6 @@ class VoiceSynth:
 				comb += i
 			comb = comb.replace("\n", " ")	
 			command = 'espeak \"{}\" --stdout |aplay 2>/dev/null'.format(comb)
-			print(command)
-#			call([command], shell=True)
 			system(command)
 
 	def enable(self):
