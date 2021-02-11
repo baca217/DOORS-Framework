@@ -2,3 +2,4 @@
 *.sw*
 /__pycache__/*
 modules/model/*
+tests/voice_synth_tests/model

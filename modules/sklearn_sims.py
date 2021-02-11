@@ -1,16 +1,16 @@
 import string
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-from nltk.corpus import stopwords
-import Levenshtein #testing
+#from nltk.corpus import stopwords
+#import Levenshtein #testing
 
 
-def clean_string(text): #removes words that might be uncessary for overall structure of the sentence
+#def clean_string(text): #removes words that might be uncessary for overall structure of the sentence
     #still needs some adjusment
-    text = ''.join([word for word in text if word not in string.punctuation])
-    text = text.lower()
-    text = ' '.join([word for word in text.split() if word not in stopwords.words('english')])
-    return text
+#    text = ''.join([word for word in text if word not in string.punctuation])
+#    text = text.lower()
+#    text = ' '.join([word for word in text.split() if word not in stopwords.words('english')])
+#    return text
 
 def cosine_sim_vectors(vec1, vec2): #comparison of two sentences
     vec1 = vec1.reshape(1, -1)
