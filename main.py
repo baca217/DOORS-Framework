@@ -61,15 +61,37 @@ def main():
         print()
 
 def run_tests():
-        t_range = [0, 1, 2, 3, 4, 5, 6]
-        t_menu = ("TEST 1: \"set a timer for 3 second\""
-                "TEST 2: \"play the song country roads\""
-                "TEST 6: \"stop playing music\""
-                "TEST 3: \"what's the weather in denver\""
-                "TEST 4: \"start a stopwatch\""
-                "TEST 5: \"stop the stopwatch\""
+        t_range = ["1", "2", "3", "4", "5", "6"]
+        t_menu = (            
+                "TEST 1: \"set a timer for 3 second\"\n"
+                "TEST 2: \"play the song country roads\"\n"
+                "TEST 3: \"stop playing music\"\n"
+                "TEST 4: \"what's the weather in denver\"\n"
+                "TEST 5: \"start a stopwatch\"\n"
+                "TEST 6: \"stop the stopwatch\"\n"
+                "Enter a number the test you would like to run"
+                "or enter \"7\" to exit this menu: "
                 )
-        print(t_menu)
+        num = None
+        while True:
+            num = input(t_menu).strip()
+            if num in t_range:
+                    f_name = "./test/file_"+num
+                    sentence = decoder.decode_file(f_name)
+                    print("vosk sentence: "+sentence)
+                    sentence, result = sklearn_sims.compare_command(sentence)
+                    if(sentence == -1):
+                        continue
+                    elif(result == ""):
+                        print("\nNo command match was found\n")
+                        continue
+                    local_commands.check_command(result, sentence, stopwatch, voice)
+            elif num != "7":
+                print(str(num)+" isn't a valid option!")
+            else:
+                break
+
+
                 
 if __name__ == "__main__":
         main()
