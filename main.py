@@ -9,6 +9,7 @@ import os #for recording, temporary usage
 def main():
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
+    voice.disable()
     filename = "downSamp.wav"
     stopwatch = local_commands.Stopwatch()
     #ignoring for now, just gets in the way
