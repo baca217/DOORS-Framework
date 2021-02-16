@@ -93,6 +93,10 @@ def compare_command(spoken):
         commands[x] = commands[x].replace(temp, "").strip() #remove classification type
         classify.append(temp)
     arrCommands = []
+    '''
+    The code below is for checking if some variation of "hey homie" occurred within the recording
+    This should be taken care of by the front end but I wil leave it here just in case
+
     for i in commands:
         arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
     if "hey homie" in spoken:
@@ -107,7 +111,7 @@ def compare_command(spoken):
     else:
         print("homie was not detected!")
         return -1, -1
-
+    '''
     result = comp_work(spoken, arrCommands, classify)
     #clean_comp_work(spoken, arrCommands, classify)
     #print("result:",result)
