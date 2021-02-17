@@ -19,39 +19,32 @@ class Decoder:
         def decode_file(self, aud_file):
                 SetLogLevel(0)
                 sentence = ""
-
-                wf = wave.open(aud_file, "rb")
-                if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
-                        print ("Audio aud_file must be WAV format mono PCM.")
-                        exit (1)
-
                 results = ""
                 confidence = 0
                 tot = 0
 
-                while True:
+                wf = wave.open(aud_file, "rb")
+                if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE": #checking certain file characteristics
+                        print ("Audio aud_file must be WAV format mono PCM.")
+                        exit (1)
+
+                
+                while True: #loop for doing voice recognition
                         data = wf.readframes(4000)
-                        if len(data) == 0:
+                        if len(data) == 0: #done reading audio file
                                 break
-                        if self.rec.AcceptWaveform(data):
-                                print(self.rec.Result())
-                                results = json.loads(self.rec.Result())
-                                print(results.items())
-                                for i in results["result"]: #for some reason results sometimes isn't added to the dictionary. Need to figure out a work around
-                                    confidence += i["conf"]
-                                    tot += 1
-                                sentence = sentence + results["text"]
-                wf.close()        
-                print("SENTENCE: "+sentence)
-                print("conf: "+str(confidence))
-                print("tot: "+str(tot))
-                print("conf/tot: "+str(confidence/tot))
-                #---------------------------------------------------------------
-                #need to do some confidence checking here. 
-                #temp2 = json.loads(temp["result"])
-                #for i in temp["result"]:
-                #       print(i["conf"])
-                return sentence
+                        if self.rec.AcceptWaveform(data): #finished recognition on segment of audio file
+                                items = self.rec.Result()
+                                results = json.loads(items)
+                                if len(results.items()) > 1: #false recognition, sometimes nothing is detected
+                                        for i in results["result"]: 
+                                            confidence += i["conf"]
+                                            tot += 1
+                                        sentence = sentence + " " + results["text"]
+                wf.close()                        
+                if tot > 0 and confidence/tot > .8: #checking confidence of recognition
+                        return sentence
+                return ""
 
         def listen_stream(self):
                 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)

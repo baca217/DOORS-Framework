@@ -72,6 +72,9 @@ def run_tests(decoder, voice, stopwatch):
                 "Enter a test number for the test you would like to run: "
                 )
         num = None
+
+        os.system("clear")
+
         while True:
             num = input(t_menu).strip()
             if num in t_range:
