@@ -127,7 +127,7 @@ def playSong(songName):
 
 def stopSong():
 	def stopMusicFunc():
-		mixer.init()
+#		mixer.init()
 		mixer.music.pause()
 	msg = "music is stopped"
 	return msg, stopMusicFunc()
@@ -167,7 +167,6 @@ def getWeather(city_name):
 		# to the "description" key at  
 		# the 0th index of z 
 		weather_description = z[0]["description"]
-		print(weather_description) 
 
 		temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65)
 		# print following values 

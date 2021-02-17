@@ -41,9 +41,16 @@ class Decoder:
                                             confidence += i["conf"]
                                             tot += 1
                                         sentence = sentence + " " + results["text"]
+                                else:
+                                        print(self.rec.PartialResult())
+                f_res = json.loads(self.rec.FinalResult())
+                if len(f_res.items()) > 1:
+                    return f_res["text"]
                 wf.close()                        
                 if tot > 0 and confidence/tot > .8: #checking confidence of recognition
                         return sentence
+                elif tot > 0:
+                        print("confidence too low: "+str(confidence/tot))
                 return ""
 
         def listen_stream(self):

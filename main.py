@@ -6,6 +6,7 @@ import modules.serial_comm as serial_comm
 import modules.voice_synth as vs
 import os #for recording, temporary usage
 import time #for testing
+from pygame import mixer
 
 def main():
     decoder = vosk_rec.Decoder()
@@ -39,8 +40,9 @@ def main():
                 continue
             local_commands.check_command(result, sentence, stopwatch, voice)
 
-        elif(record == "serial"):
-            serial_comm.rec_data()
+#        elif(record == "serial"):
+#            serial_comm.rec_data()
+
         elif(record == "reuse"):
             sentence = decoder.decode_file(filename)
             print("vosk sentence: "+sentence)
@@ -79,10 +81,14 @@ def run_tests(decoder, voice, stopwatch):
             num = input(t_menu).strip()
             if num in t_range:
                     f_name = os.getcwd()+"/tests/voice_files/file_"+num+".wav"
-                    print(f_name)
+                    if num == "3":
+                        mixer.init()
+                        mixer.music.pause()
                     os.system("aplay "+f_name)
+                    if num == "3":
+                        mixer.music.unpause()
+                    os.system("clear")
                     sentence = decoder.decode_file(f_name)
-                    print("vosk sentence: "+sentence)
                     if sentence == "":
                         print("nothing detected within vosk")
                         continue
