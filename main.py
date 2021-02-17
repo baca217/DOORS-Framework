@@ -5,6 +5,7 @@ import modules.local_commands as local_commands
 import modules.serial_comm as serial_comm
 import modules.voice_synth as vs
 import os #for recording, temporary usage
+import time #for testing
 
 def main():
     decoder = vosk_rec.Decoder()
@@ -12,9 +13,6 @@ def main():
     voice.disable()
     filename = "downSamp.wav"
     stopwatch = local_commands.Stopwatch()
-    #ignoring for now, just gets in the way
-    #just the wifi socket communication we'll do later
-    #server.listen_to_homie)
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n:"
@@ -55,13 +53,13 @@ def main():
             local_commands.check_command(result, sentence, stopwatch, voice)
         
         elif(record == "test"):
-            run_tests(decoder, voice)
+            run_tests(decoder, voice, stopwatch)
 
         else:
             print(record,"is not an option \n")
         print()
 
-def run_tests(decoder, voice):
+def run_tests(decoder, voice, stopwatch):
         t_range = ["1", "2", "3", "4", "5", "6"]
         t_menu = (            
                 "TEST 1: \"set a timer for 3 seconds\"\n"
@@ -71,16 +69,20 @@ def run_tests(decoder, voice):
                 "TEST 5: \"start a stopwatch\"\n"
                 "TEST 6: \"stop the stopwatch\"\n"
                 "enter \"7\" to exit this menu\n"
-                "Enter a test number for the test you would like to run:"
+                "Enter a test number for the test you would like to run: "
                 )
         num = None
         while True:
-            os.system("clear")
             num = input(t_menu).strip()
             if num in t_range:
-                    f_name = "./tests/voice_files/file_"+num+".wav"
+                    f_name = os.getcwd()+"/tests/voice_files/file_"+num+".wav"
+                    print(f_name)
+                    os.system("aplay "+f_name)
                     sentence = decoder.decode_file(f_name)
                     print("vosk sentence: "+sentence)
+                    if sentence == "":
+                        print("nothing detected within vosk")
+                        continue
                     sentence, result = sklearn_sims.compare_command(sentence)
                     if(sentence == -1):
                         continue

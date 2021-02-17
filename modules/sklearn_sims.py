@@ -58,9 +58,6 @@ def comp_work(spoken, commands, comTypes):
 
     for i in range(len(comTypes)):
         if comTypes[i].strip() == "exact":
-            #print("exact matching")
-            #print("sentence 1: ", commands[i][0])
-            #print("sentence 2: ", spoken)
             if commands[i][0] in spoken: #exact matches will return immediately
                     return commands[i][0]
         if comTypes[i].strip() == "cosine":
@@ -70,15 +67,10 @@ def comp_work(spoken, commands, comTypes):
             vectors = vectorizer.toarray() #turn to array
             for j in range(len(tempArr)-1):
                 ret = cosine_sim_vectors(vectors[-1], vectors[j]) #compare spoken vector to command vector
-                #print("sentence 1: ", tempArr[-1])
-                #print("sentence 2: ", tempArr[j])
-                #print("similarity: ", ret)
-                #print("distance:",Levenshtein.distance(spoken, tempArr[j]),"\n")
                 if ret > .8 and ret > bScore:
                     bScore = ret
                     bComm = tempArr[j]
                     bOrig = tempArr[0]
-    #print("Best score:",bScore,"\nBest match:",bComm)
     return bOrig
 
 
@@ -93,12 +85,12 @@ def compare_command(spoken):
         commands[x] = commands[x].replace(temp, "").strip() #remove classification type
         classify.append(temp)
     arrCommands = []
+    for i in commands:
+        arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
     '''
     The code below is for checking if some variation of "hey homie" occurred within the recording
     This should be taken care of by the front end but I wil leave it here just in case
 
-    for i in commands:
-        arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
     if "hey homie" in spoken:
         spoken = spoken.replace("hey homie ", "").strip()
     elif "homie" in spoken:
