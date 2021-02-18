@@ -7,6 +7,7 @@ import modules.voice_synth as vs
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
+from parse import *
 
 def main():
     decoder = vosk_rec.Decoder()
@@ -98,13 +99,57 @@ def run_tests(decoder, voice, stopwatch):
                     elif(result == ""):
                         print("\nNo command match was found\n")
                         continue
-                    local_commands.check_command(result, sentence, stopwatch, voice)
+                    ret = local_commands.check_command(result, sentence, stopwatch, voice)
+                    check_test(num, ret)
             elif num != "7":
                 print(str(num)+" isn't a valid option!")
             else:
                 break
             print()
+            
+def check_test(num, sentence):
+        sentence = sentence.strip()
 
+        if num == "1":
+            print("EXPECTED: setting timer for 3 seconds")
+            print("RETURNED: "+sentence)
+            temp = "setting timer for 3 seconds" == sentence
+            print("EQUAL: "+str(temp))
+        if num == "2":
+            print("EXPECTED: Song Country Roads will be played")
+            print("RETURNED: "+sentence)
+            temp = "Song Country Roads will be played" == sentence
+            print("EQUAL: "+str(temp))
+        if num == "3":
+            print("EXPECTED: music is stopped")
+            print("RETURNED: "+sentence)
+            temp = "music is stopped" == sentence
+            print("EQUAL: "+str(temp))
+        if num == "4":
+            print("EXPECTED: using city:   denver Temperature in degrees Fahrenheit = x\n"
+                        " atmospheric pressure in hPa unit = y\n"
+                        " humidity in percentage = z\n"
+                        " description = a")
+            print("RETURNED: "+sentence)
+            check = ("using city:   denver Temperature in degrees Fahrenheit = {}"
+                        " atmospheric pressure in hPa unit = {}"
+                        " humidity in percentage = {}"
+                        " description = {}")
+            ret = parse(check, sentence)
+            temp = ret is not None
+            print("EQUAL: "+str(temp))
+        if num == "5":
+            print("EXPECTED: Started a stopwatch")
+            print("RETURNED: "+sentence)
+            temp = "Started a stopwatch" == sentence
+            print("EQUAL: "+str(temp))
+        if num == "6":
+            print("EXPECTED: stopwatch ran for x seconds")
+            print("RETURNED: "+sentence)
+            ret = parse("stopwatch ran for {} seconds", sentence)
+            temp = ret is not None
+            print("EQUAL: "+str(temp))
+        print()
 
                 
 if __name__ == "__main__":
