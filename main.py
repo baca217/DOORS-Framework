@@ -109,36 +109,45 @@ def run_tests(decoder, voice, stopwatch):
 def check_test(num, sentence):
         sentence = sentence.strip()
 
-        print("\nExpected == Returned")
         if num == "1":
-            print("\"setting timer for 3 seconds\" == "+sentence+": ", end='')
-            print("setting timer for 3 seconds" == sentence)
+            print("EXPECTED: setting timer for 3 seconds")
+            print("RETURNED: "+sentence)
+            temp = "setting timer for 3 seconds" == sentence
+            print("EQUAL: "+str(temp))
         if num == "2":
-            print("\"Song Country Roads will be played\" == "+sentence+": ", end='')
-            print("Song Country Roads will be played" == sentence)
+            print("EXPECTED: Song Country Roads will be played")
+            print("RETURNED: "+sentence)
+            temp = "Song Country Roads will be played" == sentence
+            print("EQUAL: "+str(temp))
         if num == "3":
-            print("\"music is stopped\" == "+sentence+": ", end ='')
-            print("music is stopped" == sentence)
+            print("EXPECTED: music is stopped")
+            print("RETURNED: "+sentence)
+            temp = "music is stopped" == sentence
+            print("EQUAL: "+str(temp))
         if num == "4":
-            msg = ("\"using city:   denver Temperature in degrees Fahrenheit = x\n"
+            print("EXPECTED: using city:   denver Temperature in degrees Fahrenheit = x\n"
                         " atmospheric pressure in hPa unit = y\n"
                         " humidity in percentage = z\n"
-                        " description = a\"\n == \n"+sentence+": ")
-            print(msg, end='')
+                        " description = a")
+            print("RETURNED: "+sentence)
             check = ("using city:   denver Temperature in degrees Fahrenheit = {}"
                         " atmospheric pressure in hPa unit = {}"
                         " humidity in percentage = {}"
                         " description = {}")
             ret = parse(check, sentence)
-            print(ret is not None)
-
+            temp = ret is not None
+            print("EQUAL: "+str(temp))
         if num == "5":
-            print("\"Started a stopwatch\" == "+sentence+": ", end='')
-            print("Started a stopwatch" == sentence)
+            print("EXPECTED: Started a stopwatch")
+            print("RETURNED: "+sentence)
+            temp = "Started a stopwatch" == sentence
+            print("EQUAL: "+str(temp))
         if num == "6":
-            print("\"stopwatch ran for x seconds\" == "+sentence+": ", end='')
+            print("EXPECTED: stopwatch ran for x seconds")
+            print("RETURNED: "+sentence)
             ret = parse("stopwatch ran for {} seconds", sentence)
-            print(ret is not None)
+            temp = ret is not None
+            print("EQUAL: "+str(temp))
         print()
 
 
