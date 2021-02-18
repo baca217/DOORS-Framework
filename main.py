@@ -7,6 +7,7 @@ import modules.voice_synth as vs
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
+from parse import *
 
 def main():
     decoder = vosk_rec.Decoder()
@@ -98,11 +99,47 @@ def run_tests(decoder, voice, stopwatch):
                     elif(result == ""):
                         print("\nNo command match was found\n")
                         continue
-                    local_commands.check_command(result, sentence, stopwatch, voice)
+                    ret = local_commands.check_command(result, sentence, stopwatch, voice)
+                    check_test(num, ret)
             elif num != "7":
                 print(str(num)+" isn't a valid option!")
             else:
                 break
+            
+def check_test(num, sentence):
+        sentence = sentence.strip()
+
+        print("\nExpected == Returned")
+        if num == "1":
+            print("\"setting timer for 3 seconds\" == "+sentence+": ", end='')
+            print("setting timer for 3 seconds" == sentence)
+        if num == "2":
+            print("\"Song Country Roads will be played\" == "+sentence+": ", end='')
+            print("Song Country Roads will be played" == sentence)
+        if num == "3":
+            print("\"music is stopped\" == "+sentence+": ", end ='')
+            print("music is stopped" == sentence)
+        if num == "4":
+            msg = ("\"using city:   denver Temperature in degrees Fahrenheit = x\n"
+                        " atmospheric pressure in hPa unit = y\n"
+                        " humidity in percentage = z\n"
+                        " description = a\"\n == \n"+sentence+": ")
+            print(msg, end='')
+            check = ("using city:   denver Temperature in degrees Fahrenheit = {}"
+                        " atmospheric pressure in hPa unit = {}"
+                        " humidity in percentage = {}"
+                        " description = {}")
+            ret = parse(check, sentence)
+            print(ret is not None)
+
+        if num == "5":
+            print("\"Started a stopwatch\" == "+sentence+": ", end='')
+            print("Started a stopwatch" == sentence)
+        if num == "6":
+            print("\"stopwatch ran for x seconds\" == "+sentence+": ", end='')
+            ret = parse("stopwatch ran for {} seconds", sentence)
+            print(ret is not None)
+        print()
 
 
                 
