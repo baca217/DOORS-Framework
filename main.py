@@ -103,6 +103,7 @@ def run_tests(decoder, voice, stopwatch):
                 print(str(num)+" isn't a valid option!")
             else:
                 break
+            print()
 
 
                 
