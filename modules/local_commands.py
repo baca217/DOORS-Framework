@@ -126,11 +126,25 @@ def playSong(songName):
         return 0
 
 def stopSong():
-        def stopMusicFunc():
-#               mixer.init()
-                mixer.music.pause()
-        msg = "music is stopped"
-        return msg, stopMusicFunc()
+        if mixer.get_init():
+            if mixer.get_busy():
+                def stopMusicFunc():
+                        mixer.music.pause()
+                msg = "music is stopped"
+                return msg, stopMusicFunc()
+        msg = "no music is being played"
+        return msg, None
+
+
+def continueSong():
+        if mixer.get_init():
+            if mixer.get_busy():
+                def contMusicFunc():
+                        mixer.music.unpause()
+                msg = "music will be unpaused"
+                return msg, contMusicFunc()
+        msg = "no music is being played. Can't be unpaused"
+        return msg, None
 
 def getWeather(city_name):
         #reference https://www.geeksforgeeks.org/python-find-current-weather-of-any-city-using-openweathermap-api/
@@ -142,34 +156,15 @@ def getWeather(city_name):
         response = requests.get(complete_url)
         x = response.json()
 
-        if x["cod"] != "404" and city_name.strip() != "": #404 = city not found
-                # store the value of "main" 
-                # key in variable y 
-                y = x["main"] 
-
-                # store the value corresponding 
-                # to the "temp" key of y 
-                current_temperature = y["temp"] 
-
-                # store the value corresponding 
-                # to the "pressure" key of y 
+        if x["cod"] != "404" and city_name.strip() != "": #404 = city not found                
+                y = x["main"]
+                current_temperature = y["temp"]
                 current_pressure = y["pressure"] 
-
-                # store the value corresponding 
-                # to the "humidity" key of y 
                 current_humidiy = y["humidity"] 
-
-                # store the value of "weather" 
-                # key in variable z 
                 z = x["weather"] 
-
-                # store the value corresponding  
-                # to the "description" key at  
-                # the 0th index of z 
                 weather_description = z[0]["description"]
-
-                temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65)
-                # print following values 
+                temperature = "{0:.2f}".format(current_temperature * 9 / 5 - 459.65) #temperature in celcius converted to fahrenheit
+                #message for printing all values
                 msg = (msg + " Temperature in degrees Fahrenheit = " +
                                 temperature + 
                         "\n atmospheric pressure in hPa unit = " +
