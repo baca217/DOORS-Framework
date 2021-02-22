@@ -4,12 +4,14 @@ import modules.sklearn_sims as sklearn_sims
 import modules.local_commands as local_commands
 import modules.serial_comm as serial_comm
 import modules.voice_synth as vs
+import modules.module_loader as ml
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
 from parse import *
 
 def main():
+    test()
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
     voice.disable()
@@ -61,6 +63,10 @@ def main():
         else:
             print(record,"is not an option \n")
         print()
+
+def test():
+    ml.run()
+    exit()
 
 def run_tests(decoder, voice, stopwatch):
         t_range = ["1", "2", "3", "4", "5", "6"]

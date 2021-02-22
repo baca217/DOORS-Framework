@@ -203,8 +203,8 @@ def check_command(match, original, stopwatch, voice):
                 sentence, command = stopSong()
         else:
                 sentence = match, "is not a known command"
-        #print(sentence) out for testing
-        #voice.speak(sentence)   
+        print(sentence)
+        voice.speak(sentence)   
         if command != None:
                 command()
         return sentence #just for assertion testing
