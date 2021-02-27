@@ -48,7 +48,7 @@ class Decoder:
                     return f_res["text"]
                 wf.close()                        
                 if tot > 0 and confidence/tot > .8: #checking confidence of recognition
-                        return sentence
+                        return sentence.strip()
                 elif tot > 0:
                         print("confidence too low: "+str(confidence/tot))
                 return ""

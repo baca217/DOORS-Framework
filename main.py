@@ -4,12 +4,21 @@ import modules.sklearn_sims as sklearn_sims
 import modules.local_commands as local_commands
 import modules.serial_comm as serial_comm
 import modules.voice_synth as vs
+import modules.youtube_music as yt
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
 from parse import *
 
 def main():
+    rec_com = [
+        "echo \"recording for 10 seconds\"",
+        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 test.wav",
+        "ffmpeg -i test.wav -isr 48000 -ar 16000 downSamp.wav",
+        "echo \"done recording\""
+        ]
+
+
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
     voice.disable()
@@ -19,6 +28,7 @@ def main():
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n:"
             "enter \"test\" to enter the testing menu\n"
+            "enter \"yt\" to test the youtube music search feature\n"
             "enter \"exit\" to exit the program: ")
     while True:
         record = input(menu)
@@ -27,7 +37,7 @@ def main():
             exit()
         elif(record == "r"):
             os.system("rm downSamp.wav")
-            os.system("./modules/rec_resamp.sh")
+            os.system(rec_com)
             os.system("clear")
 
             sentence = decoder.decode_file(filename)
@@ -57,7 +67,8 @@ def main():
         
         elif(record == "test"):
             run_tests(decoder, voice, stopwatch)
-
+        elif(record == "yt"):
+            yt.test(decoder, rec_com)
         else:
             print(record,"is not an option \n")
         print()
