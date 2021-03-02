@@ -13,8 +13,9 @@ from parse import *
 def main():
     rec_com = [
         "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 test.wav",
-        "ffmpeg -i test.wav -isr 48000 -ar 16000 downSamp.wav",
+        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 temp.wav",
+        "ffmpeg -i temp.wav -isr 48000 -ar 16000 downSamp.wav",
+        "rm temp.wav",
         "echo \"done recording\""
         ]
 

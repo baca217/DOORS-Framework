@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-#pip3 install youtube-search-python
-#pip3 install pafy
-#pip3 install python-vlc
-
-#need to worry about converting the quality down to 8000 sample rate and then playing it
-#the way we're downloading it now is slowing the audio down a little :(
-
 from __future__ import unicode_literals
 from youtubesearchpython import VideosSearch
 from pygame import mixer
@@ -16,11 +9,13 @@ import json
 import pafy
 import glob
 import os
+import socket
+import sys
+import time
 
 def download_song(songName):
     videosSearch = VideosSearch(songName, limit = 2) #searching information about song
     result = (videosSearch.result())
-    print(result)
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
     audiostreams = video.audiostreams
@@ -58,25 +53,6 @@ def download_song(songName):
     os.remove(latest)
     mixer.music.stop()
 
-    ''' information in the result class
-    for i in result["result"]:
-        print(i["title"])
-        print(i["link"])
-        type
-        id
-        title
-        publishedTime
-        duration
-        viewCount
-        thumbnails
-        descriptionSnippet
-        channel
-        accessibility
-        link
-        shelfTitle
-        print()
-    '''
-
 def command_format():
     formats = [
             "play the song {} by {}",
@@ -111,10 +87,31 @@ def test(decoder, rec_com):
         print(vals[0])
         download_song(vals[0])
 
-def main():
-    input("please press enter when you're ready to record for 10 seconds")
+def sendToFront():
+    SIZE = int(65536/2)
+    #open file for sending
+    f = open("Song.wav", "rb")
+    binaryHeader = f.read(44)
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    # Connect the socket to the port where the server is listening
+    server_address = ('127.0.0.1', 10000)
+    print (sys.stderr, 'connecting to %s port %s' % server_address)
+    sock.connect(server_address)
+    sock.send(b"APCKT\n")
+    size = 1
+    while size > 0:
+            read = f.read(SIZE)
+            size = len(read)
+            print(size)
+            sock.send(read)
+    sock.close()
+
+
+def main(): 
     download_song("dance in the darkness joji")
+    #sendToFront()
 
 if __name__ == "__main__":
     main()
