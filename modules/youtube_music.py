@@ -24,6 +24,7 @@ def download_song(songName):
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
     audiostreams = video.audiostreams
+    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 8000 -ac 1 Song.wav"
 
     for i in audiostreams:
         print(i.bitrate, i.extension, i.get_filesize()) #showing quality and version of song we can download
@@ -51,6 +52,9 @@ def download_song(songName):
     mixer.music.load(latest)
     mixer.music.play()
     input("press enter to continue")
+    print(convert.format(latest))
+    input("is this okay?")
+    os.system(convert.format(latest))
     os.remove(latest)
     mixer.music.stop()
 

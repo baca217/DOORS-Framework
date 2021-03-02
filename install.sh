@@ -21,6 +21,11 @@ pip3 install eyed3
 pip3 install word2number
 pip3 install python-Levenshtein
 pip3 install spotipy
+pip3 install youtube-search-python
+pip3 install pygame
+pip3 install parse
+pip3 install youtube_dl
+pip3 install pafy
 sudo apt-get update
 sudo apt-get install libgfortran5
 sudo apt-get install libgfortran3
