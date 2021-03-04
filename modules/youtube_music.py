@@ -13,17 +13,26 @@ import socket
 import sys
 import time
 
+'''
+FUNCTION: download_song
+INPUTS: songName (string)
+FUNCTIONALITY: essentially takes in a song name or really string and plugs it into the youtube
+search algorithm. There are 2 search results that are returned. For now we just take the first
+one and pull the audio from that video using youtube-dl and ffmpeg. The audio is downloaded 
+any format usually .webm or .mp4 but it's converted to a .wav file. That file is then downsampled
+to 8000 samples, converted to mono if necessary and saved to "Song.wav". The old .wav file is removed
+and the new sampled file is what's left.
+'''
 def download_song(songName):
     videosSearch = VideosSearch(songName, limit = 2) #searching information about song
     result = (videosSearch.result())
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
-    audiostreams = video.audiostreams
-    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 8000 -ac 1 Song.wav"
+    audiostreams = video.audiostreams #pulling audio from video
+    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 8000 -ac 1 Song.wav" #downsampling command
 
     for i in audiostreams:
-        print(i.bitrate, i.extension, i.get_filesize()) #showing quality and version of song we can download
-    #audiostreams[0].download() #old way of downloading one of the above formats
+        print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
 
 
     ydl_opts = { #downloads options for youtube dl
@@ -53,19 +62,26 @@ def download_song(songName):
     os.remove(latest)
     mixer.music.stop()
 
+'''
+FUNCTION: command_format
+ARGUMENTS: NONE
+FUNCTIONALITY: returns formats of strings that will be used for parsing the derived text from an
+audio text
+'''
 def command_format():
     formats = [
-            "play the song {} by {}",
+#            "play the song {} by {}",
             "play the song {}",
-            "look for the song {} by {}",
+#            "look for the song {} by {}",
             "look for the song {}",
-            "play {} by {}",
+#            "play {} by {}",
             "play {}"
             ]
     return formats
 
 def test(decoder, rec_com):
     f_name = "downSamp.wav"
+    vals = None
     try:
         os.system("rm downSamp.wav")
     except:
@@ -74,24 +90,32 @@ def test(decoder, rec_com):
         os.system(i)
 #    os.system("clear")
 
+    #pulling sentence from audio file
     sentence = decoder.decode_file(f_name)
     print(sentence)
-    vals = None
-    for i in command_format():
+
+    for i in command_format(): #trying to pull arguments from string passed in
         ret = parse(i, sentence)
-        print(ret)
-        if ret is not None:            
+        if ret is not None:
             vals = ret
             break
     if vals is not None:
         print(vals[0])
         download_song(vals[0])
 
+'''
+FUNCTION:sendToFront
+ARGUMENTS: NONE
+FUNCTIONALITY: takes the downsampled audio file for music named "Song.wav" and sends it to some
+ip address on port 10000 in chunks of 32768 bytes. The message is preappended with "APCKT\n"
+for formatting which is how the front-end team wants it. After the whole file is sent the socket is
+closed.
+'''
 def sendToFront():
     SIZE = int(65536/2)
     #open file for sending
     f = open("Song.wav", "rb")
-    binaryHeader = f.read(44)
+    binaryHeader = f.read(44) #remove .wav header info for raw format
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
