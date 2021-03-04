@@ -11,7 +11,7 @@ def run():
 #            print(i)
         if "local_music_player" in i:
             print(i)
-            module = __import__("modules/local_music_player")
-
+            module = __import__("modules.local_music_player")
+            print(module)
             my_class = getattr(module, "module")
             print(my_class.strFunctions())

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3 
-import modules.vosk_rec as vosk_rec
-import modules.sklearn_sims as sklearn_sims
+import tools.vosk_rec as vosk_rec
+import tools.sklearn_sims as sklearn_sims
 import modules.local_commands as local_commands
-import modules.serial_comm as serial_comm
-import modules.voice_synth as vs
+#import modules.serial_comm as serial_comm
+import tools.voice_synth as vs
 import modules.module_loader as ml
 import os #for recording, temporary usage
 import time #for testing
