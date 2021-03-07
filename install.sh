@@ -26,6 +26,7 @@ pip3 install pygame
 pip3 install parse
 pip3 install youtube_dl
 pip3 install pafy
+pip3 install pydub
 sudo apt-get update
 sudo apt-get install libgfortran5
 sudo apt-get install libgfortran3
