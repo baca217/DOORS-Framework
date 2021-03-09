@@ -1,6 +1,7 @@
 import string
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+import modules.module_loader
 #from nltk.corpus import stopwords
 #import Levenshtein #testing
 
@@ -73,23 +74,11 @@ def comp_work(spoken, commands, comTypes):
                     bOrig = tempArr[0]
     return bOrig
 
-
-def compare_command(spoken):
-    c_file = open("/home/pi/Documents/DOORS/modules/commands.txt", "r")
-    commands = c_file.read()
-    commands = commands.split("\n")
-    commands = [x for x in commands if x != ""] #removing empty entries
-    classify = []
-    for x in range(len(commands)): #pulling classification type from word
-        temp = commands[x].split(",")[-1] #classification is always at the end
-        commands[x] = commands[x].replace(temp, "").strip() #remove classification type
-        classify.append(temp)
-    arrCommands = []
-    for i in commands:
-        arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
+def check_homie(sentence):
     '''
     The code below is for checking if some variation of "hey homie" occurred within the recording
     This should be taken care of by the front end but I wil leave it here just in case
+    '''
 
     if "hey homie" in spoken:
         spoken = spoken.replace("hey homie ", "").strip()
@@ -103,7 +92,21 @@ def compare_command(spoken):
     else:
         print("homie was not detected!")
         return -1, -1
-    '''
+
+
+
+def compare_command(spoken):
+    commands = c_file.read()
+    commands = commands.split("\n")
+    commands = [x for x in commands if x != ""] #removing empty entries
+    classify = []
+    for x in range(len(commands)): #pulling classification type from word
+        temp = commands[x].split(",")[-1] #classification is always at the end
+        commands[x] = commands[x].replace(temp, "").strip() #remove classification type
+        classify.append(temp)
+    arrCommands = []
+    for i in commands:
+        arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
     result = comp_work(spoken, arrCommands, classify)
     #clean_comp_work(spoken, arrCommands, classify)
     #print("result:",result)

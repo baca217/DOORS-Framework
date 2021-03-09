@@ -1,7 +1,12 @@
+#!/usr/bin/env python3
 import os
+import importlib
+import local_music_player as lmp
+import stopwatch as sw
+import timer as timer
+import weather_api as weather
 from os import listdir
 from os.path import isfile, join
-import importlib
 
 def run():
     mypath = os.getcwd()+"/modules"
@@ -15,3 +20,30 @@ def run():
             print(module)
             my_class = getattr(module, "module")
             print(my_class.strFunctions())
+
+def modules():
+    mods = [
+            lmp,
+            sw,
+            timer,
+            weather
+            ]
+    return mods
+
+def print_coms(mods):
+    for i in mods:
+        print(i.commands())
+        print()
+
+def all_coms(mods):
+    coms = []
+    for i in mods:
+        coms.append(i.commands())
+    return coms
+
+def main():
+    mods = modules()
+    print_coms(mods)
+
+if __name__ == "__main__":
+    main()
