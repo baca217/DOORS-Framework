@@ -41,7 +41,7 @@ def download_song(songName):
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "wav",
-                "preferredquality": "8",
+                "preferredquality": "192",
                 }],
             }
 
@@ -59,7 +59,6 @@ def download_song(songName):
     print(convert.format(latest))
     input("is this okay?")
     os.system(convert.format(latest))
-    os.remove(latest)
     mixer.music.stop()
 
 '''
@@ -79,20 +78,7 @@ def command_format():
             ]
     return formats
 
-def test(decoder, rec_com):
-    f_name = "downSamp.wav"
-    vals = None
-    try:
-        os.system("rm downSamp.wav")
-    except:
-        print("nothing to do")
-    for i in rec_com:
-        os.system(i)
-#    os.system("clear")
-
-    #pulling sentence from audio file
-    sentence = decoder.decode_file(f_name)
-    print(sentence)
+def test(sentence):
 
     for i in command_format(): #trying to pull arguments from string passed in
         ret = parse(i, sentence)

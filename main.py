@@ -14,7 +14,7 @@ def main():
     rec_com = [
         "echo \"recording for 10 seconds\"",
         "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 temp.wav",
-        "ffmpeg -i temp.wav -isr 48000 -ar 16000 downSamp.wav",
+        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
         "rm temp.wav",
         "echo \"done recording\""
         ]
@@ -51,7 +51,13 @@ def main():
                 print("\nNo command match was found\n")
                 continue
             local_commands.check_command(result, sentence, stopwatch, voice)
+        elif(record == "wifi"):
+            #os.system("rm downSamp.wav")
+            os.system("clear")
 
+            sentence = decoder.listen_stream()
+            input("is the sentence okay?")
+            yt.test(sentence)
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
 
@@ -69,7 +75,8 @@ def main():
         elif(record == "test"):
             run_tests(decoder, voice, stopwatch)
         elif(record == "yt"):
-            yt.test(decoder, rec_com)
+            #yt.test(decoder, rec_com)
+            print("nothing to do")
         else:
             print(record,"is not an option \n")
         print()
