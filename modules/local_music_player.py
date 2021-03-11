@@ -8,7 +8,7 @@ from parse import *
 
 def command_handler(sentence):
     if "play the song" in sentence:
-        songName = parse(" play the song {}")
+        songName = parse("play the song {}", sentence)
         playSong(songName[0])
     elif "stop playing music" in sentence:
         stopSong()

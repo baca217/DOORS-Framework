@@ -102,22 +102,22 @@ DESCRIPTION: functions takes one argument which is "spoken" which is a string. T
 compared to all the commands for the known modules.
 '''
 def compare_command(spoken):
-    mods = ml.modules()
-    best = []
+    mods = ml.modules() #dictionary containing modules for usage
     bScore = 0
     bSent = ""
     bMod = ""
-    for i in mods.keys():
+    for i in mods.keys(): #iterating through module names
         commands, classify = mods[i].commands()
         result, score = comp_work(spoken, commands, classify)
-        if score == -1:
-            return result
-        if score > bScore:
+        if score == -1: #exact match was found
+            mods[i].command_handler(spoken)
+            bScore = -1
+            break
+        if score > bScore and score > .8: #new best score
             bScore = score
             bSent = result
             bMod = i
-    #clean_comp_work(spoken, arrCommands, classify)
-    #print("result:",result)
-
-    print("result: "+bSent)
+    if bScore > .8:
+        mods[bMod].comman_handler(spoken)
+        print("result: "+bSent)
     return spoken, result

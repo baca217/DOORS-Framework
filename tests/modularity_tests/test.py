@@ -4,6 +4,8 @@ import tools.sklearn_sims as sk
 
 
 def main():
-    sk.compare_command("must stop playing music")
+    sk.compare_command("play the song country roads")
+    while(1):
+        continue
 if __name__ == "__main__":
     main()
