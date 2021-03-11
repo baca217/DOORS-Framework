@@ -29,7 +29,7 @@ def download_song(songName):
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
     audiostreams = video.audiostreams #pulling audio from video
-    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 8000 -ac 1 Song.wav" #downsampling command
+    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 16000 -ac 1 Song.wav" #downsampling command
 
     for i in audiostreams:
         print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
@@ -121,7 +121,7 @@ def sendToFront():
 
 def main(): 
     download_song("dance in the darkness joji")
-    #sendToFront()
+    sendToFront()
 
 if __name__ == "__main__":
     main()
