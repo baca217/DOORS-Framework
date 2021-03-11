@@ -4,6 +4,6 @@ import tools.sklearn_sims as sk
 
 
 def main():
-    sk.compare_command("test")
+    sk.compare_command("must stop playing music")
 if __name__ == "__main__":
     main()

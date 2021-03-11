@@ -1,3 +1,10 @@
+from parse import *
+
+def command_handler(sentence):
+    if "what's the weather" in sentence:
+        res = parse("what's the weather {}", sentence)
+        getWeather(res[0])
+
 def commands():
     comm = [
             ["what's the weather"]

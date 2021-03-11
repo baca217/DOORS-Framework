@@ -60,7 +60,7 @@ def comp_work(spoken, commands, comTypes):
     for i in range(len(comTypes)):
         if comTypes[i].strip() == "exact":
             if commands[i][0] in spoken: #exact matches will return immediately
-                    return commands[i][0]
+                    return commands[i][0], -1
         if comTypes[i].strip() == "cosine":
             tempArr = commands[i] #pulling similar commands
             tempArr.append(spoken) #adding spoken command to vectorize it
@@ -72,7 +72,7 @@ def comp_work(spoken, commands, comTypes):
                     bScore = ret
                     bComm = tempArr[j]
                     bOrig = tempArr[0]
-    return bOrig
+    return bOrig, bScore
 
 def check_homie(sentence):
     '''
@@ -103,11 +103,21 @@ compared to all the commands for the known modules.
 '''
 def compare_command(spoken):
     mods = ml.modules()
+    best = []
+    bScore = 0
+    bSent = ""
+    bMod = ""
     for i in mods.keys():
         commands, classify = mods[i].commands()
-        print(i, commands, classify)
-        #result = comp_work(spoken, arrCommands, classify)
+        result, score = comp_work(spoken, commands, classify)
+        if score == -1:
+            return result
+        if score > bScore:
+            bScore = score
+            bSent = result
+            bMod = i
     #clean_comp_work(spoken, arrCommands, classify)
     #print("result:",result)
 
+    print("result: "+bSent)
     return spoken, result

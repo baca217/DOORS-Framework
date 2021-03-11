@@ -4,12 +4,12 @@ class Stopwatch:
 
         def handler(self, task):
                 msg = ""
-                if task == "start": #start a stopwatch
+                if task == "start a stopwatch": #start a stopwatch
                         def startWatch():
                                 self.start = time.time()
                         msg = "\nStarted a stopwatch"
                         return msg, startWatch()
-                elif task == "stop": #stop the stopwatch
+                elif task == "stop the stopwatch": #stop the stopwatch
                         if(self.start != 0):
                                 stop = "{0:.2f}".format(time.time() - self.start)
                                 self.start = 0
@@ -32,3 +32,6 @@ def commands():
             "cosine"
             ]
     return comm, classify
+
+def handler(sentence, watch):
+    watch.handler(sentence)

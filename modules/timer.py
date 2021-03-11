@@ -1,3 +1,7 @@
+def command_handler(sentence):
+    if "set a timer for" in sentence:
+        setTimer(sentence)
+
 def commands():
     comm = [
             ["set a timer for"]

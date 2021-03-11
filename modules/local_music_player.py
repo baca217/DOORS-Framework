@@ -1,3 +1,22 @@
+from pygame import mixer #for audio control
+from fuzzywuzzy import fuzz #for music searching
+from fuzzywuzzy import fuzz #for music searching
+import os #for parsing files in directory
+import pwd #for finding current directory
+import eyed3 #for mp3 metadata pulling
+from parse import *
+
+def handler(sentence):
+    if "play the song" in sentence:
+        songName = parse("play the song {}")
+        playSong(songName)
+    elif "stop playing music" in sentence:
+        stopSong()
+    elif "continue playing music" in sentence:
+        continueSong()
+    else:
+        print(sentence+" is not a known command")
+
 def commands():
     coms = [
                 ["play the song"],
