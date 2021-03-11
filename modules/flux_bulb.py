@@ -21,8 +21,34 @@ def command_format():
     formats = [
             "turn the flux lightbulb color to {}",
             "turn the flux lightbulb off",
-            "turn the flux lightbulb on"
+            "turn the flux lightbulb on",
+            "set the flux bulb color to {}"
             ]
+def command_handler(sentence):
+    result = parse("turn the flux lightbulb color to {}", sentence)
+    if len(result) > 0:
+
+def colorChanger(bulb, color):
+    colors = {
+            "red" : (255,0,0)
+            "orange" : (255,125,0)
+            "yellow" : (255, 255, 0)
+            "springgreen" : (125,255,0)
+            "green" : (0,255,0)
+            "turquoise" : (0,255,125)
+            "cyan" : (0, 255, 255)
+            "ocean" : (0,125,255)
+            "blue" : (0,0,255)
+            "violet" : (125, 0, 255)
+            "magenta" : (255, 0, 255)
+            "raspberry" : (255, 0, 125)
+            }
+    try:
+        r,g,b = colors[color]
+    except:
+        print(color+" is not a supported color for flux lightbulb")
+    
+
 
 #code was ripped from https://github.com/beville/flux_led/blob/master/crossfade_example.py
 def crossFade(bulb, color1, color2):
