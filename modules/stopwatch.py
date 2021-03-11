@@ -33,5 +33,5 @@ def commands():
             ]
     return comm, classify
 
-def handler(sentence, watch):
+def command_handler(sentence, watch):
     watch.handler(sentence)

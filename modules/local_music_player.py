@@ -6,10 +6,10 @@ import pwd #for finding current directory
 import eyed3 #for mp3 metadata pulling
 from parse import *
 
-def handler(sentence):
+def command_handler(sentence):
     if "play the song" in sentence:
-        songName = parse("play the song {}")
-        playSong(songName)
+        songName = parse(" play the song {}")
+        playSong(songName[0])
     elif "stop playing music" in sentence:
         stopSong()
     elif "continue playing music" in sentence:
