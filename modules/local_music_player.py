@@ -1,12 +1,12 @@
 def commands():
-    coms =[
-            ["play the song"],
-            [
-                "stop playing music", "you must stop playing music",
-                "stop whatever music is playing", "stop the music",
-                "the music must stop"
+    coms = [
+                ["play the song"],
+                [
+                    "stop playing music", "you must stop playing music",
+                    "stop whatever music is playing", "stop the music",
+                    "the music must stop"
+                ]
             ]
-        ]
     comp_types = [
         "exact",
         "cosine"
@@ -73,11 +73,3 @@ def continueSong():
                 return msg, contMusicFunc()
         msg = "no music is being played. Can't be unpaused"
         return msg, None
-
-def strFunctions():
-        functions = [
-                "play the song",
-                "stop playing music",
-                "continue playing music"
-                ]
-        return functions

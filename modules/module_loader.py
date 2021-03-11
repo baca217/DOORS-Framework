@@ -1,49 +1,42 @@
 #!/usr/bin/env python3
 import os
 import importlib
-import local_music_player as lmp
-import stopwatch as sw
-import timer as timer
-import weather_api as weather
+import modules.local_music_player as lmp
+import modules.stopwatch as sw
+import modules.timer as timer
+import modules.weather_api as weather
 from os import listdir
-from os.path import isfile, join
+from os.path import dirname, basename, isfile, join
+import glob
+
+class mod:
+    mod_call = None
+    name = None
+    coms = None
+    coms_classify = None
+
+    def __init__(self, mod, name):
+        self.mod_call = mod
+        self.name = name
+        self.coms, self.coms_classify = self.mod.call.commands
 
 def run():
-    mypath = os.getcwd()+"/modules"
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    for i in onlyfiles:
-#        if ".py" in i:
-#            print(i)
-        if "local_music_player" in i:
-            print(i)
-            module = __import__("modules.local_music_player")
-            print(module)
-            my_class = getattr(module, "module")
-            print(my_class.strFunctions())
+    modules = glob.glob(join(dirname(__file__), "*.py"))
+    __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
+    for i in __all__:
+        print(i)
 
 def modules():
-    mods = [
-            lmp,
-            sw,
-            timer,
-            weather
-            ]
+    mods = {
+            'lmp' : lmp,
+            'sw' : sw,
+            'timer' : timer,
+            'weather' : weather
+            }
     return mods
-
-def print_coms(mods):
-    for i in mods:
-        print(i.commands())
-        print()
-
-def all_coms(mods):
-    coms = []
-    for i in mods:
-        coms.append(i.commands())
-    return coms
 
 def main():
     mods = modules()
-    print_coms(mods)
 
 if __name__ == "__main__":
     main()

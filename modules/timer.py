@@ -1,6 +1,6 @@
 def commands():
     comm = [
-            ["set a tier for"]
+            ["set a timer for"]
             ]
     classify = [
             "exact"

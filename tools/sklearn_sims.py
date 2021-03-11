@@ -1,7 +1,7 @@
 import string
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-import modules.module_loader
+import modules.module_loader as ml
 #from nltk.corpus import stopwords
 #import Levenshtein #testing
 
@@ -95,19 +95,18 @@ def check_homie(sentence):
 
 
 
+'''
+FUNCTION: compare_command
+ARGUMENTS: spoke
+DESCRIPTION: functions takes one argument which is "spoken" which is a string. This string will be
+compared to all the commands for the known modules.
+'''
 def compare_command(spoken):
-    commands = c_file.read()
-    commands = commands.split("\n")
-    commands = [x for x in commands if x != ""] #removing empty entries
-    classify = []
-    for x in range(len(commands)): #pulling classification type from word
-        temp = commands[x].split(",")[-1] #classification is always at the end
-        commands[x] = commands[x].replace(temp, "").strip() #remove classification type
-        classify.append(temp)
-    arrCommands = []
-    for i in commands:
-        arrCommands.append(list(filter(None, i.split(",")))) #splitting command variations, removing empty strings
-    result = comp_work(spoken, arrCommands, classify)
+    mods = ml.modules()
+    for i in mods.keys():
+        commands, classify = mods[i].commands()
+        print(i, commands, classify)
+        #result = comp_work(spoken, arrCommands, classify)
     #clean_comp_work(spoken, arrCommands, classify)
     #print("result:",result)
 
