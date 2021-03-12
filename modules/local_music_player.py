@@ -7,15 +7,17 @@ import eyed3 #for mp3 metadata pulling
 from parse import *
 
 def command_handler(sentence):
+    msg = ""
+    function = None
     if "play the song" in sentence:
         songName = parse("play the song {}", sentence)
-        playSong(songName[0])
+        return playSong(songName[0])
     elif "stop playing music" in sentence:
-        stopSong()
+        return stopSong()
     elif "continue playing music" in sentence:
-        continueSong()
+        return continueSong()
     else:
-        print(sentence+" is not a known command")
+        return sentence+" is not a known command"), None
 
 def commands():
     coms = [
@@ -24,10 +26,15 @@ def commands():
                     "stop playing music", "you must stop playing music",
                     "stop whatever music is playing", "stop the music",
                     "the music must stop"
+                ],
+                [
+                    "continue playing music", "unpause the music",
+                    "continue playing the song", "unpause the song"
                 ]
             ]
     comp_types = [
         "exact",
+        "cosine",
         "cosine"
         ]
     return coms, comp_types

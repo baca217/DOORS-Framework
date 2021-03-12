@@ -111,13 +111,20 @@ def compare_command(spoken):
         result, score = comp_work(spoken, commands, classify)
         if score == -1: #exact match was found
             mods[i].command_handler(spoken)
-            bScore = -1
+            bScore = 1
+            bSent = result
+            bMod = i
+            print("exact match: "+result)
             break
         if score > bScore and score > .8: #new best score
             bScore = score
             bSent = result
             bMod = i
-    if bScore > .8:
-        mods[bMod].comman_handler(spoken)
-        print("result: "+bSent)
+    if bScore > .8: #executing the best scored module
+        msg, function = mods[bMod].command_handler(spoken)
+        print(msg)
+        if function:
+            function()
+    elif bScore != -1:
+        print("no match for: "+spoken)
     return spoken, result
