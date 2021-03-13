@@ -1,6 +1,14 @@
+from word2number import w2n
+import signal
+
 def command_handler(sentence):
+    msg = ""
+    function = None
     if "set a timer for" in sentence:
-        setTimer(sentence)
+        msg, function = setTimer(sentence)
+    else:
+        msg = sentence+" is not a known command"
+    return msg, function
 
 def commands():
     comm = [
@@ -41,7 +49,7 @@ def setTimer(timeStr): #only going to focus on time for now
                         strtemp = " ".join(arr[f-1:]) #pull substring and see if it's a number          
                         numtemp = w2n.word_to_num(strtemp)
                         num = int(numtemp)
-                except valueerror:
+                except ValueError:
                         break
 
         if(timeFormat not in timeSwitch.keys()): #error 1: no time format

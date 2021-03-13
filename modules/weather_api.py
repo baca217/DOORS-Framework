@@ -1,9 +1,17 @@
 from parse import *
+import requests
 
 def command_handler(sentence):
+    msg = sentence+" is not a known command"
+    function = None
     if "what's the weather" in sentence:
-        res = parse("what's the weather {}", sentence)
-        getWeather(res[0])
+        res = ["Denver"]
+        if "what's the weather in" in sentence:
+            res = parse("what's the weather in {}", sentence)
+            if res is None:
+                return "couldn't pull city from speech", None
+        msg, function = getWeather(res[0])
+    return msg, function
 
 def commands():
     comm = [

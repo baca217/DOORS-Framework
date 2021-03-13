@@ -11,13 +11,15 @@ def command_handler(sentence):
     function = None
     if "play the song" in sentence:
         songName = parse("play the song {}", sentence)
-        return playSong(songName[0])
+        msg, function = playSong(songName[0])
     elif "stop playing music" in sentence:
-        return stopSong()
+        msg, function = stopSong()
     elif "continue playing music" in sentence:
-        return continueSong()
+        msg, function = continueSong()
     else:
-        return sentence+" is not a known command"), None
+        msg = sentence+" is not a known command"
+        function = None
+    return msg, function
 
 def commands():
     coms = [
@@ -83,19 +85,18 @@ def playSong(songName):
 
 def stopSong():
         if mixer.get_init():
-            if mixer.get_busy():
-                def stopMusicFunc():
-                        mixer.music.pause()
-                msg = "music is stopped"
-                return msg, stopMusicFunc()
-        msg = "no music is being played"
-
+            def stopMusicFunc():
+                mixer.music.pause()
+            msg = "music is stopped"
+            return msg, stopMusicFunc()
+        else:
+            return "no music playing", None
+        
 def continueSong():
-        if mixer.get_init():
-            if mixer.get_busy():
-                def contMusicFunc():
-                        mixer.music.unpause()
-                msg = "music will be unpaused"
-                return msg, contMusicFunc()
-        msg = "no music is being played. Can't be unpaused"
-        return msg, None
+    if mixer.get_init():
+        def contMusicFunc():
+                mixer.music.unpause()
+        msg = "music will be unpaused"
+        return msg, contMusicFunc()
+    else:
+        return "no music playing", None

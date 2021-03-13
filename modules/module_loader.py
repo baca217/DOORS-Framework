@@ -38,5 +38,22 @@ def modules():
 def main():
     mods = modules()
 
+'''
+NAME: class_builder
+ARGUMENTS: None
+FUNCTIONALITY: builds a dictionary containing classes necessary for certain modules. If the module
+doesn't have a class, there is just a None spot placeholder
+'''
+def class_builder(): #creating dictionary for modclasses for modules that require one
+    mods = modules()
+    classes = {}
+    for i in mods.keys():
+        try:
+            classes[i] = mods[i].c_builder()
+        except:
+            continue
+    return classes
+
+
 if __name__ == "__main__":
     main()

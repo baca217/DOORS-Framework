@@ -1,3 +1,5 @@
+import time
+
 class Stopwatch:    
         def __init__(self):
                 self.start = 0.0
@@ -7,19 +9,19 @@ class Stopwatch:
                 if task == "start a stopwatch": #start a stopwatch
                         def startWatch():
                                 self.start = time.time()
-                        msg = "\nStarted a stopwatch"
+                        msg = "started a stopwatch"
                         return msg, startWatch()
                 elif task == "stop the stopwatch": #stop the stopwatch
                         if(self.start != 0):
                                 stop = "{0:.2f}".format(time.time() - self.start)
                                 self.start = 0
-                                msg = "\nstopwatch ran for "+stop+" seconds"
+                                msg = "stopwatch ran for "+stop+" seconds"
                                 return msg, None
                         else:
-                                msg = "\nstopwatch was never started"
+                                msg = "stopwatch was never started"
                                 return msg, None
                 else:
-                        msg = task,"is not a known task"
+                        msg = task+" is not a known task"
                         return msg, None
 
 def commands():
@@ -33,5 +35,9 @@ def commands():
             ]
     return comm, classify
 
-def command_handler(sentence, watch):
-    watch.handler(sentence)
+def command_handler(sentence):
+    print("please use stopwatch object instead")
+
+def c_builder():
+    watch = Stopwatch
+    return watch
