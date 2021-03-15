@@ -60,7 +60,7 @@ def comp_work(spoken, commands, comTypes):
     for i in range(len(comTypes)):
         if comTypes[i].strip() == "exact":
             if commands[i][0] in spoken: #exact matches will return immediately
-                    return commands[i][0], -1
+                    return commands[i][0], 1
         if comTypes[i].strip() == "cosine":
             tempArr = commands[i] #pulling similar commands
             tempArr.append(spoken) #adding spoken command to vectorize it
@@ -106,19 +106,16 @@ def compare_command(spoken, classes):
     bScore = 0
     bSent = ""
     bMod = ""
+    msg = "Message was not set"
     for i in mods.keys(): #iterating through module names
-        commands, classify = mods[i].commands()
-        result, score = comp_work(spoken, commands, classify)
-        if score == -1: #exact match was found
-            mods[i].command_handler(spoken)
-            bScore = 1
-            bSent = result
-            bMod = i
-            break
+        commands, classify = mods[i].commands() #pulling commands and classification from each module
+        result, score = comp_work(spoken, commands, classify) #doing classification comparison
         if score > bScore and score > .8: #new best score
             bScore = score
             bSent = result
             bMod = i
+            if bScore == 1: #exact match was found, short circuit
+                break
     if bScore > .8: #executing the best scored module
         if bMod in classes.keys(): #we have a class for the module
             c_holder = classes.get(bMod)
@@ -126,11 +123,11 @@ def compare_command(spoken, classes):
         else: #will use the module directly
             msg, function = mods[bMod].command_handler(spoken)
         print(msg)
-        if function:
-            if bMod in classes.keys():
+        if function: #we got a function back
+            if bMod in classes.keys(): #classes functions should manipulate themselves
                 function(classes[bMod])
             else:
                 function()
-    elif bScore != -1:
+    else:
         print("no match for: "+spoken)
-    return spoken, result
+    return spoken, msg

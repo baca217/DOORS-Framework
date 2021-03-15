@@ -10,8 +10,13 @@ def command_handler(sentence):
     msg = ""
     function = None
     if "play the song" in sentence:
+        print(sentence)
         songName = parse("play the song {}", sentence)
-        msg, function = playSong(songName[0])
+        if songName:
+            msg, function = playSong(songName[0])
+        else:
+            msg = "couldn't pull song from sentence"
+            function = None
     elif "stop playing music" in sentence:
         msg, function = stopSong()
     elif "continue playing music" in sentence:

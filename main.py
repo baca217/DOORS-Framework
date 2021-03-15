@@ -1,7 +1,6 @@
 #!/usr/bin/env python3 
 import tools.vosk_rec as vosk_rec
 import tools.sklearn_sims as sklearn_sims
-import modules.local_commands as local_commands
 #import modules.serial_comm as serial_comm
 import tools.voice_synth as vs
 import modules.module_loader as ml
@@ -11,17 +10,17 @@ from pygame import mixer
 from parse import *
 
 def main():
-    test()
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
     voice.disable()
+    classes = ml.class_builder()
     filename = "downSamp.wav"
-    stopwatch = local_commands.Stopwatch()
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n:"
             "enter \"test\" to enter the testing menu\n"
             "enter \"exit\" to exit the program: ")
+
     while True:
         record = input(menu)
         record = record.strip().lower()
@@ -34,14 +33,13 @@ def main():
 
             sentence = decoder.decode_file(filename)
             print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence)
+            sentence, result = sklearn_sims.compare_command(sentence, classes)
             if(sentence == -1):
                 print("\n error occurred\n")
                 continue
             elif(result == ""):
                 print("\nNo command match was found\n")
                 continue
-            local_commands.check_command(result, sentence, stopwatch, voice)
 
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
@@ -49,26 +47,21 @@ def main():
         elif(record == "reuse"):
             sentence = decoder.decode_file(filename)
             print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence)
+            sentence, result = sklearn_sims.compare_command(sentence, classes)
             if(sentence == -1):
                 continue
             elif(result == ""):
                 print("\nNo command match was found\n")
                 continue
-            local_commands.check_command(result, sentence, stopwatch, voice)
-        
+
         elif(record == "test"):
-            run_tests(decoder, voice, stopwatch)
+            run_tests(decoder, voice, classes)
 
         else:
             print(record,"is not an option \n")
         print()
 
-def test():
-    ml.run()
-    exit()
-
-def run_tests(decoder, voice, stopwatch):
+def run_tests(decoder, voice, classes):
         t_range = ["1", "2", "3", "4", "5", "6"]
         t_menu = (            
                 "TEST 1: \"set a timer for 3 seconds\"\n"
@@ -99,13 +92,7 @@ def run_tests(decoder, voice, stopwatch):
                     if sentence == "":
                         print("nothing detected within vosk")
                         continue
-                    sentence, result = sklearn_sims.compare_command(sentence)
-                    if(sentence == -1):
-                        continue
-                    elif(result == ""):
-                        print("\nNo command match was found\n")
-                        continue
-                    ret = local_commands.check_command(result, sentence, stopwatch, voice)
+                    sentence, ret = sklearn_sims.compare_command(sentence, classes)
                     check_test(num, ret)
             elif num != "7":
                 print(str(num)+" isn't a valid option!")
@@ -132,12 +119,12 @@ def check_test(num, sentence):
             temp = "music is stopped" == sentence
             print("EQUAL: "+str(temp))
         if num == "4":
-            print("EXPECTED: using city:   denver Temperature in degrees Fahrenheit = x\n"
+            print("EXPECTED: using city: denver Temperature in degrees Fahrenheit = x\n"
                         " atmospheric pressure in hPa unit = y\n"
                         " humidity in percentage = z\n"
                         " description = a")
             print("RETURNED: "+sentence)
-            check = ("using city:   denver Temperature in degrees Fahrenheit = {}"
+            check = ("using city: denver Temperature in degrees Fahrenheit = {}"
                         " atmospheric pressure in hPa unit = {}"
                         " humidity in percentage = {}"
                         " description = {}")
@@ -145,7 +132,7 @@ def check_test(num, sentence):
             temp = ret is not None
             print("EQUAL: "+str(temp))
         if num == "5":
-            print("EXPECTED: Started a stopwatch")
+            print("EXPECTED: started a stopwatch")
             print("RETURNED: "+sentence)
             temp = "Started a stopwatch" == sentence
             print("EQUAL: "+str(temp))
