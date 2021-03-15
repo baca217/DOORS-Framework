@@ -29,8 +29,7 @@ def download_song(songName):
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
     audiostreams = video.audiostreams #pulling audio from video
-    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 16000 -ac 1 Song.wav" #downsampling command
-
+    
     for i in audiostreams:
         print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
 
@@ -47,19 +46,24 @@ def download_song(songName):
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url]) #downloading video using youtube-dl
-
+    return play_song()
+    
+def play_song():
+    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 16000 -ac 1 Song.wav" #downsampling command
     files = glob.glob("./*.wav") #getting the latest wave file
     latest = max(files, key=os.path.getctime)
-    print(latest)
-    if not mixer.get_init():
-        mixer.init()
-    mixer.music.load(latest)
-    mixer.music.play()
-    input("press enter to continue")
-    print(convert.format(latest))
-    input("is this okay?")
+
     os.system(convert.format(latest))
+    os.system("rm \'"+latest+"\'")
+    if not mixer.get_init():
+        mixer.init(16000, -16, 1)
+    mixer.music.load("./Song.wav")
+    mixer.music.play()
+
+    input("wait")
+
     mixer.music.stop()
+
 
 '''
 FUNCTION: command_format
@@ -67,16 +71,20 @@ ARGUMENTS: NONE
 FUNCTIONALITY: returns formats of strings that will be used for parsing the derived text from an
 audio text
 '''
-def command_format():
-    formats = [
-#            "play the song {} by {}",
-            "play the song {}",
-#            "look for the song {} by {}",
-            "look for the song {}",
-#            "play {} by {}",
-            "play {}"
+def commands():
+    coms = [
+            [
+                "using youtube play the song {}",
+                "using youtube look for the song {}",
+                "using you tube play the song {}",
+                "using you tube look for the song {}",
+
             ]
-    return formats
+            ]
+    classify = [
+            "parse"
+            ]
+    return coms, classify
 
 def test(sentence):
 
@@ -88,6 +96,24 @@ def test(sentence):
     if vals is not None:
         print(vals[0])
         download_song(vals[0])
+
+def command_handler(sentence):
+    msg = "song name couldn't be derived"
+    function = None
+    comms, classify = commands()
+    for i in comms: #iterating through command arrays
+        for j in i: #iterating through individual commands
+            result = parse(j, sentence)
+            if result: #was able to parse sentence using a command format
+                function = download_song(result[0])
+                msg = "going to play the song "+result[0]
+                break
+        if function: #function was set, break and return
+            break
+    return msg, function
+
+
+
 
 '''
 FUNCTION:sendToFront

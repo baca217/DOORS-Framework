@@ -2,6 +2,7 @@ import string
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 import modules.module_loader as ml
+from parse import *
 #from nltk.corpus import stopwords
 #import Levenshtein #testing
 
@@ -58,10 +59,17 @@ def comp_work(spoken, commands, comTypes):
     bOrig = "" #representation of best sentence
 
     for i in range(len(comTypes)):
-        if comTypes[i].strip() == "exact":
-            if commands[i][0] in spoken: #exact matches will return immediately
+        comType = comTypes[i].strip()
+        if comType == "exact": #looking for exact matches of string        
+            if commands[i][0] == spoken: #exact matches will return immediately
                     return commands[i][0], 1
-        if comTypes[i].strip() == "cosine":
+        elif comType == "parse": #looking if it's possible to parse string
+            tempArr = commands[i]
+            for j in tempArr:
+                temp = parse(j, spoken)
+                if temp:
+                    return i, 1
+        elif comTypes[i].strip() == "cosine":
             tempArr = commands[i] #pulling similar commands
             tempArr.append(spoken) #adding spoken command to vectorize it
             vectorizer = CountVectorizer().fit_transform(tempArr) #vectorize

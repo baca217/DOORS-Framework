@@ -11,9 +11,12 @@ def command_handler(sentence):
     function = None
     if "play the song" in sentence:
         print(sentence)
-        songName = parse("play the song {}", sentence)
-        if songName:
-            msg, function = playSong(songName[0])
+        p1 = parse("play the song {} by {}", sentence)
+        p2 = parse("play the song {}", sentence)
+        if p1:
+            msg, function = playSong(p1[0])
+        elif p2:
+            msg, function = playSong(p2[0])
         else:
             msg = "couldn't pull song from sentence"
             function = None
@@ -28,7 +31,7 @@ def command_handler(sentence):
 
 def commands():
     coms = [
-                ["play the song"],
+                ["play the song {}"],
                 [
                     "stop playing music", "you must stop playing music",
                     "stop whatever music is playing", "stop the music",
@@ -40,7 +43,7 @@ def commands():
                 ]
             ]
     comp_types = [
-        "exact",
+        "parse",
         "cosine",
         "cosine"
         ]

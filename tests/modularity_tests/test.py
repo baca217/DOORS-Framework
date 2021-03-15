@@ -8,7 +8,8 @@ def main():
     #lmp_test(classes)
     #sw_test(classes)
     #timer_test(classes)
-    weather_test(classes)
+    #weather_test(classes)
+    yt_music_test(classes)
 
 def lmp_test(classes): #test for local music player
     sk.compare_command("play the song country roads", classes)
@@ -32,6 +33,9 @@ def weather_test(classes): #test for weather feature
     sk.compare_command("what's the weather in", classes)
     sk.compare_command("what's the weather", classes)
     sk.compare_command("what's the weather in brighton", classes)
+
+def yt_music_test(classes):
+    sk.compare_command("using youtube play the song country roads by john denver", classes)
 
 
 if __name__ == "__main__":

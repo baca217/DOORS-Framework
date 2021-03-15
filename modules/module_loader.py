@@ -5,6 +5,7 @@ import modules.local_music_player as lmp
 import modules.stopwatch as sw
 import modules.timer as timer
 import modules.weather_api as weather
+import modules.youtube_music as yt
 from os import listdir
 from os.path import dirname, basename, isfile, join
 import glob
@@ -31,7 +32,8 @@ def modules():
             'lmp' : lmp,
             'sw' : sw,
             'timer' : timer,
-            'weather' : weather
+            'weather' : weather,
+            'yt' : yt
             }
     return mods
 
