@@ -10,11 +10,12 @@ import struct
 import math
 import random
 import wave
+from pydub import AudioSegment, silence #for detecting silence in audio file
 
 class Decoder:
         def __init__(self):
                 model = Model(os.getcwd()+"/modules/model")
-                self.rec = KaldiRecognizer(model, 16000)
+                self.rec = KaldiRecognizer(model, 8000)
 
         def decode_file(self, aud_file):
                 SetLogLevel(0)
@@ -54,14 +55,35 @@ class Decoder:
                 return ""
 
         def listen_stream(self):
-                HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-                PORT = 10000        # Port to listen on (non-privileged ports are > 1023)
-                CHUNK = 65536
+                HOST = '192.168.0.124'  # Standard loopback interface address (localhost)
+                PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
+                CHUNK = 3200
                 f = open("recv.wav", "wb")
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        s.bind((HOST, PORT))
-                        print("Listening on port: "+str(PORT))
+                        print("trying to connect "+HOST+ " " +str(PORT))
+                        s.connect((HOST, PORT))
+                        print("connected")
+                        s.send(b"MSTRM\0")
+                        #print("Listening on port: "+str(PORT))
+                        fTot = 'downSamp.wav' #file that will hold all audio received
+                        f = wave.open(fTot, 'wb')
+                        f.setnchannels(1) #mono
+                        f.setsampwidth(2)
+                        f.setframerate(8000)
+                        try:
+                                while True:                        
+                                        data = s.recv(1024)
+                                        print("got data "+str(len(data)))
+                                        f.writeframesraw(data)
+                        except KeyboardInterrupt:
+                                f.close()
+                                s.send(b"MSTOP\0")
+                                s.close()
+                                results = self.decode_file(fTot) #get results from file
+                                print("FINAL RESULT from stream: "+results)
+                                return results
+                        '''
                         s.listen()
                         conn, addr = s.accept()
                         with conn:
@@ -70,17 +92,18 @@ class Decoder:
                                 f.setnchannels(1) #mono
                                 f.setsampwidth(2)
                                 f.setframerate(8000)
-                                f.close
                                 holder = b"" #temporary holder for chunk of audio recognition
-                                while True:
+                                for i in range (6):
                                         cur = 1
                                         data = conn.recv(int(CHUNK/2))
+                                        ''
                                         if not data: #didn't receive any data
                                                 f.writeframesraw(holder)
                                                 f.close()
                                                 results = self.decode_file(fTot) #get results from file
-                                                print("-----------------------------FINAL RESULT-----------------------------"+str(cur)+":"+results)
+                                                print("FINAL RESULT: "+str(cur)+":"+results)
                                                 break
+                                        ''
                                         if data:
                                                 holder += data #aggregating total voice data
                                                 if len(holder) >= CHUNK:
@@ -101,3 +124,12 @@ class Decoder:
                                                         cur += 1
                                                 else:
                                                         continue
+                            '''
+        def detectSilence(self, fileName):
+                myaudio = intro = AudioSegment.from_wav(fileName)
+                dBFS = myaudio.dBFS
+                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-8)
+                print(pieces)
+                pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
+
+                print(pieces)

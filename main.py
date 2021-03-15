@@ -1,15 +1,33 @@
 #!/usr/bin/env python3 
+<<<<<<< HEAD
 import tools.vosk_rec as vosk_rec
 import tools.sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
 import tools.voice_synth as vs
 import modules.module_loader as ml
+=======
+import modules.vosk_rec as vosk_rec
+import modules.sklearn_sims as sklearn_sims
+import modules.local_commands as local_commands
+import modules.serial_comm as serial_comm
+import modules.voice_synth as vs
+import modules.youtube_music as yt
+>>>>>>> youtube-music
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
 from parse import *
 
 def main():
+    rec_com = [
+        "echo \"recording for 10 seconds\"",
+        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 temp.wav",
+        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
+        "rm temp.wav",
+        "echo \"done recording\""
+        ]
+
+
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
     voice.disable()
@@ -19,6 +37,7 @@ def main():
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n:"
             "enter \"test\" to enter the testing menu\n"
+            "enter \"yt\" to test the youtube music search feature\n"
             "enter \"exit\" to exit the program: ")
 
     while True:
@@ -28,7 +47,7 @@ def main():
             exit()
         elif(record == "r"):
             os.system("rm downSamp.wav")
-            os.system("./modules/rec_resamp.sh")
+            os.system(rec_com)
             os.system("clear")
 
             sentence = decoder.decode_file(filename)
@@ -40,7 +59,17 @@ def main():
             elif(result == ""):
                 print("\nNo command match was found\n")
                 continue
+<<<<<<< HEAD
+=======
+            local_commands.check_command(result, sentence, stopwatch, voice)
+        elif(record == "wifi"):
+            #os.system("rm downSamp.wav")
+            os.system("clear")
+>>>>>>> youtube-music
 
+            sentence = decoder.listen_stream()
+            input("is the sentence okay?")
+            yt.test(sentence)
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
 
@@ -55,8 +84,15 @@ def main():
                 continue
 
         elif(record == "test"):
+<<<<<<< HEAD
             run_tests(decoder, voice, classes)
 
+=======
+            run_tests(decoder, voice, stopwatch)
+        elif(record == "yt"):
+            #yt.test(decoder, rec_com)
+            print("nothing to do")
+>>>>>>> youtube-music
         else:
             print(record,"is not an option \n")
         print()
