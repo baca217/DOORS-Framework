@@ -55,7 +55,7 @@ class Decoder:
                 return ""
 
         def listen_stream(self):
-                HOST = '192.168.0.124'  # Standard loopback interface address (localhost)
+                HOST = '192.168.43.151'  # Standard loopback interface address (localhost)
                 PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
                 CHUNK = 3200
                 f = open("recv.wav", "wb")

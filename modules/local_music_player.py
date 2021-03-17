@@ -5,24 +5,26 @@ import os #for parsing files in directory
 import pwd #for finding current directory
 import eyed3 #for mp3 metadata pulling
 from parse import *
+#import mutagen #for .wav files metadata pulling
+from tinytag import TinyTag
 
 def command_handler(sentence):
     msg = ""
     function = None
-    if "play the song" in sentence:
-        print(sentence)
-        p1 = parse("play the song {} by {}", sentence)
-        p2 = parse("play the song {}", sentence)
-        if p1:
-            msg, function = playSong(p1[0])
-        elif p2:
-            msg, function = playSong(p2[0])
-        else:
-            msg = "couldn't pull song from sentence"
-            function = None
-    elif "stop playing music" in sentence:
+    comms, classify = commands()
+
+    for i in comms[0]:
+        res = parse(i, sentence)
+        if res:
+            msg, function = playSong(res[0])
+            if len(msg) > 0:
+                break
+
+    if len(msg) > 0:
+        return msg, function
+    elif sentence in comms[1]:
         msg, function = stopSong()
-    elif "continue playing music" in sentence:
+    elif sentence in comms[2]:
         msg, function = continueSong()
     else:
         msg = sentence+" is not a known command"
@@ -31,7 +33,10 @@ def command_handler(sentence):
 
 def commands():
     coms = [
-                ["play the song {}"],
+                [
+                    "play the song {} by {}", 
+                    "play the song {}"
+                ],
                 [
                     "stop playing music", "you must stop playing music",
                     "stop whatever music is playing", "stop the music",
@@ -55,34 +60,33 @@ def playSong(songName):
         highDis = 0
         highDitle = ""
         highPath = ""
+        dis = 0
         path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
-        onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3")] #only mp3 files pulled
+        onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3") or f.endswith(".wav")] #only mp3 and wav files pulled
 
         if(len(songName) == 0):
                 msg = "No song name was given"
                 return msg, None
 
         for i in onlyfiles:
-                fpath = path+i
+                fpath = path+i.strip()
                 try:
-                        audFile = eyed3.load(fpath)
+                        tag = TinyTag.get(fpath)
                 except:
-                        print("files in Music directory must have no spaces in the file name")
                         continue
-                if audFile.tag.title is None:
-                        print("file "+i+" doesn't have a song title in its metadata")
+                if tag.title is None:
                         continue
-                dis = fuzz.ratio(songName.lower(), audFile.tag.title.lower())
+                dis = fuzz.ratio(songName.lower(), tag.title.lower())
                 if dis > 79: # 80% similarity or more is saved
-                        songs.append([dis, audFile.tag.title])
+                        songs.append([dis, tag.title])
                         if dis > highDis: #getting the most similar
                                 highDis = dis
-                                highTitle = audFile.tag.title
+                                highTitle = tag.title
                                 highPath = i
         if(highPath):
                 msg = "Song "+highTitle+" will be played"
                 def playSong():
-                        mixer.init()
+                        mixer.init(16000, -16, 1)
                         mixer.music.load(path+highPath)
                         mixer.music.play()
                 return msg, playSong

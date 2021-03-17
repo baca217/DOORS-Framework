@@ -28,10 +28,10 @@ def download_song(songName):
     result = (videosSearch.result())
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
-    audiostreams = video.audiostreams #pulling audio from video
+    #audiostreams = video.audiostreams #pulling audio from video
     
-    for i in audiostreams:
-        print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
+    #for i in audiostreams:
+    #    print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
 
 
     ydl_opts = { #downloads options for youtube dl
@@ -46,15 +46,23 @@ def download_song(songName):
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url]) #downloading video using youtube-dl
-    return play_song()
-    
-def play_song():
     convert = "ffmpeg -i \"{}\" -isr 48000 -ar 16000 -ac 1 Song.wav" #downsampling command
     files = glob.glob("./*.wav") #getting the latest wave file
     latest = max(files, key=os.path.getctime)
 
     os.system(convert.format(latest))
     os.system("rm \'"+latest+"\'")
+
+    while True:
+        option = input("send to front end?: ")
+        if option == "yes" or option == "y":
+            return sendToFront()
+        elif option == "no" or option == "n":
+            return play_song() 
+        else:
+            print(option+" is not an option")
+    
+def play_song():
     if not mixer.get_init():
         mixer.init(16000, -16, 1)
     mixer.music.load("./Song.wav")
@@ -76,6 +84,8 @@ def commands():
             [
                 "using youtube play the song {}",
                 "using youtube look for the song {}",
+                "using youtube look for and play the song {}",
+                "using you tube look for and play the song {}",
                 "using you tube play the song {}",
                 "using you tube look for the song {}",
 
@@ -132,10 +142,10 @@ def sendToFront():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
-    server_address = ('127.0.0.1', 10000)
+    server_address = ('192.168.43.151', 5555)
     print (sys.stderr, 'connecting to %s port %s' % server_address)
     sock.connect(server_address)
-    sock.send(b"APCKT\n")
+    sock.send(b"APCKT\0")
     size = 1
     while size > 0:
             read = f.read(SIZE)

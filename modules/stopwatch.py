@@ -1,17 +1,24 @@
 import time
 
-class Stopwatch:    
-        def __init__(self):
-                self.start = 0.0
+class Stopwatch:
+        start = 0.0
+        comms = [
+                ["start a stopwatch", "begin a stopwatch", "setup a stopwatch"],
+                ["stop the stopwatch", "terminate the stopwatch", "end the stopwatch"]
+            ]
+        classify = [
+                "cosine",
+                "cosine"
+                ]
 
         def handler(self, task):
                 msg = ""
-                if task == "start a stopwatch": #start a stopwatch
+                if task in self.comms[0]: #start a stopwatch
                         def startWatch():
                                 self.start = time.time()
                         msg = "started a stopwatch"
                         return msg, startWatch()
-                elif task == "stop the stopwatch": #stop the stopwatch
+                elif task in self.comms[1]: #stop the stopwatch
                         if(self.start != 0):
                                 stop = "{0:.2f}".format(time.time() - self.start)
                                 self.start = 0
@@ -39,5 +46,4 @@ def command_handler(sentence):
     print("please use stopwatch object instead")
 
 def c_builder():
-    watch = Stopwatch
-    return watch
+    return Stopwatch

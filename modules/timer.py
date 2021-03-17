@@ -1,21 +1,28 @@
 from word2number import w2n
 import signal
+from parse import *
 
 def command_handler(sentence):
-    msg = ""
+    msg = sentence+" is not a known command"
     function = None
-    if "set a timer for" in sentence:
-        msg, function = setTimer(sentence)
-    else:
-        msg = sentence+" is not a known command"
+    comms, classify = commands()
+    for i in comms: #pulling parsing formats
+        for j in i:
+            res = parse(j, sentence) #try and parse using parse formats
+            if res:
+                msg, function = setTimer(res[0])
     return msg, function
 
 def commands():
     comm = [
-            ["set a timer for"]
+            [
+                "set a timer for {}",
+                "start a timer for {}",
+                "setup a timer for {}",
             ]
+        ]
     classify = [
-            "exact"
+            "parse"
             ]
     return comm, classify
 

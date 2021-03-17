@@ -2,6 +2,7 @@
 import tools.vosk_rec as vosk_rec
 import tools.sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
+import modules.youtube_music as yt #remove this later , need for sending to front end
 import tools.voice_synth as vs
 import modules.module_loader as ml
 import os #for recording, temporary usage
@@ -26,8 +27,10 @@ def main():
     filename = "downSamp.wav"
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
-            "enter \"r\" to record for 10 seconds\n:"
+            "enter \"r\" to record for 10 seconds\n"
+            "enter \"wifi\" to test the wifi functionality\n"
             "enter \"test\" to enter the testing menu\n"
+            "enter \"front\" to send Song.wav to front end\n"
             "enter \"exit\" to exit the program: ")
 
     while True:
@@ -53,13 +56,15 @@ def main():
             elif(result == ""):
                 print("\nNo command match was found\n")
                 continue 
+        elif(record == "front"):
+            yt.sendToFront()
         elif(record == "wifi"):
             #os.system("rm downSamp.wav")
             os.system("clear")
 
             sentence = decoder.listen_stream()
             input("is the sentence okay?")
-            yt.test(sentence)
+            sentence, result = sklearn_sims.compare_command(sentence, classes)
 
 #code below is for serial communication
 #        elif(record == "serial"):

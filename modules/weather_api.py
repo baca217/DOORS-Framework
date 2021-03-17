@@ -4,21 +4,42 @@ import requests
 def command_handler(sentence):
     msg = sentence+" is not a known command"
     function = None
-    if "what's the weather" in sentence:
-        res = ["Denver"]
-        if "what's the weather in" in sentence:
-            res = parse("what's the weather in {}", sentence)
-            if res is None:
-                return "couldn't pull city from speech", None
-        msg, function = getWeather(res[0])
-    return msg, function
+    comms, ident = commands()
 
+    for i, j in zip(comms, ident):
+        if j == "cosine" and sentence in comms[0]: #sentence in one of commands
+            msg, function = getWeather("denver")
+        elif j =="parse":
+            for x in i: #go through parse formats
+                res = parse(x, sentence) #try and parse sentence
+                if res:
+                    msg, function = getWeather(res[0])
+    return msg, function
+    
 def commands():
     comm = [
-            ["what's the weather"]
+            [
+                "what's the weather",
+                "what is the weather",
+                "what's the weather today",
+                "what is the weather today",
+                "get the weather",
+                "get the weather for today",
+                "lookup the weather",
+                "lookup the weather for today"
+            ],
+            [
+                "what's the weather in {}",
+                "what is the weather in {}",
+                "get the weather for {}",
+                "get the weather in {}",
+                "look up the weather for {}",
+                "look up the weather in {}"
             ]
+        ]
     classify = [
-            "exact"
+            "cosine",
+            "parse"
             ]
     return comm, classify
 
