@@ -7,6 +7,8 @@ import eyed3 #for mp3 metadata pulling
 from parse import *
 #import mutagen #for .wav files metadata pulling
 from tinytag import TinyTag
+import socket
+import sys
 
 def command_handler(sentence):
     msg = ""
@@ -62,7 +64,7 @@ def playSong(songName):
         highPath = ""
         dis = 0
         path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
-        onlyfiles = [f for f in os.listdir(path) if f.endswith(".mp3") or f.endswith(".wav")] #only mp3 and wav files pulled
+        onlyfiles = [f for f in os.listdir(path)] #only mp3 and wav files pulled
 
         if(len(songName) == 0):
                 msg = "No song name was given"
@@ -85,15 +87,44 @@ def playSong(songName):
                                 highPath = i
         if(highPath):
                 msg = "Song "+highTitle+" will be played"
-                def playSong():
-                        mixer.init(16000, -16, 1)
-                        mixer.music.load(path+highPath)
-                        mixer.music.play()
-                return msg, playSong
+                while True:
+                    option = input("send to front-end?")
+                    if option == "yes" or option == "y":
+                        def send():
+                            sendToFront(path+highPath)
+                        return msg, send
+                    elif option == "non" or option == "n":
+                        def playSong():
+                            mixer.init(16000, -16, 1)
+                            mixer.music.load(path+highPath)
+                            mixer.music.play()
+                        return msg, playSong
+                
         else:
                 msg = "No songs in the local library matched "+songName
                 return msg, None
         return 0
+
+def sendToFront(songName):
+    SIZE = int(65536/2)
+    #open file for sending
+    f = open(songName, "rb")
+    binaryHeader = f.read(44) #remove .wav header info for raw format
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = ('127.0.0.1', 5555)
+    print ('connecting to %s port %s' % server_address)
+    sock.connect(server_address)
+    sock.send(b"APCKT\0")
+    size = 1
+    while size > 0:
+            read = f.read(SIZE)
+            size = len(read)
+            sock.send(read)
+    sock.close()
+    f.close()
 
 def stopSong():
         if mixer.get_init():

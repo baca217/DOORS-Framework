@@ -63,7 +63,6 @@ def main():
             os.system("clear")
 
             sentence = decoder.listen_stream()
-            input("is the sentence okay?")
             sentence, result = sklearn_sims.compare_command(sentence, classes)
 
 #code below is for serial communication

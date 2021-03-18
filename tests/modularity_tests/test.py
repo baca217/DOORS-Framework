@@ -20,7 +20,7 @@ def lmp_test(classes): #test for local music player
     time.sleep(3)
     sk.compare_command("the music must stop", classes)
     time.sleep(3)
-    sk.compare_command("play the song take me home country road by john denver", classes)
+    sk.compare_command("play the song domino line by john denver", classes)
     time.sleep(3)
 
 def sw_test(classes): #test for stopwatch
