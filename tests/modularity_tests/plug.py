@@ -11,6 +11,14 @@ def main():
     time.sleep(3)
     info_test(classes)
 
+def tests(classes):
+    off_test(classes)
+    time.sleep(2)
+    on_test(classes)
+    time.sleep(2)
+    info_test(classes)
+
+
 def on_test(classes):
     sk.compare_command("turn on the power plug", classes)
 

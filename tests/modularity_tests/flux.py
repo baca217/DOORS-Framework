@@ -6,8 +6,15 @@ import time
 
 def main():
     classes = ml.class_builder()
-#    color_test(classes)
-#    on_off_test(classes)
+    color_test(classes)
+    on_test(classes)
+    off_test(classes)
+    bright_test(classes)
+
+def tests(classes):
+    color_test(classes)
+    on_test(classes)
+    off_test(classes)
     bright_test(classes)
 
 def color_test(classes):
@@ -30,10 +37,11 @@ def color_test(classes):
         sk.compare_command("turn the flux lightbulb color to "+i, classes)
         time.sleep(2)
 
-def on_off_test(classes):
-    #sk.compare_command("turn the flux light bulb off", classes)
-    #time.sleep(2)
+def on_test(classes):
     sk.compare_command("turn the flux light bulb on", classes)
+
+def off_test(classes):
+    sk.compare_command("turn the flux light bulb off", classes)
 
 def bright_test(classes):
     sk.compare_command("set the brightness of the flux light bulb to ten percent", classes)

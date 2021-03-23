@@ -21,7 +21,10 @@ def command_handler(sentence):
         msg = "turning on the kasa smart plug"
         func = turnOn(plug) 
     elif sentence in coms[2]: #match for getting info for smart plug
-        print(plug.state_information.items())
+        if plug.is_on:
+            msg = "kasa smart plug is on"
+        else:
+            msg = "kasa smart pluf is off"
     return msg, func
 
 

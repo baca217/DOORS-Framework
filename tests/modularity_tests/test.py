@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 import modules.module_loader as ml
 import tools.sklearn_sims as sk
+import flux
+import plug
 import time
 
 def main():
     classes = ml.class_builder()
-    lmp_test(classes)
+    #lmp_test(classes)
     #sw_test(classes)
     #timer_test(classes)
     #weather_test(classes)
     #yt_music_test(classes)
+    #flux.tests(classes)
+    plug.tests(classes)
+
 
 def lmp_test(classes): #test for local music player
     sk.compare_command("play the song swear", classes)

@@ -20,8 +20,6 @@ def command_handler(sentence):
     print("scanner scan: ", end="")
     print(scanner.scan(timeout = 4))
 
-    print(sentence in coms[2])
-
     try:
         #specific ID/MAC of bulb
         my_light = scanner.getBulbInfoByID("D8F15BA2EE72")
