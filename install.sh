@@ -29,6 +29,7 @@ pip3 install pafy
 pip3 install pydub
 pip3 install mutagen
 pip3 install tinytag
+pip3 install python-kasa --pre
 sudo apt-get update
 sudo apt-get install libgfortran5
 sudo apt-get install libgfortran3
