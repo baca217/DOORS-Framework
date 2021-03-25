@@ -137,5 +137,5 @@ def compare_command(spoken, classes):
             else:
                 function()
     else:
-        print("no match for: "+spoken)
+        print("no match for "+spoken)
     return spoken, msg

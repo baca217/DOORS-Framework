@@ -64,8 +64,8 @@ def getWeather(city_name):
                 #message for printing all values
                 msg = (msg + " Temperature in degrees Fahrenheit = " +
                                 temperature + 
-                        "\n atmospheric pressure in hPa unit = " +
-                                str(current_pressure) +
+                        #"\n atmospheric pressure in hPa unit = " +
+                        #        str(current_pressure) +
                         "\n humidity in percentage = " +
                                 str(current_humidiy) +
                         "\n description = " +

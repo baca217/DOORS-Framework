@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import modules.module_loader as ml
 import tools.sklearn_sims as sk
-import flux
-import plug
+import flux_test as flux
+import plug_test as plug
+import clock_test as clock
 import time
 
 def main():
@@ -13,7 +14,9 @@ def main():
     #weather_test(classes)
     #yt_music_test(classes)
     #flux.tests(classes)
-    plug.tests(classes)
+    #plug.tests(classes)
+    #clock.tests(classes)
+    secret_test(classes)
 
 
 def lmp_test(classes): #test for local music player
@@ -46,6 +49,9 @@ def weather_test(classes): #test for weather feature
 
 def yt_music_test(classes):
     sk.compare_command("using youtube play the song swear by casio pea", classes)
+
+def secret_test(classes):
+    sk.compare_command("who is jj geeks", classes)
 
 
 if __name__ == "__main__":

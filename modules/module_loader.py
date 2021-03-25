@@ -8,6 +8,8 @@ import modules.weather_api as weather
 import modules.youtube_music as yt
 import modules.flux_bulb as flux
 import modules.hs103_smartplug as hs
+import modules.clock as clock
+import modules.secret as secret
 from os import listdir
 from os.path import dirname, basename, isfile, join
 import glob
@@ -38,6 +40,8 @@ def modules():
             'yt' : yt,
             "flux" : flux,
             'hs103' : hs,
+            'clock' : clock,
+            'secret' : secret
             }
     return mods
 
