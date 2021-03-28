@@ -38,13 +38,34 @@ def color_test(classes):
         time.sleep(2)
 
 def on_test(classes):
-    sk.compare_command("turn the flux light bulb on", classes)
+    sent = [
+            "turn the flux light bulb on",    
+        ]
+    run_stuff(sent, classes, 0)
 
 def off_test(classes):
-    sk.compare_command("turn the flux light bulb off", classes)
+    sent = [
+            "turn the flux light bulb off",
+        ]
+    run_stuff(sent, classes, 0)
 
 def bright_test(classes):
-    sk.compare_command("set the brightness of the flux light bulb to ten percent", classes)
+    sent = [
+            "set the brightness of the flux light bulb to ten percent",
+        ]
+    run_stuff(sent, classes, 0)
+
+def run_stuff(sentences, classes, delay):
+    for i in sentences:
+        msg, func, mod = sk.compare_command(i, classes)
+        print(msg)
+        if func: #we got a function back
+                if mod in classes.keys(): #classes functions should manipulate themselves
+                    func(classes[mod])
+                else:
+                    func()
+        time.sleep(delay)
+
 
 if __name__ == "__main__":
     main()

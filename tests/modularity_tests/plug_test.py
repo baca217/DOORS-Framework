@@ -20,13 +20,34 @@ def tests(classes):
 
 
 def on_test(classes):
-    sk.compare_command("turn on the power plug", classes)
+    sent = [
+            "turn on the power plug",
+        ]
+    run_stuff(sent, classes, 0)
 
 def off_test(classes):
-    sk.compare_command("turn off the power plug", classes)
+    sent = [
+            "turn off the power plug",
+        ]
+    run_stuff(sent, classes, 0)
 
 def info_test(classes):
-    sk.compare_command("is the power plug on", classes)
+    sent = [
+            "is the power plug on",
+        ]
+    run_stuff(sent, classes, 0)
+
+def run_stuff(sentences, classes, delay):
+    for i in sentences:
+        msg, func, mod = sk.compare_command(i, classes)
+        print(msg)
+        if func: #we got a function back
+                if mod in classes.keys(): #classes functions should manipulate themselves
+                    func(classes[mod])
+                else:
+                    func()
+        time.sleep(delay)
+
 
 if __name__ == "__main__":
     main()
