@@ -11,18 +11,8 @@ from pygame import mixer
 from parse import *
 
 def main():
-    rec_com = [ #commands for recording audio
-        "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 temp.wav",
-        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
-        "rm temp.wav",
-        "echo \"done recording\""
-        ]
-
-
     decoder = vosk_rec.Decoder()
     voice = vs.VoiceSynth()
-    voice.disable()
     classes = ml.class_builder()
     filename = "downSamp.wav"
     os.system("clear") #clearing out text from vosk intialization
@@ -30,7 +20,6 @@ def main():
             "enter \"r\" to record for 10 seconds\n"
             "enter \"wifi\" to test the wifi functionality\n"
             "enter \"test\" to enter the testing menu\n"
-            "enter \"front\" to send Song.wav to front end\n"
             "enter \"exit\" to exit the program: ")
 
     while True:
@@ -40,62 +29,54 @@ def main():
         func = None
         if(record == "exit"):
             exit()
-        elif(record == "r"):
-            try:
-                os.system("rm downSamp.wav")
-            except:
-                print(end = "")
-            for i in rec_com:
-                os.system(i)
-            os.system("clear")
-
-            sentence = decoder.decode_file(filename)
+        elif(record == "r" or record == "wifi" or record == "reuse"):
+            if record == "r": #do a local recording
+                local()
+                sentence = decoder.decode_file(filename)
+            elif record == "wifi": #test using wifi capability
+                sentence = decoder.listen_stream()
+            elif record == "reuse": #reuse previous recording
+                sentence = decoder.decode_file(filename)
+            else:
+                print("that shouldn't have happened: "+record)
+                exit()
             print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence, classes)
-            if(sentence == -1):
-                print("\n error occurred\n")
-                continue
-            elif(result == ""):
-                print("\nNo command match was found\n")
-                continue 
-        elif(record == "front"):
-            yt.sendToFront()
-        elif(record == "wifi"):
-            #os.system("rm downSamp.wav")
-            os.system("clear")
-
-            sentence = decoder.listen_stream()
-            msg, func = sklearn_sims.compare_command(sentence, classes)
-            run_results(msg, func, classes)
+            msg, func, mod = sklearn_sims.compare_command(sentence, classes)
+            run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
-
-        elif(record == "reuse"):
-            sentence = decoder.decode_file(filename)
-            print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence, classes)
-            if(sentence == -1):
-                continue
-            elif(result == ""):
-                print("\nNo command match was found\n")
-                continue
-
         elif(record == "test"):
             run_tests(decoder, voice, classes)
 
         else:
             print(record,"is not an option \n")
-        print()
 
-def run_results(msg, func, classes):
+def run_results(msg, func, mod, classes, voice):
     print(msg)
+    voice.sendToFront(msg)
     if func: #we got a func back
-        if bMod in classes.keys(): #classes funcs should manipulate themselves
-            func(classes[bMod])
+        if mod in classes.keys(): #classes funcs should manipulate themselves
+            func(classes[mod])
         else:
             func()
 
+def local():
+    rec_com = [ #commands for recording audio
+        "echo \"recording for 10 seconds\"",
+        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 temp.wav",
+        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
+        "rm temp.wav",
+        "clear",
+        "echo \"done recording\"",
+        ]
+
+    try: #removing original recording file if it exists
+        os.system("rm downSamp.wav")
+    except:
+        print(end = "")
+    for i in rec_com:
+        os.system(i)
 
 def run_tests(decoder, voice, classes):
         t_range = ["1", "2", "3", "4", "5", "6"]

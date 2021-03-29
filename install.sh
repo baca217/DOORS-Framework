@@ -32,6 +32,7 @@ pip3 install tinytag
 pip3 install python-kasa --pre
 pip3 install pytz
 sudo apt-get update
+sudo apt-get install espeak
 sudo apt-get install libgfortran5
 sudo apt-get install libgfortran3
 sudo apt-get install libatlas-base-dev

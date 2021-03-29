@@ -61,7 +61,7 @@ def playSong(songName):
         songs = []
         highDis = 0
         highDitle = ""
-        highPath = ""
+        highPath = None
         dis = 0
         path = "/home/"+pwd.getpwuid(os.getuid()).pw_name+"/Music/" #dir for music for current user
         onlyfiles = [f for f in os.listdir(path)] #only mp3 and wav files pulled
@@ -86,17 +86,34 @@ def playSong(songName):
                                 highTitle = tag.title
                                 highPath = i
         if(highPath):
+                totPath = path+highPath
+                tmp = "tmpSend.wav"
+                song = "songSend.wav"
                 msg = "Song "+highTitle+" will be played"
+                convert = "ffmpeg -i "+ totPath + " -ar 16k -ac 1 "+ song
+                rmFile = "rm "+song
+
+                try:
+                    os.system(rmFile)
+                except:
+                    print(end = "")
+
+                try:
+                    os.system(convert)
+                except:
+                    msg = "couldn't convert file for song "+songName
+                    func = None
+                    return msg, func
                 while True:
-                    option = input("send to front-end?")
+                    option = input("send to front-end? ")
                     if option == "yes" or option == "y":
                         def send():
-                            sendToFront(path+highPath)
+                            sendToFront(song)
                         return msg, send
-                    elif option == "non" or option == "n":
+                    elif option == "no" or option == "n":
                         def playSong():
                             mixer.init(16000, -16, 1)
-                            mixer.music.load(path+highPath)
+                            mixer.music.load(song)
                             mixer.music.play()
                         return msg, playSong
                 
