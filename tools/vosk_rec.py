@@ -83,48 +83,7 @@ class Decoder:
                                 results = self.decode_file(fTot) #get results from file
                                 print("FINAL RESULT from stream: "+results)
                                 return results
-                        '''
-                        s.listen()
-                        conn, addr = s.accept()
-                        with conn:
-                                fTot = 'tot.wav' #file that will hold all audio received
-                                f = wave.open(fTot, 'wb')
-                                f.setnchannels(1) #mono
-                                f.setsampwidth(2)
-                                f.setframerate(8000)
-                                holder = b"" #temporary holder for chunk of audio recognition
-                                for i in range (6):
-                                        cur = 1
-                                        data = conn.recv(int(CHUNK/2))
-                                        ''
-                                        if not data: #didn't receive any data
-                                                f.writeframesraw(holder)
-                                                f.close()
-                                                results = self.decode_file(fTot) #get results from file
-                                                print("FINAL RESULT: "+str(cur)+":"+results)
-                                                break
-                                        ''
-                                        if data:
-                                                holder += data #aggregating total voice data
-                                                if len(holder) >= CHUNK:
-                                                        fname = 'temp.wav'
-                                                        temp = wave.open(fname, 'wb')
-                                                        temp.setnchannels(1) #mono
-                                                        temp.setsampwidth(2)
-                                                        temp.setframerate(8000)
-                                                        temp.writeframesraw(holder)
-                                                        print("SIZE OF HOLDER AFTER WRITE"+str(len(holder)))
-                                                        f.writeframesraw(holder)
-                                                        temp.close
-                                                        holder = b""
-
-                                                        results = self.decode_file(fname)
-                                                        print("results "+str(cur)+":"+results)
-                                                        temp.close()
-                                                        cur += 1
-                                                else:
-                                                        continue
-                            '''
+                        
         def detectSilence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
