@@ -9,15 +9,15 @@ import time
 
 def main():
     classes = ml.class_builder()
-    lmp_test(classes)
-    sw_test(classes)
-    timer_test(classes)
-    weather_test(classes)
-    yt_music_test(classes)
+    #lmp_test(classes)
+    #sw_test(classes)
+    #timer_test(classes)
+    #weather_test(classes)
+    #yt_music_test(classes)
     flux.tests(classes)
-    plug.tests(classes)
-    clock.tests(classes)
-    secret_test(classes)
+    #plug.tests(classes)
+    #clock.tests(classes)
+    #secret_test(classes)
 
 
 def lmp_test(classes): #test for local music player

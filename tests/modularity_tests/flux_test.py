@@ -12,7 +12,7 @@ def main():
     bright_test(classes)
 
 def tests(classes):
-    color_test(classes)
+    #color_test(classes)
     on_test(classes)
     off_test(classes)
     bright_test(classes)
