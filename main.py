@@ -64,7 +64,7 @@ def run_results(msg, func, mod, classes, voice):
 def local():
     rec_com = [ #commands for recording audio
         "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:0,0\" -d 10 -f S16_LE -r 48000 temp.wav",
+        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 temp.wav",
         "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
         "rm temp.wav",
         "clear",
