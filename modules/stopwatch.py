@@ -11,7 +11,7 @@ class Stopwatch:
                 "cosine"
                 ]
 
-        def handler(self, task):
+        def handler(self, task, info):
                 msg = ""
                 if task in self.comms[0]: #start a stopwatch
                         def startWatch():

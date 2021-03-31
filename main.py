@@ -3,6 +3,7 @@ import tools.vosk_rec as vosk_rec
 import tools.sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
 import tools.voice_synth as vs
+import tools.front_info as fi
 import modules.module_loader as ml
 from tests.main_tests.main_test import run_tests
 import os #for recording, temporary usage
@@ -12,7 +13,8 @@ from parse import *
 
 def main():
     decoder = vosk_rec.Decoder()
-    voice = vs.VoiceSynth()
+    info = fi.get_fe_info()
+    voice = vs.VoiceSynth(info)
     classes = ml.class_builder()
     filename = "downSamp.wav"
     os.system("clear") #clearing out text from vosk intialization
@@ -27,6 +29,7 @@ def main():
         record = record.strip().lower()
         msg = ""
         func = None
+        
         if(record == "exit"):
             exit()
         elif(record == "r" or record == "wifi" or record == "reuse"):
@@ -41,7 +44,7 @@ def main():
                 print("that shouldn't have happened: "+record)
                 exit()
             print("vosk sentence: "+sentence)
-            msg, func, mod = sklearn_sims.compare_command(sentence, classes)
+            msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
             run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
@@ -60,7 +63,7 @@ def run_results(msg, func, mod, classes, voice):
         else:
             func()
 
-def local():
+def local(): #function for recording and testing locally
     rec_com = [ #commands for recording audio
         "echo \"recording for 10 seconds\"",
         "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 temp.wav",
@@ -75,7 +78,7 @@ def local():
     except:
         print(end = "")
     for i in rec_com:
-        os.system(i)            
+        os.system(i)
                 
 if __name__ == "__main__":
         main()

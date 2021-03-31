@@ -1,4 +1,4 @@
-def command_handler(sentence):
+def command_handler(sentence, info):
     msg = sentence+" is not a known command"
     func = None
 

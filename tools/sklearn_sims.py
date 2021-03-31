@@ -107,7 +107,7 @@ ARGUMENTS: spoke
 DESCRIPTION: functions takes one argument which is "spoken" which is a string. This string will be
 compared to all the commands for the known modules.
 '''
-def compare_command(spoken, classes):
+def compare_command(spoken, classes, info):
     mods = ml.modules() #dictionary containing modules for usage
     bScore = 0
     bSent = ""
@@ -126,9 +126,9 @@ def compare_command(spoken, classes):
     if bScore > .8: #executing the best scored module
         if bMod in classes.keys(): #we have a class for the module
             c_holder = classes.get(bMod)
-            msg, function = c_holder.handler(c_holder, bSent)
+            msg, function = c_holder.handler(c_holder, bSent, info)
         else: #will use the module directly
-            msg, function = mods[bMod].command_handler(spoken)
+            msg, function = mods[bMod].command_handler(spoken, info)
     else:
         msg = "no match for "+spoken
     return msg, function, bMod

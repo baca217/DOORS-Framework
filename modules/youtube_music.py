@@ -23,16 +23,12 @@ any format usually .webm or .mp4 but it's converted to a .wav file. That file is
 to 8000 samples, converted to mono if necessary and saved to "Song.wav". The old .wav file is removed
 and the new sampled file is what's left.
 '''
-def download_song(songName):
+def download_song(songName, info):
     videosSearch = VideosSearch(songName, limit = 2) #searching information about song
     result = (videosSearch.result())
     video = pafy.new(result["result"][0]["link"])
     url = result["result"][0]["link"]
-    #audiostreams = video.audiostreams #pulling audio from video
-    
-    #for i in audiostreams:
-    #    print(i.bitrate, i.extension, i.get_filesize()) #showing download qualities  of songs
-
+    convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 temp/yt_song.wav" #downsampling command 
 
     ydl_opts = { #downloads options for youtube dl
             "outmpl": "temp.wav",
@@ -46,7 +42,7 @@ def download_song(songName):
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url]) #downloading video using youtube-dl
-    convert = "ffmpeg -i \"{}\" -isr 48000 -ar 16000 -ac 1 Song.wav" #downsampling command
+    
     files = glob.glob("./*.wav") #getting the latest wave file
     latest = max(files, key=os.path.getctime)
 
@@ -56,16 +52,20 @@ def download_song(songName):
     while True:
         option = input("send to front end?: ")
         if option == "yes" or option == "y":
-            return sendToFront()
+            def callSend():
+                sendToFront(info)
+            return callSend
         elif option == "no" or option == "n":
-            return play_song() 
+            def call_play():
+                play_song()
+            return call_play
         else:
             print(option+" is not an option")
     
 def play_song():
     if not mixer.get_init():
         mixer.init(16000, -16, 1)
-    mixer.music.load("./Song.wav")
+    mixer.music.load("./temp/yt_song.wav")
     mixer.music.play()
 
     input("wait")
@@ -107,7 +107,7 @@ def test(sentence):
         print(vals[0])
         download_song(vals[0])
 
-def command_handler(sentence):
+def command_handler(sentence, info):
     msg = "song name couldn't be derived"
     function = None
     comms, classify = commands()
@@ -115,7 +115,7 @@ def command_handler(sentence):
         for j in i: #iterating through individual commands
             result = parse(j, sentence)
             if result: #was able to parse sentence using a command format
-                function = download_song(result[0])
+                function = download_song(result[0], info)
                 msg = "going to play the song "+result[0]
                 break
         if function: #function was set, break and return
@@ -133,16 +133,17 @@ ip address on port 10000 in chunks of 32768 bytes. The message is preappended wi
 for formatting which is how the front-end team wants it. After the whole file is sent the socket is
 closed.
 '''
-def sendToFront():
+def sendToFront(info):
+    ip, port = info["front"]
     SIZE = int(65536/2)
     #open file for sending
-    f = open("Song.wav", "rb")
+    f = open("./temp/yt_song.wav", "rb")
     binaryHeader = f.read(44) #remove .wav header info for raw format
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
-    server_address = ('192.168.43.151', 5555)
+    server_address = (ip, port)
     print (sys.stderr, 'connecting to %s port %s' % server_address)
     sock.connect(server_address)
     sock.send(b"APCKT\0")

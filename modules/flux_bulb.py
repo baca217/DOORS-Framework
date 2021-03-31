@@ -11,7 +11,7 @@ from word2number import w2n
 #still working on the brightness function. Need to worry about querying the color of the lightbulb first,
 #then setting the brightness back
 
-def command_handler(sentence):
+def command_handler(sentence, info):
     scanner = BulbScanner()
     coms, classify = commands()
     msg = sentence+" is not a know flux lightbulb command"

@@ -10,7 +10,7 @@ from tinytag import TinyTag
 import socket
 import sys
 
-def command_handler(sentence):
+def command_handler(sentence, info):
     msg = ""
     function = None
     comms, classify = commands()
@@ -18,7 +18,7 @@ def command_handler(sentence):
     for i in comms[0]:
         res = parse(i, sentence)
         if res:
-            msg, function = playSong(res[0])
+            msg, function = playSong(res[0], info)
             if len(msg) > 0:
                 break
 
@@ -87,8 +87,8 @@ def playSong(songName):
                                 highPath = i
         if(highPath):
                 totPath = path+highPath
-                tmp = "tmpSend.wav"
-                song = "songSend.wav"
+                tmp = "temp/tmpSend.wav"
+                song = "temp/songSend.wav"
                 msg = "Song "+highTitle+" will be played"
                 convert = "ffmpeg -i "+ totPath + " -ar 16k -ac 1 "+ song
                 rmFile = "rm "+song
@@ -108,7 +108,7 @@ def playSong(songName):
                     option = input("send to front-end? ")
                     if option == "yes" or option == "y":
                         def send():
-                            sendToFront(song)
+                            sendToFront(song, info)
                         return msg, send
                     elif option == "no" or option == "n":
                         def playSong():
@@ -122,7 +122,8 @@ def playSong(songName):
                 return msg, None
         return 0
 
-def sendToFront(songName):
+def sendToFront(songName, info):
+    ip, port = info["front"]
     SIZE = int(65536/2)
     #open file for sending
     f = open(songName, "rb")
@@ -131,7 +132,7 @@ def sendToFront(songName):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
-    server_address = ('192.168.43.151', 5555)
+    server_address = (ip, port)
     print ('connecting to %s port %s' % server_address)
     sock.connect(server_address)
     sock.send(b"APCKT\0")
