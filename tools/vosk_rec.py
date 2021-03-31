@@ -10,6 +10,7 @@ import struct
 import math
 import random
 import wave
+import time
 from pydub import AudioSegment, silence #for detecting silence in audio file
 
 class Decoder:
@@ -92,9 +93,8 @@ class Decoder:
                                         temp.setsampwidth(2)
                                         temp.setframerate(8000)
                         except KeyboardInterrupt:
-                                input("send MSTOP")
                                 s.send(b"MSTOP\0")
-                                input("close socket")
+                                time.sleep(1)
                                 s.close()
 
                 results = self.decode_file(FTOT) #get results from file
@@ -106,26 +106,27 @@ class Decoder:
 
                 for infile in files:
                         w = wave.open(infile, "rb")
-                        data.append( [w.getparams(), w.readframes(w.getnframes())] )
+                        data.append( [w.readframes(w.getnframes())] )
                         w.close()
 
                 output = wave.open(files[0], "wb")
                 output.setnchannels(1) #mono
                 output.setsampwidth(2)
                 output.setframerate(8000)
-                output.writeframes(data[0][1])
-                output.writeframes(data[1][1])
+                output.writeframes(data[0][0])
+                output.writeframes(data[1][0])
                 output.close()
                                                 
         def detectSilence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
-                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-8)
+                print(dBFS)
+                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-4)
                 pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
 
                 print(pieces)
                 for i in pieces:
-                        if i[1] - i[0] > 3:
+                        if i[1] - i[0] > 2:
                             print("big silence: "+str(i[0]) + " " + str(i[1]))
                             return True
                 return False
