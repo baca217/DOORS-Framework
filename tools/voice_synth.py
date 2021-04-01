@@ -20,8 +20,11 @@ class VoiceSynth:
                         command = 'espeak \"{}\" --stdout |aplay 2>/dev/null'.format(comb)
                         system(command)
         def sendToFront(self, sentence): #still working on this
-                fName = "temp/voice.wav"
-                temp = "temp/vTemp.wav"
+                fName = "./temp/voice.wav"
+                temp = "./temp/vTemp.wav"
+                cleanup = [
+                        "rm "+fName,
+                    ]
                 comms = [
                         "espeak -w "+temp+" -s 130 \""+sentence+"\"",  #converting msg to voice synth .wav file
                         "ffmpeg -i "+temp+" -ar 16000 "+fName, #downsampling .wav file for front-end
@@ -32,6 +35,11 @@ class VoiceSynth:
                 if not self.enabled:
                         print("voice synth not on. Will not send audio to front end")
                         return
+                for i in cleanup:
+                    try:
+                        system(i)
+                    except:
+                        continue
                 for i in comms:
                         system(i)
                 SIZE = int(65536/2)
@@ -43,15 +51,14 @@ class VoiceSynth:
 
                 # Connect the socket to the port where the server is listening
                 server_address = (self.ip, self.port)
-                print (sys.stderr, 'connecting to %s port %s' % server_address)
+                print ('connecting to {} port {}\n'.format(self.ip, self.port))
                 sock.connect(server_address)
                 #sock.send(b"APCKT\0")
                 size = 1
                 while size > 0:
                         read = f.read(SIZE)
                         size = len(read)
-                        print(size)
-                        sock.send(read)
+                        sock.sendall(read)
                 sock.close()
 
         def enable(self):

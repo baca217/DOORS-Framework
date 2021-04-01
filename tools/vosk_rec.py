@@ -14,9 +14,10 @@ import time
 from pydub import AudioSegment, silence #for detecting silence in audio file
 
 class Decoder:
-        def __init__(self):
+        def __init__(self, info):
                 model = Model(os.getcwd()+"/modules/model")
                 self.rec = KaldiRecognizer(model, 8000)
+                self.ip, self.port = info["front"]
 
         def decode_file(self, aud_file):
                 SetLogLevel(0)
@@ -56,17 +57,16 @@ class Decoder:
                 return ""
 
         def listen_stream(self):
-                HOST = '192.168.43.125'  # Standard loopback interface address (localhost)
-                PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
-                CHUNK = int(65536/2)
-                FTOT = "recv.wav"
-                FTEMP = "temp.wav"
+                HOST = self.ip
+                PORT = self.port
+                CHUNK = 32768
+                FTOT = "./temp/recv.wav"
+                FTEMP = "./temp/temp.wav"
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         print("trying to connect "+HOST+ " " +str(PORT))
                         s.connect((HOST, PORT))
                         print("connected")
-#                        s.send(b"MSTRM\0")
                         tot = wave.open(FTOT, 'wb')
                         tot.setnchannels(1) #mono
                         tot.setsampwidth(2)
@@ -77,21 +77,23 @@ class Decoder:
                         temp.setnchannels(1) #mono
                         temp.setsampwidth(2)
                         temp.setframerate(8000)
+
                         try:
                                 while True:                        
                                         data = s.recv(CHUNK)
-                                        print("got data "+str(len(data)))
                                         temp.writeframesraw(data)
                                         temp.close()
                                         self.combine_files([FTOT, FTEMP])
-                                        if(self.detectSilence(FTOT)): #3 seconds of silence detected
+                                        if(self.detectSilence(FTOT)): #2 seconds of silence detected
                                                 s.send(b"MSTOP\0")
+                                                time.sleep(1)
                                                 s.close()
                                                 break
                                         temp = wave.open(FTEMP, "wb")
                                         temp.setnchannels(1) #mono
                                         temp.setsampwidth(2)
                                         temp.setframerate(8000)
+                                
                         except KeyboardInterrupt:
                                 s.send(b"MSTOP\0")
                                 time.sleep(1)
@@ -120,11 +122,9 @@ class Decoder:
         def detectSilence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
-                print(dBFS)
                 pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-4)
                 pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
 
-                print(pieces)
                 for i in pieces:
                         if i[1] - i[0] > 2:
                             print("big silence: "+str(i[0]) + " " + str(i[1]))

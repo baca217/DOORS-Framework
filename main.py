@@ -12,11 +12,11 @@ from pygame import mixer
 from parse import *
 
 def main():
-    decoder = vosk_rec.Decoder()
     info = fi.get_fe_info()
     voice = vs.VoiceSynth(info)
+    decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
-    filename = "downSamp.wav"
+    filename = "./temp/downSamp.wav"
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n"
@@ -44,7 +44,11 @@ def main():
                 print("that shouldn't have happened: "+record)
                 exit()
             print("vosk sentence: "+sentence)
-            msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
+            if sentence == "":
+                msg = "sorry I didn't catch that"
+                mod = ""
+            else:
+                msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
             run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
@@ -66,9 +70,9 @@ def run_results(msg, func, mod, classes, voice):
 def local(): #function for recording and testing locally
     rec_com = [ #commands for recording audio
         "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 temp.wav",
-        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
-        "rm temp.wav",
+        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 ./temp/temp.wav",
+        "ffmpeg -i ./temp/temp.wav -isr 48000 -ar 8000 ./temp/downSamp.wav",
+        "rm ./temp/temp.wav",
         "clear",
         "echo \"done recording\"",
         ]
