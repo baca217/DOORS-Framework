@@ -26,7 +26,9 @@ def main():
             "enter \"exit\" to exit the program: ")
 
     while True:
+        print()
         record = input(menu)
+        print()
         record = record.strip().lower()
         msg = ""
         func = None
