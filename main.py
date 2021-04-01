@@ -55,6 +55,8 @@ def main():
                 continue
             else:
                 msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
+            if "no match for" in msg:
+                send_error(info)
             run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
