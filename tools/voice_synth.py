@@ -41,7 +41,10 @@ class VoiceSynth:
                     except:
                         continue
                 for i in comms:
+                    try:
                         system(i)
+                    except:
+                        continue
                 SIZE = int(65536/2)
                 #open file for sending
                 f = open(fName, "rb")

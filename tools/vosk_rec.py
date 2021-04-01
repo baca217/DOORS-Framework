@@ -81,6 +81,7 @@ class Decoder:
                         try:
                                 while True:                        
                                         data = s.recv(CHUNK)
+                                        print("got data: "+len(data))
                                         temp.writeframesraw(data)
                                         temp.close()
                                         self.combine_files([FTOT, FTEMP])

@@ -10,6 +10,7 @@ import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
 from parse import *
+import socket
 
 def main():
     info = fi.get_fe_info()
@@ -45,8 +46,11 @@ def main():
                 exit()
             print("vosk sentence: "+sentence)
             if sentence == "":
-                msg = "sorry I didn't catch that"
-                mod = ""
+                send_error(info)
+                continue
+            elif sentence == "stop":
+                send_stop(info)
+                continue
             else:
                 msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
             run_results(msg, func, mod, classes, voice)
@@ -60,7 +64,7 @@ def main():
 
 def run_results(msg, func, mod, classes, voice):
     print(msg)
-    voice.sendToFront(msg)
+    #voice.sendToFront(msg)
     if func: #we got a func back
         if mod in classes.keys(): #classes funcs should manipulate themselves
             func(classes[mod])
@@ -83,6 +87,26 @@ def local(): #function for recording and testing locally
         print(end = "")
     for i in rec_com:
         os.system(i)
+
+def send_error(info): #send error for
+    CHUNK = int(65536/2)
+    IP, PORT = info["front"]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (IP, PORT)
+    print ('connecting to {} port {}\n'.format(IP, PORT))
+    sock.connect(server_address)
+    sock.sendall(b"VRERR\0")
+    sock.close()
+
+def send_stop(info):
+    CHUNK = int(65536/2)
+    IP, PORT = info["front"]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (IP, PORT)
+    print ('connecting to {} port {}\n'.format(IP, PORT))
+    sock.connect(server_address)
+    sock.sendall(b"CANCL\0")
+    sock.close()
                 
 if __name__ == "__main__":
         main()
