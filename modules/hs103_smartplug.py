@@ -7,7 +7,7 @@ def command_handler(sentence, info):
     msg = sentence + " is not a known command for kasa smart plug"
     func = None
     coms, classify = commands()
-    plug = SmartPlug("192.168.0.26")
+    plug = SmartPlug("192.168.137.230")
     if plug == None:
         msg = "couldn't find kasa smart plug on network"
         return msg, func

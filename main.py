@@ -11,6 +11,7 @@ import time #for testing
 from pygame import mixer
 from parse import *
 import socket
+import time
 
 def main():
     info = fi.get_fe_info()
@@ -99,7 +100,9 @@ def send_error(info): #send error for
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (IP, PORT)
     print ('connecting to {} port {}\n'.format(IP, PORT))
+    time.sleep(1)
     sock.connect(server_address)
+    print("sending error")
     sock.sendall(b"VRERR\0")
     sock.close()
 
@@ -108,8 +111,10 @@ def send_stop(info):
     IP, PORT = info["front"]
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (IP, PORT)
+    time.sleep(1)
     print ('connecting to {} port {}\n'.format(IP, PORT))
     sock.connect(server_address)
+    print("sending cancel")
     sock.sendall(b"CANCL\0")
     sock.close()
                 

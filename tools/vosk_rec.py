@@ -123,11 +123,11 @@ class Decoder:
         def detectSilence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
-                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-4)
+                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-0)
                 pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
 
                 for i in pieces:
-                        if i[1] - i[0] > 2:
+                        if i[1] - i[0] > 3:
                             print("big silence: "+str(i[0]) + " " + str(i[1]))
                             return True
                 return False

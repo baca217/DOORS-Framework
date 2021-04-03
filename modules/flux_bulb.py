@@ -55,24 +55,36 @@ def commands():
             [
                 "turn the flux lightbulb color to {}",
                 "set the flux bulb color to {}",
+                "set the smart bulb color to {}",
+                "set the bulb color to {}",
+                "set the light color to {}",
+                "said the light color to {}",
             ],
             [
                 "turn the flux lightbulb off",
                 "turn the flux light bulb off",
                 "turn off the flux lightbulb",
                 "turn off the flux light bulb",
+                "turn off the light",
             ],
             [
                 "turn the flux lightbulb on",
                 "turn the flux light bulb on",
                 "turn on the flux lightbulb",
                 "turn on the flux light bulb",
+                "turn on the light",
             ],
             [
                 "set the flux lightbulb brightness to {} percent",
                 "set the flux light bulb brightness to {} percent",
                 "set the brightness of the flux lightbulb to {} percent",
                 "set the brightness of the flux light bulb to {} percent",
+                "set the light brightness to {} percent",
+                "shut the light brightness to {} percent",
+                "shut the like brightness to {} percent",
+                "said the like brightness to {} percent",
+                "said the light brightness to {} percent",
+                "set the like brightness to {} percent",
             ],
         ]
     
@@ -85,6 +97,7 @@ def commands():
     return coms, classify
 
 def colorChanger(bulb, color):
+    color = color.replace(" ", "")
     msg = ""
     function = None
     colors = {
@@ -97,7 +110,7 @@ def colorChanger(bulb, color):
             "cyan" : (0, 255, 255),
             "ocean" : (0,125,255),
             "blue" : (0,0,255),
-            "violet" : (125, 0, 255),
+            "purple" : (125, 0, 255),
             "magenta" : (255, 0, 255),
             "raspberry" : (255, 0, 125)
             }
@@ -117,11 +130,26 @@ def colorChanger(bulb, color):
     return msg, function
 
 def brightnessChanger(bulb, percent):
-    num = w2n.word_to_num(percent) / 100
-    msg = "okay"
-    def funct():
-        print(str(num) + " percent")
-        bulb.setRgb(255, 0, 0, persist=False, brightness = int(255 * num))
+    msg = None
+    try: #try and pull number from words passed in
+        num = w2n.word_to_num(percent) / 100
+        if num < 0: #range checking
+            msg = "flux brightness must be equal to or more than 0 percent"
+        elif num > 1:
+            msg = "flux brightness must be less than or equaL to 100 percent"
+    except:
+        msg = "flux brightness percentage is not a number"
+    try:
+        r,g,b = bulb.getRgb()
+    except:
+        msg = "couldn't pull color from flux bulb"
+    if msg == None:
+        def funct():
+            print(str(num) + " percent")
+            bulb.setRgb(r, g, b, persist=False, brightness = int(255 * num))
+        msg = "will change flux brightness to " + str(num) + " percent"
+    else:
+        funct = None
     return msg, funct
 
 def main():

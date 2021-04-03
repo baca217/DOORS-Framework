@@ -21,7 +21,7 @@ def send_stuff():
             print('Connected by', addr)
 
             # Receive the data in small chunks and retransmit it
-            f = open("good3.wav", "rb")
+            f = open("silence.wav", "rb")
             header = f.read(44)
             size = 1
             while size > 0:
