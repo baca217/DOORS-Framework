@@ -36,6 +36,8 @@ def main():
     while True:
         record = input(menu)
         record = record.strip().lower()
+        msg = ""
+        func = None
         if(record == "exit"):
             exit()
         elif(record == "r"):
@@ -63,8 +65,8 @@ def main():
             os.system("clear")
 
             sentence = decoder.listen_stream()
-            sentence, result = sklearn_sims.compare_command(sentence, classes)
-
+            msg, func = sklearn_sims.compare_command(sentence, classes)
+            run_results(msg, func, classes)
 #code below is for serial communication
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
@@ -85,6 +87,15 @@ def main():
         else:
             print(record,"is not an option \n")
         print()
+
+def run_results(msg, func, classes):
+    print(msg)
+    if func: #we got a func back
+        if bMod in classes.keys(): #classes funcs should manipulate themselves
+            func(classes[bMod])
+        else:
+            func()
+
 
 def run_tests(decoder, voice, classes):
         t_range = ["1", "2", "3", "4", "5", "6"]
@@ -117,13 +128,12 @@ def run_tests(decoder, voice, classes):
                     if sentence == "":
                         print("nothing detected within vosk")
                         continue
-                    sentence, ret = sklearn_sims.compare_command(sentence, classes)
-                    check_test(num, ret)
+                    msg, func = sklearn_sims.compare_command(sentence, classes)
+                    check_test(num, msg)
             elif num != "7":
                 print(str(num)+" isn't a valid option!")
             else:
                 break
-            print()
             
 def check_test(num, sentence):
         sentence = sentence.strip()

@@ -101,8 +101,6 @@ def check_homie(sentence):
         print("homie was not detected!")
         return -1, -1
 
-
-
 '''
 FUNCTION: compare_command
 ARGUMENTS: spoke
@@ -114,7 +112,8 @@ def compare_command(spoken, classes):
     bScore = 0
     bSent = ""
     bMod = ""
-    msg = "Message was not set"
+    msg = ""
+    function = None
     for i in mods.keys(): #iterating through module names
         commands, classify = mods[i].commands() #pulling commands and classification from each module
         result, score = comp_work(spoken, commands, classify) #doing classification comparison
@@ -130,12 +129,6 @@ def compare_command(spoken, classes):
             msg, function = c_holder.handler(c_holder, bSent)
         else: #will use the module directly
             msg, function = mods[bMod].command_handler(spoken)
-        print(msg)
-        if function: #we got a function back
-            if bMod in classes.keys(): #classes functions should manipulate themselves
-                function(classes[bMod])
-            else:
-                function()
     else:
-        print("no match for: "+spoken)
-    return spoken, msg
+        msg = "no match for "+spoken
+    return msg, function, bMod

@@ -31,6 +31,7 @@ pip3 install mutagen
 pip3 install tinytag
 pip3 install python-kasa --pre
 pip3 install flux_led
+pip3 install pytz
 sudo apt-get update
 sudo apt-get install libgfortran5
 sudo apt-get install libgfortran3
