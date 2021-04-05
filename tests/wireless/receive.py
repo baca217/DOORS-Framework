@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import sys
-import modules.vosk_rec as vr
+#import modules.vosk_rec as vr
 
 #192.168.0.5
 
@@ -21,7 +21,7 @@ def connect():
 
 def listen():   
         HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-        PORT = 10000        # Port to listen on (non-privileged ports are > 1023)
+        PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
         f = open("recv.raw", "wb")
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -36,20 +36,9 @@ def listen():
                                     print("no data received, exiting")
                                     f.close()
                                     exit()
-                            if data:    
-                                    f.write(data)
-
-                        """
-                        while True:
-                                data = conn.recv(1024)
-                                if not data:
-                                        f.close()
-                                        break
-                                if data:
-                                        print(data)
-                                        f.write(data)
-                        """
-                                
+                            if data:
+                                    print("data")
+                                    f.write(data)                                
 
 
 if __name__ == "__main__":

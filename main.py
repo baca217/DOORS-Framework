@@ -2,183 +2,121 @@
 import tools.vosk_rec as vosk_rec
 import tools.sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
-import modules.youtube_music as yt #remove this later , need for sending to front end
 import tools.voice_synth as vs
+import tools.front_info as fi
 import modules.module_loader as ml
+from tests.main_tests.main_test import run_tests
 import os #for recording, temporary usage
 import time #for testing
 from pygame import mixer
 from parse import *
+import socket
+import time
 
 def main():
-    rec_com = [ #commands for recording audio
-        "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:1,0\" -d 10 -f S16_LE -r 48000 temp.wav",
-        "ffmpeg -i temp.wav -isr 48000 -ar 8000 downSamp.wav",
-        "rm temp.wav",
-        "echo \"done recording\""
-        ]
-
-
-    decoder = vosk_rec.Decoder()
-    voice = vs.VoiceSynth()
-    voice.disable()
+    info = fi.get_fe_info()
+    voice = vs.VoiceSynth(info)
+    decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
-    filename = "downSamp.wav"
+    filename = "./temp/downSamp.wav"
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n"
             "enter \"wifi\" to test the wifi functionality\n"
             "enter \"test\" to enter the testing menu\n"
-            "enter \"front\" to send Song.wav to front end\n"
             "enter \"exit\" to exit the program: ")
 
     while True:
+        print()
         record = input(menu)
+        print()
         record = record.strip().lower()
         msg = ""
         func = None
+        
         if(record == "exit"):
             exit()
-        elif(record == "r"):
-            try:
-                os.system("rm downSamp.wav")
-            except:
-                print(end = "")
-            for i in rec_com:
-                os.system(i)
-            os.system("clear")
-
-            sentence = decoder.decode_file(filename)
+        elif(record == "r" or record == "wifi" or record == "reuse"):
+            if record == "r": #do a local recording
+                local()
+                sentence = decoder.decode_file(filename)
+            elif record == "wifi": #test using wifi capability
+                sentence = decoder.listen_stream()
+            elif record == "reuse": #reuse previous recording
+                sentence = decoder.decode_file(filename)
+            else:
+                print("that shouldn't have happened: "+record)
+                exit()
             print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence, classes)
-            if(sentence == -1):
-                print("\n error occurred\n")
+            if sentence == "":
+                send_error(info)
                 continue
-            elif(result == ""):
-                print("\nNo command match was found\n")
-                continue 
-        elif(record == "front"):
-            yt.sendToFront()
-        elif(record == "wifi"):
-            #os.system("rm downSamp.wav")
-            os.system("clear")
-
-            sentence = decoder.listen_stream()
-            msg, func = sklearn_sims.compare_command(sentence, classes)
-            run_results(msg, func, classes)
+            elif sentence == "stop":
+                send_stop(info)
+                continue
+            else:
+                msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
+            if "no match for" in msg:
+                send_error(info)
+                continue
+            run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
 #            serial_comm.rec_data()
-
-        elif(record == "reuse"):
-            sentence = decoder.decode_file(filename)
-            print("vosk sentence: "+sentence)
-            sentence, result = sklearn_sims.compare_command(sentence, classes)
-            if(sentence == -1):
-                continue
-            elif(result == ""):
-                print("\nNo command match was found\n")
-                continue
-
         elif(record == "test"):
             run_tests(decoder, voice, classes)
-
         else:
             print(record,"is not an option \n")
-        print()
 
-def run_results(msg, func, classes):
+def run_results(msg, func, mod, classes, voice):
     print(msg)
+    #voice.sendToFront(msg)
     if func: #we got a func back
-        if bMod in classes.keys(): #classes funcs should manipulate themselves
-            func(classes[bMod])
+        if mod in classes.keys(): #classes funcs should manipulate themselves
+            func(classes[mod])
         else:
             func()
 
+def local(): #function for recording and testing locally
+    rec_com = [ #commands for recording audio
+        "echo \"recording for 10 seconds\"",
+        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 ./temp/temp.wav",
+        "ffmpeg -i ./temp/temp.wav -isr 48000 -ar 8000 ./temp/downSamp.wav",
+        "rm ./temp/temp.wav",
+        "clear",
+        "echo \"done recording\"",
+        ]
 
-def run_tests(decoder, voice, classes):
-        t_range = ["1", "2", "3", "4", "5", "6"]
-        t_menu = (            
-                "TEST 1: \"set a timer for 3 seconds\"\n"
-                "TEST 2: \"play the song country roads\"\n"
-                "TEST 3: \"stop playing music\"\n"
-                "TEST 4: \"what's the weather in denver\"\n"
-                "TEST 5: \"start a stopwatch\"\n"
-                "TEST 6: \"stop the stopwatch\"\n"
-                "enter \"7\" to exit this menu\n"
-                "Enter a test number for the test you would like to run: "
-                )
-        num = None
+    try: #removing original recording file if it exists
+        os.system("rm downSamp.wav")
+    except:
+        print(end = "")
+    for i in rec_com:
+        os.system(i)
 
-        os.system("clear")
+def send_error(info): #send error for
+    CHUNK = int(65536/2)
+    IP, PORT = info["front"]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (IP, PORT)
+    print ('connecting to {} port {}\n'.format(IP, PORT))
+    time.sleep(1)
+    sock.connect(server_address)
+    print("sending error")
+    sock.sendall(b"VRERR\0")
+    sock.close()
 
-        while True:
-            num = input(t_menu).strip()
-            if num in t_range:
-                    f_name = os.getcwd()+"/tests/voice_files/file_"+num+".wav"
-                    if num == "3":
-                        mixer.init()
-                        mixer.music.pause()
-                    os.system("aplay "+f_name)
-                    if num == "3":
-                        mixer.music.unpause()
-                    os.system("clear")
-                    sentence = decoder.decode_file(f_name)
-                    if sentence == "":
-                        print("nothing detected within vosk")
-                        continue
-                    msg, func = sklearn_sims.compare_command(sentence, classes)
-                    check_test(num, msg)
-            elif num != "7":
-                print(str(num)+" isn't a valid option!")
-            else:
-                break
-            
-def check_test(num, sentence):
-        sentence = sentence.strip()
-
-        if num == "1":
-            print("EXPECTED: setting timer for 3 seconds")
-            print("RETURNED: "+sentence)
-            temp = "setting timer for 3 seconds" == sentence
-            print("EQUAL: "+str(temp))
-        if num == "2":
-            print("EXPECTED: Song Country Roads will be played")
-            print("RETURNED: "+sentence)
-            temp = "Song Country Roads will be played" == sentence
-            print("EQUAL: "+str(temp))
-        if num == "3":
-            print("EXPECTED: music is stopped")
-            print("RETURNED: "+sentence)
-            temp = "music is stopped" == sentence
-            print("EQUAL: "+str(temp))
-        if num == "4":
-            print("EXPECTED: using city: denver Temperature in degrees Fahrenheit = x\n"
-                        " atmospheric pressure in hPa unit = y\n"
-                        " humidity in percentage = z\n"
-                        " description = a")
-            print("RETURNED: "+sentence)
-            check = ("using city: denver Temperature in degrees Fahrenheit = {}"
-                        " atmospheric pressure in hPa unit = {}"
-                        " humidity in percentage = {}"
-                        " description = {}")
-            ret = parse(check, sentence)
-            temp = ret is not None
-            print("EQUAL: "+str(temp))
-        if num == "5":
-            print("EXPECTED: started a stopwatch")
-            print("RETURNED: "+sentence)
-            temp = "Started a stopwatch" == sentence
-            print("EQUAL: "+str(temp))
-        if num == "6":
-            print("EXPECTED: stopwatch ran for x seconds")
-            print("RETURNED: "+sentence)
-            ret = parse("stopwatch ran for {} seconds", sentence)
-            temp = ret is not None
-            print("EQUAL: "+str(temp))
-        print()
-
+def send_stop(info):
+    CHUNK = int(65536/2)
+    IP, PORT = info["front"]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (IP, PORT)
+    time.sleep(1)
+    print ('connecting to {} port {}\n'.format(IP, PORT))
+    sock.connect(server_address)
+    print("sending cancel")
+    sock.sendall(b"CANCL\0")
+    sock.close()
                 
 if __name__ == "__main__":
         main()

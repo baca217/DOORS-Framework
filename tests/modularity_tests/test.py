@@ -4,20 +4,19 @@ import tools.sklearn_sims as sk
 import flux_test as flux
 import plug_test as plug
 import clock_test as clock
-import DOORS.main as mn
 import time
 
 def main():
     classes = ml.class_builder()
-    lmp_test(classes)
-    sw_test(classes)
-    timer_test(classes)
-    weather_test(classes)
-    yt_music_test(classes)
+    #lmp_test(classes)
+    #sw_test(classes)
+    #timer_test(classes)
+    #weather_test(classes)
+    #yt_music_test(classes)
     flux.tests(classes)
-    plug.tests(classes)
-    clock.tests(classes)
-    secret_test(classes)
+    #plug.tests(classes)
+    #clock.tests(classes)
+    #secret_test(classes)
 
 
 def lmp_test(classes): #test for local music player

@@ -12,12 +12,13 @@ def main():
     bright_test(classes)
 
 def tests(classes):
-    color_test(classes)
-    on_test(classes)
-    off_test(classes)
+    #color_test(classes)
+    #on_test(classes)
+    #off_test(classes)
     bright_test(classes)
 
 def color_test(classes):
+    info = {"front": ["127.0.0.1", 5555]}
     colors = [
             "red",
             "orange",
@@ -34,7 +35,7 @@ def color_test(classes):
             ]
 
     for i in colors:
-        sk.compare_command("turn the flux lightbulb color to "+i, classes)
+        sk.compare_command("turn the flux lightbulb color to "+i, classes, info)
         time.sleep(2)
 
 def on_test(classes):
@@ -52,12 +53,15 @@ def off_test(classes):
 def bright_test(classes):
     sent = [
             "set the brightness of the flux light bulb to ten percent",
+            "set the brightness of the flux light bulb to one hundred and one percent",
+            "set the brightness of the flux light bulb to lalalala percent",
         ]
     run_stuff(sent, classes, 0)
 
 def run_stuff(sentences, classes, delay):
+    info = {"front": ["127.0.0.1", 5555]}
     for i in sentences:
-        msg, func, mod = sk.compare_command(i, classes)
+        msg, func, mod = sk.compare_command(i, classes, info)
         print(msg)
         if func: #we got a function back
                 if mod in classes.keys(): #classes functions should manipulate themselves

@@ -2,7 +2,7 @@ from datetime import datetime
 from pytz import timezone
 from time import strftime 
 
-def command_handler(sentence):
+def command_handler(sentence, info):
     msg = sentence+ " is not a known command"
     func = None
     comms, ident = commands()

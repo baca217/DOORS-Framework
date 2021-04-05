@@ -10,12 +10,14 @@ import struct
 import math
 import random
 import wave
+import time
 from pydub import AudioSegment, silence #for detecting silence in audio file
 
 class Decoder:
-        def __init__(self):
+        def __init__(self, info):
                 model = Model(os.getcwd()+"/modules/model")
                 self.rec = KaldiRecognizer(model, 8000)
+                self.ip, self.port = info["front"]
 
         def decode_file(self, aud_file):
                 SetLogLevel(0)
@@ -55,81 +57,77 @@ class Decoder:
                 return ""
 
         def listen_stream(self):
-                HOST = '192.168.43.151'  # Standard loopback interface address (localhost)
-                PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
-                CHUNK = 3200
-                f = open("recv.wav", "wb")
+                HOST = self.ip
+                PORT = self.port
+                CHUNK = 32768
+                FTOT = "./temp/recv.wav"
+                FTEMP = "./temp/temp.wav"
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         print("trying to connect "+HOST+ " " +str(PORT))
                         s.connect((HOST, PORT))
                         print("connected")
-                        s.send(b"MSTRM\0")
-                        #print("Listening on port: "+str(PORT))
-                        fTot = 'downSamp.wav' #file that will hold all audio received
-                        f = wave.open(fTot, 'wb')
-                        f.setnchannels(1) #mono
-                        f.setsampwidth(2)
-                        f.setframerate(8000)
+                        tot = wave.open(FTOT, 'wb')
+                        tot.setnchannels(1) #mono
+                        tot.setsampwidth(2)
+                        tot.setframerate(8000)
+                        tot.close()
+
+                        temp = wave.open(FTEMP, 'wb')
+                        temp.setnchannels(1) #mono
+                        temp.setsampwidth(2)
+                        temp.setframerate(8000)
+
                         try:
                                 while True:                        
-                                        data = s.recv(1024)
-                                        print("got data "+str(len(data)))
-                                        f.writeframesraw(data)
-                        except KeyboardInterrupt:
-                                f.close()
-                                s.send(b"MSTOP\0")
-                                s.close()
-                                results = self.decode_file(fTot) #get results from file
-                                print("FINAL RESULT from stream: "+results)
-                                return results
-                        '''
-                        s.listen()
-                        conn, addr = s.accept()
-                        with conn:
-                                fTot = 'tot.wav' #file that will hold all audio received
-                                f = wave.open(fTot, 'wb')
-                                f.setnchannels(1) #mono
-                                f.setsampwidth(2)
-                                f.setframerate(8000)
-                                holder = b"" #temporary holder for chunk of audio recognition
-                                for i in range (6):
-                                        cur = 1
-                                        data = conn.recv(int(CHUNK/2))
-                                        ''
-                                        if not data: #didn't receive any data
-                                                f.writeframesraw(holder)
-                                                f.close()
-                                                results = self.decode_file(fTot) #get results from file
-                                                print("FINAL RESULT: "+str(cur)+":"+results)
+                                        data = s.recv(CHUNK)
+                                        print("got data: "+str(len(data)))
+                                        temp.writeframesraw(data)
+                                        temp.close()
+                                        self.combine_files([FTOT, FTEMP])
+                                        if(self.detectSilence(FTOT)): #2 seconds of silence detected
+                                                s.send(b"MSTOP\0")
+                                                time.sleep(1)
+                                                s.close()
                                                 break
-                                        ''
-                                        if data:
-                                                holder += data #aggregating total voice data
-                                                if len(holder) >= CHUNK:
-                                                        fname = 'temp.wav'
-                                                        temp = wave.open(fname, 'wb')
-                                                        temp.setnchannels(1) #mono
-                                                        temp.setsampwidth(2)
-                                                        temp.setframerate(8000)
-                                                        temp.writeframesraw(holder)
-                                                        print("SIZE OF HOLDER AFTER WRITE"+str(len(holder)))
-                                                        f.writeframesraw(holder)
-                                                        temp.close
-                                                        holder = b""
+                                        temp = wave.open(FTEMP, "wb")
+                                        temp.setnchannels(1) #mono
+                                        temp.setsampwidth(2)
+                                        temp.setframerate(8000)
+                                
+                        except KeyboardInterrupt:
+                                s.send(b"MSTOP\0")
+                                time.sleep(1)
+                                s.close()
 
-                                                        results = self.decode_file(fname)
-                                                        print("results "+str(cur)+":"+results)
-                                                        temp.close()
-                                                        cur += 1
-                                                else:
-                                                        continue
-                            '''
+                results = self.decode_file(FTOT) #get results from file
+                print("FINAL RESULT from stream: "+results)
+                return results
+
+        def combine_files(self, files):
+                data = []
+
+                for infile in files:
+                        w = wave.open(infile, "rb")
+                        data.append( [w.readframes(w.getnframes())] )
+                        w.close()
+
+                output = wave.open(files[0], "wb")
+                output.setnchannels(1) #mono
+                output.setsampwidth(2)
+                output.setframerate(8000)
+                output.writeframes(data[0][0])
+                output.writeframes(data[1][0])
+                output.close()
+                                                
         def detectSilence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
-                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-8)
-                print(pieces)
+                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-0)
                 pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
 
-                print(pieces)
+                for i in pieces:
+                        if i[1] - i[0] > 3:
+                            print("big silence: "+str(i[0]) + " " + str(i[1]))
+                            return True
+                return False
