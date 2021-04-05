@@ -13,8 +13,13 @@ def main():
 
 def tests(classes):
     #color_test(classes)
+<<<<<<< HEAD
     #on_test(classes)
     #off_test(classes)
+=======
+    on_test(classes)
+    off_test(classes)
+>>>>>>> voice-synth-send
     bright_test(classes)
 
 def color_test(classes):
