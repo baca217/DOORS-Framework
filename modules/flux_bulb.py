@@ -70,6 +70,7 @@ def commands():
                 "turn off the flux lightbulb",
                 "turn off the flux light bulb",
                 "turn off the light",
+                "light off",
             ],
             [
                 "turn the flux lightbulb on",
@@ -77,6 +78,7 @@ def commands():
                 "turn on the flux lightbulb",
                 "turn on the flux light bulb",
                 "turn on the light",
+                "light on",
             ],
             [
                 "set the flux lightbulb brightness to {} percent",
@@ -90,6 +92,9 @@ def commands():
                 "said the light brightness to {} percent",
                 "set the like brightness to {} percent",
                 "set the light to {} percent",
+                "set the like to {} percent",
+                "set the line to {} percent",
+                "said the light to {} percent",
             ],
         ]
     

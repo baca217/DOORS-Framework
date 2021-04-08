@@ -70,6 +70,7 @@ class Decoder:
                         print("trying to connect "+HOST+ " " +str(PORT))
                         
                         while True:
+                                input("press enter to connect to front-end")
                                 try:
                                         s.connect((HOST, PORT))
                                         break
@@ -77,8 +78,12 @@ class Decoder:
                                         print("connection to {} on port {} refused.".format(HOST, PORT))
                                         print("will try again in 5 seconds\n")
                                         time.sleep(5)
+                                except OSError:
+                                        print("couldn't find {} on port {}".format(HOST, PORT))
+                                        print("wil try again in 5 seconds")
+                                        time.sleep(5)
 
-                        s.settimeout(5) # 5 second timeout
+                        s.settimeout(10) # 10 second timeout
                         print("connected")
                         tot = wave.open(FTOT, 'wb')
                         tot.setnchannels(1) #mono
@@ -122,10 +127,11 @@ class Decoder:
                                 
                         except KeyboardInterrupt:
                                 print("keyboard stop")
-                        time.sleep(1)
+                        time.sleep(4)
                         try:
-                                s.send(b"MSTOP\0")
-                                time.sleep(1)
+                                s.sendall(b"MSTOP\0")
+                                print("sent MSTOP")
+                                time.sleep(4)
                                 s.close()
                         except BrokenPipeError:
                                 print("connection died with {} port {}".format(HOST, PORT))
