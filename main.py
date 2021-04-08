@@ -16,6 +16,7 @@ import time
 def main():
     info = fi.get_fe_info()
     voice = vs.VoiceSynth(info)
+    voice.disable()
     decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
     filename = "./temp/downSamp.wav"
@@ -43,16 +44,16 @@ def main():
             elif record == "wifi": #test using wifi capability
                 while True:
                     sentence = decoder.listen_stream()
-                    if sentence == "":
-                        send_error(info)
-                        continue
-                    elif sentence == "stop":
-                        send_stop(info)
-                        continue
+                    #if sentence == "":
+                    #    send_error(info)
+                    #    continue
+                    #elif sentence == "stop":
+                    #    send_stop(info)
+                    #    continue
                     msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
-                    if "no match for" in msg:
-                        send_error(info)
-                        continue
+                    #if "no match for" in msg:
+                    #    send_error(info)
+                    #    continue
                     run_results(msg, func, mod, classes, voice)
                     print("4 sec")
                     time.sleep(4)
@@ -102,9 +103,13 @@ def send_error(info): #send error for
     IP, PORT = info["front"]
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (IP, PORT)
-    print ('connecting to {} port {}\n'.format(IP, PORT))
+    print ('sending error to {} port {}\n'.format(IP, PORT))
     time.sleep(1)
-    sock.connect(server_address)
+    try:
+        sock.connect(server_address)
+    except:
+        print("connection to {} on port {} died. Couldn't send error packet".format(IP, PORT))
+        return
     print("sending error")
     sock.sendall(b"VRERR\0")
     sock.close()
@@ -116,7 +121,11 @@ def send_stop(info):
     server_address = (IP, PORT)
     time.sleep(1)
     print ('connecting to {} port {}\n'.format(IP, PORT))
-    sock.connect(server_address)
+    try:
+        sock.connect(server_address)
+    except:
+        print("connection to {} on port {} died. Couldn't send stop packet".format(IP, PORT))
+        return
     print("sending cancel")
     sock.sendall(b"CANCL\0")
     sock.close()

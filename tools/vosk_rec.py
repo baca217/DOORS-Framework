@@ -68,7 +68,16 @@ class Decoder:
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         print("trying to connect "+HOST+ " " +str(PORT))
-                        s.connect((HOST, PORT))
+                        
+                        while True:
+                                try:
+                                        s.connect((HOST, PORT))
+                                        break
+                                except ConnectionRefusedError:
+                                        print("connection to {} on port {} refused.".format(HOST, PORT))
+                                        print("will try again in 5 seconds\n")
+                                        time.sleep(5)
+
                         s.settimeout(5) # 5 second timeout
                         print("connected")
                         tot = wave.open(FTOT, 'wb')
@@ -84,11 +93,14 @@ class Decoder:
 
                         try:
                                 while LOOP:
+                                        data = None
                                         try:
                                                 data = s.recv(CHUNK)
                                         except:
                                                 print("5 second timeout. Assuming end of audio")
                                                 LOOP = False
+                                                if data == None:
+                                                        break
                                         size = len(data)
                                         if size == 0:
                                                 zCount += 1
@@ -111,9 +123,13 @@ class Decoder:
                         except KeyboardInterrupt:
                                 print("keyboard stop")
                         time.sleep(1)
-                        s.send(b"MSTOP\0")
-                        time.sleep(1)
-                        s.close()
+                        try:
+                                s.send(b"MSTOP\0")
+                                time.sleep(1)
+                                s.close()
+                        except BrokenPipeError:
+                                print("connection died with {} port {}".format(HOST, PORT))
+
                 results = self.decode_file(FTOT) #get results from file
                 print("FINAL RESULT from stream: "+results)
                 return results
