@@ -1,5 +1,8 @@
 import os
-import tools.sklearn_sims as sklearn_sims
+import sys
+sys.path.append('tools')
+
+import sklearn_sims as sklearn_sims
 from pygame import mixer
 from parse import parse
 

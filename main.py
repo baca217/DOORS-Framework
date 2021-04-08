@@ -1,10 +1,14 @@
 #!/usr/bin/env python3 
-import tools.vosk_rec as vosk_rec
-import tools.sklearn_sims as sklearn_sims
+import sys
+sys.path.append('tools')
+sys.path.append('modules')
+
+import vosk_rec as vosk_rec
+import sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
-import tools.voice_synth as vs
-import tools.front_info as fi
-import modules.module_loader as ml
+import voice_synth as vs
+import front_info as fi
+import module_loader as ml
 from tests.main_tests.main_test import run_tests
 import os #for recording, temporary usage
 import time #for testing
