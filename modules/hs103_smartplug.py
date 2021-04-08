@@ -2,17 +2,18 @@
 
 import asyncio
 from kasa import SmartPlug
+from kasa import Discover
+
 
 def command_handler(sentence, info):
     msg = sentence + " is not a known command for kasa smart plug"
     func = None
     coms, classify = commands()
-    plug = SmartPlug("192.168.137.46")
+    plug = discoverPlug()
+
     if plug == None:
         msg = "couldn't find kasa smart plug on network"
         return msg, func
-
-    asyncio.run(plug.update())
 
     if sentence in coms[0]: #match for turning off smart plug
         msg = "turning off the kasa smart plug"
@@ -61,6 +62,18 @@ def turnOff(plug):
     def func():
         asyncio.run(plug.turn_off())
     return func()
+
+def discoverPlug():
+    print("trying to discover plug")
+    d = asyncio.run(Discover.discover())
+
+    if len(d) != 0:
+        for addr, dev in d.items():
+            asyncio.run(dev.update())
+            if dev.is_plug:
+                return dev
+    print("couldn't find the plug")
+    return None
 
 def turnOn(plug):
     def func():

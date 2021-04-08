@@ -6,10 +6,10 @@ import socket
 import sys
 
 class VoiceSynth:
-        enabled = True
         
         def __init__(self, info):
                 self.ip, self.port = info["front"]
+                self.enabled = True
 
         def speak(self, sentence):
                 if self.enabled:
