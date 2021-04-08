@@ -34,11 +34,14 @@ def commands():
                     "turn off the smart plug",
                     "turn off the kasa smart plug",
                     "turn off the power plug",
+                    "plug off",
+                    "plug ah",
                 ],
                 [ #for turning on the plug commands
                     "turn on the smart plug",
                     "turn on the kasa smart plug",
                     "turn on the power plug",
+                    "plug on",
                 ],
                 [ #for checking the status of the plug
                     "get the status of the smart plug",

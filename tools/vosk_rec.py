@@ -62,10 +62,14 @@ class Decoder:
                 CHUNK = 32768
                 FTOT = "./temp/recv.wav"
                 FTEMP = "./temp/temp.wav"
+                LOOP = True
+                zCount = 0 #keeping track of zero packets
+
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         print("trying to connect "+HOST+ " " +str(PORT))
                         s.connect((HOST, PORT))
+                        s.settimeout(5) # 5 second timeout
                         print("connected")
                         tot = wave.open(FTOT, 'wb')
                         tot.setnchannels(1) #mono
@@ -79,16 +83,25 @@ class Decoder:
                         temp.setframerate(8000)
 
                         try:
-                                while True:                        
-                                        data = s.recv(CHUNK)
+                                while LOOP:
+                                        try:
+                                                data = s.recv(CHUNK)
+                                        except:
+                                                print("5 second timeout. Assuming end of audio")
+                                                LOOP = False
+                                        size = len(data)
+                                        if size == 0:
+                                                zCount += 1
+                                                if zCount == 5:
+                                                        print("received 5 zero data packets. Assuming end of audio")
+                                                        break
+                                        else:
+                                                zCount = 0
                                         print("got data: "+str(len(data)))
                                         temp.writeframesraw(data)
                                         temp.close()
                                         self.combine_files([FTOT, FTEMP])
                                         if(self.detectSilence(FTOT)): #2 seconds of silence detected
-                                                s.send(b"MSTOP\0")
-                                                time.sleep(1)
-                                                s.close()
                                                 break
                                         temp = wave.open(FTEMP, "wb")
                                         temp.setnchannels(1) #mono
@@ -96,10 +109,11 @@ class Decoder:
                                         temp.setframerate(8000)
                                 
                         except KeyboardInterrupt:
-                                s.send(b"MSTOP\0")
-                                time.sleep(1)
-                                s.close()
-
+                                print("keyboard stop")
+                        time.sleep(1)
+                        s.send(b"MSTOP\0")
+                        time.sleep(1)
+                        s.close()
                 results = self.decode_file(FTOT) #get results from file
                 print("FINAL RESULT from stream: "+results)
                 return results

@@ -41,24 +41,27 @@ def main():
                 local()
                 sentence = decoder.decode_file(filename)
             elif record == "wifi": #test using wifi capability
-                sentence = decoder.listen_stream()
+                while True:
+                    sentence = decoder.listen_stream()
+                    if sentence == "":
+                        send_error(info)
+                        continue
+                    elif sentence == "stop":
+                        send_stop(info)
+                        continue
+                    msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
+                    if "no match for" in msg:
+                        send_error(info)
+                        continue
+                    run_results(msg, func, mod, classes, voice)
+                    print("4 sec")
+                    time.sleep(4)
             elif record == "reuse": #reuse previous recording
                 sentence = decoder.decode_file(filename)
             else:
                 print("that shouldn't have happened: "+record)
                 exit()
             print("vosk sentence: "+sentence)
-            if sentence == "":
-                send_error(info)
-                continue
-            elif sentence == "stop":
-                send_stop(info)
-                continue
-            else:
-                msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
-            if "no match for" in msg:
-                send_error(info)
-                continue
             run_results(msg, func, mod, classes, voice)
 #code below is for serial communication
 #        elif(record == "serial"):
