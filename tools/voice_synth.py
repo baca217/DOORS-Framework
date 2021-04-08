@@ -32,7 +32,7 @@ class VoiceSynth:
                         "clear"
                     ]
 
-                if not self.enabled:
+                if self.enabled == False:
                         print("voice synth not on. Will not send audio to front end")
                         return
                 for i in cleanup:
@@ -54,7 +54,7 @@ class VoiceSynth:
 
                 # Connect the socket to the port where the server is listening
                 server_address = (self.ip, self.port)
-                print ('connecting to {} port {}\n'.format(self.ip, self.port))
+                print ('voice synth connecting to {} port {}\n'.format(self.ip, self.port))
                 sock.connect(server_address)
                 #sock.send(b"APCKT\0")
                 size = 1
