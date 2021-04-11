@@ -35,12 +35,15 @@ def send_stuff():
                 size = len(read)
                 print(size)
                 conn.sendall(read)
-            while True:
-                cont = conn.recv(size)
-                print("len : {}\n msg : \n{}\n".format(len(cont), cont))
-                keep = input("keep receiving?")
-                if keep == "no" or keep == "n":
-                    break
+        while True:
+            s.listen()
+            conn, addr = s.accept()
+            print("RECEIVE by {}".format(addr))
+            cont = conn.recv(1024)
+            print(cont)
+            listen = input("continue listening?")
+            if listen == "no" or listen == "n":
+                break
         f.close()
         s.close()
 

@@ -113,6 +113,7 @@ class Decoder:
                                                 if zCount == 5:
                                                         print("received 5 zero data packets. Sending error")
                                                         badData = True
+                                                        break
                                         else:
                                                 zCount = 0
                                         print("got data: "+str(len(data)))
@@ -155,7 +156,7 @@ class Decoder:
                                         print("couldn't find {} on port {}".format(HOST, PORT))
                                         print("wil try again in 5 seconds")
                                         time.sleep(5)
-                        sock.sendall("CNERR\0")
+                        sock.sendall(b"CNERR\0")
                         sock.close()
 
         def send_mstop(self):
@@ -176,7 +177,7 @@ class Decoder:
                                         print("couldn't find {} on port {}".format(HOST, PORT))
                                         print("wil try again in 5 seconds")
                                         time.sleep(5)
-                        sock.sendall("MSTOP\0")
+                        sock.sendall(b"MSTOP\0")
                         sock.close()
 
         def combine_files(self, files):
