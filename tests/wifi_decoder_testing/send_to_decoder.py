@@ -14,29 +14,48 @@ def send_stuff():
     PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
     SIZE = int(65536/2)
 
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
-        for i in files:
-            temp = wave.open("temp.wav", 'wb')
-            temp.setnchannels(1) #mono
-            temp.setsampwidth(2)
-            temp.setframerate(16000)
-            s.listen()
-            conn, addr = s.accept()
-            with conn:
-                print('SEND Connected by', addr)
+        for i in range(len(files)):
+            print("{}. {}".format(i, files[i]))
+        name = int(input("enter file number to send :"))
+        f = open("./voice_files/"+files[name], "rb")
 
-                # Receive the data in small chunks and retransmit it
-                print("FILE: "+i)
-                f = open("./voice_files/"+i, "rb")
-                header = f.read(44)
-                size = 1
-                while size > 0:
-                    read = f.read(SIZE)
-                    size = len(read)
-                    print(size)
-                    conn.sendall(read)
-            '''
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print('SEND Connected by', addr)
+            # Receive the data in small chunks and retransmit it
+            print("FILE: {}".format(files[name]))
+            header = f.read(44)
+            size = 1
+            while size > 0:
+                read = f.read(SIZE)
+                size = len(read)
+                print(size)
+                conn.sendall(read)
+            while True:
+                cont = conn.recv(size)
+                print("len : {}\n msg : \n{}\n".format(len(cont), cont))
+                keep = input("keep receiving?")
+                if keep == "no" or keep == "n":
+                    break
+        f.close()
+        s.close()
+
+    def receive_stuff():
+        HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+        PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
+        SIZE = int(65536/2)
+        temp = wave.open("temp.wav", 'wb')
+        temp.setnchannels(1) #mono
+        temp.setsampwidth(2)
+        temp.setframerate(16000)
+
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((HOST, PORT))
             s.listen()
             conn, addr = s.accept()
             print("listening")
@@ -47,15 +66,25 @@ def send_stuff():
                     try:
                         recv = conn.recv(SIZE)
                         size = len(recv)
-                        temp.writeframesraw(recv)
+                        opt = input("size is {} print content?".format(size))
+                        if opt == "yes" or opt == "y":
+                            print(recv)
+                        else:
+                            temp.writeframesraw(recv)
                     except KeyboardInterrupt:
                         temp.close()
-            '''
-        s.close()
         temp.close()
 
+
 def main():
-    send_stuff()
+    while True:
+        todo = input("s for send\nr for receive\n")
+        if todo == "s":
+            send_stuff()
+        elif todo == "r":
+            receive_stuff()
+        else:
+            print(todo + " is not an option\n")
 
 if __name__ == "__main__":
     main()

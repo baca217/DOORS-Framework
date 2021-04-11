@@ -63,55 +63,56 @@ class Decoder:
                 FTOT = "./temp/recv.wav"
                 FTEMP = "./temp/temp.wav"
                 LOOP = True
+                TIMEOUT = 10
                 zCount = 0 #keeping track of zero packets
 
+                while True:
+                        badData = False
+                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                                print("trying to connect "+HOST+ " " +str(PORT)) 
+                                while True:
+                                        input("press enter to connect to front-end")
+                                        try:
+                                                s.connect((HOST, PORT))
+                                                break
+                                        except ConnectionRefusedError:
+                                                print("connection to {} on port {} refused.".format(HOST, PORT))
+                                                print("will try again in 5 seconds\n")
+                                                time.sleep(5)
+                                        except OSError:
+                                                print("couldn't find {} on port {}".format(HOST, PORT))
+                                                print("wil try again in 5 seconds")
+                                                time.sleep(5)
 
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        print("trying to connect "+HOST+ " " +str(PORT))
-                        
-                        while True:
-                                input("press enter to connect to front-end")
-                                try:
-                                        s.connect((HOST, PORT))
-                                        break
-                                except ConnectionRefusedError:
-                                        print("connection to {} on port {} refused.".format(HOST, PORT))
-                                        print("will try again in 5 seconds\n")
-                                        time.sleep(5)
-                                except OSError:
-                                        print("couldn't find {} on port {}".format(HOST, PORT))
-                                        print("wil try again in 5 seconds")
-                                        time.sleep(5)
+                                s.settimeout(TIMEOUT) # 10 second timeout
+                                print("connected")
+                                tot = wave.open(FTOT, 'wb')
+                                tot.setnchannels(1) #mono
+                                tot.setsampwidth(2)
+                                tot.setframerate(8000)
+                                tot.close()
 
-                        s.settimeout(10) # 10 second timeout
-                        print("connected")
-                        tot = wave.open(FTOT, 'wb')
-                        tot.setnchannels(1) #mono
-                        tot.setsampwidth(2)
-                        tot.setframerate(8000)
-                        tot.close()
-
-                        temp = wave.open(FTEMP, 'wb')
-                        temp.setnchannels(1) #mono
-                        temp.setsampwidth(2)
-                        temp.setframerate(8000)
-
-                        try:
+                                temp = wave.open(FTEMP, 'wb')
+                                temp.setnchannels(1) #mono
+                                temp.setsampwidth(2)
+                                temp.setframerate(8000)
+                                s.sendall(b"CNRDY\0")
                                 while LOOP:
                                         data = None
                                         try:
                                                 data = s.recv(CHUNK)
                                         except:
-                                                print("5 second timeout. Assuming end of audio")
+                                                print("{} second timeout. Killing Connection".format(TIMEOUT))
                                                 LOOP = False
+                                                badData = True
                                                 if data == None:
-                                                        break
+                                                    break
                                         size = len(data)
                                         if size == 0:
                                                 zCount += 1
                                                 if zCount == 5:
-                                                        print("received 5 zero data packets. Assuming end of audio")
-                                                        break
+                                                        print("received 5 zero data packets. Sending error")
+                                                        badData = True
                                         else:
                                                 zCount = 0
                                         print("got data: "+str(len(data)))
@@ -124,21 +125,59 @@ class Decoder:
                                         temp.setnchannels(1) #mono
                                         temp.setsampwidth(2)
                                         temp.setframerate(8000)
-                                
-                        except KeyboardInterrupt:
-                                print("keyboard stop")
-                        time.sleep(4)
-                        try:
-                                s.sendall(b"MSTOP\0")
-                                print("sent MSTOP")
-                                time.sleep(4)
-                                s.close()
-                        except BrokenPipeError:
-                                print("connection died with {} port {}".format(HOST, PORT))
 
+                                try:
+                                        s.close()
+                                        self.send_mstop()
+                                except BrokenPipeError:
+                                        print("connection died with {} port {}".format(HOST, PORT))
+                                if badData:
+                                    self.send_cnerr()
                 results = self.decode_file(FTOT) #get results from file
                 print("FINAL RESULT from stream: "+results)
                 return results
+
+        def send_cnerr(self):
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending connection error")
+                        while True:
+                                try:
+                                        sock.connect((HOST, PORT))
+                                        break
+                                except ConnectionRefusedError:
+                                        print("connection to {} on port {} refused.".format(HOST, PORT))
+                                        print("will try again in 5 seconds\n")
+                                        time.sleep(5)
+                                except OSError:
+                                        print("couldn't find {} on port {}".format(HOST, PORT))
+                                        print("wil try again in 5 seconds")
+                                        time.sleep(5)
+                        sock.sendall("CNERR\0")
+                        sock.close()
+
+        def send_mstop(self):
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending MSTOP")
+                        while True:
+                                try:
+                                        sock.connect((HOST, PORT))
+                                        break
+                                except ConnectionRefusedError:
+                                        print("connection to {} on port {} refused.".format(HOST, PORT))
+                                        print("will try again in 5 seconds\n")
+                                        time.sleep(5)
+                                except OSError:
+                                        print("couldn't find {} on port {}".format(HOST, PORT))
+                                        print("wil try again in 5 seconds")
+                                        time.sleep(5)
+                        sock.sendall("MSTOP\0")
+                        sock.close()
 
         def combine_files(self, files):
                 data = []
