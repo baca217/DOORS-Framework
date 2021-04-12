@@ -9,6 +9,7 @@ def send_stuff():
             "onLight.wav",
             "plugOff.wav",
             "plugOn.wav",
+            "silence.wav",
             ]
     HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
     PORT = 5555        # Port to listen on (non-privileged ports are > 1023)
