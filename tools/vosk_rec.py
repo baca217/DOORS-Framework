@@ -62,37 +62,41 @@ class Decoder:
                 CHUNK = 32768
                 LOOP = True
                 TIMEOUT = 10
-                zCount = 0 #keeping track of zero packets
-                badData = False
 
                 while True:
                         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                                self.try_connection(HOST, PORT, s)
+                                totData = 0
+
+                                self.try_connection(HOST, PORT, s, "send AOKAY")
                                 s.settimeout(TIMEOUT) # 10 second timeout
                                 print("connected")
-                                s.sendall("AOKAY\0") #might need to check for bad data here
-                                self.send_aokay(s):
+                                s.sendall(b"AOKAY\0") #might need to check for bad data here
                                 FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
                                 while LOOP:
                                         temp = self.open_temp_wave(FTEMP)
                                         data = None
-                                        try: #try for a timeout
+                                        try:
                                                 data = s.recv(CHUNK)
-                                        except:
+                                        except: #connection timed out
                                                 print(f"{TIMEOUT} second timeout. Killing Connection")
-                                                LOOP = False
-                                                badData = True
+                                                #need to figure out how to clean out the pipe
+                                                self.send_cnerr()
+                                                '''
+                                                going to leave this for maybe clearing 
+                                                the socket server side on the back-end
+
+                                                self.clear_socket()
+                                                badData = False
+                                                '''
                                                 if data == None:
-                                                    break
-                                        size = len(data)
-                                        if size == 0: #check for when we receive packets of zero size
-                                                zCount += 1
-                                                if zCount == 5: #received 5 zero packets in a row
-                                                        print("received 5 zero data packets.")
-                                                        badData = True
                                                         break
-                                        else:
-                                                zCount = 0
+                                        size = len(data)
+                                        totData += size
+                                        if size == 0: #check for when we receive packets of zero size
+                                                print("connection from front-end closed")
+                                                print(f"FRONT CLOSE tot data received : {totData}")
+                                                break
+                                       
                                         print(f"got data: {len(data)}")
                                         temp.writeframesraw(data)
                                         temp.close()
@@ -100,16 +104,18 @@ class Decoder:
                                         if(self.detectSilence(FTOT)): #2 seconds of silence detected
                                                 break
 
-                                try:
-                                        s.close()
-                                except BrokenPipeError:
-                                        print(f"connection died with {HOST} port {PORT}")
-                                if badData:
-                                    #need to figure out how to clean out the pipe
-                                    self.send_cnerr()
-                                    badData = False
+                        try:
+                                s.close()
+                                print(f"BACK CLOSE tot data received : {totData}")
+                                if totData == 0: #we got zero data from the connection
+                                        #for some reason. Might not need to do this.
+                                        continue
+                                        self.send_nodat()
                                 else:
-                                    self.send_gdata()
+                                        self.send_gdata()
+                                        break
+                        except BrokenPipeError:
+                                print(f"connection died with {HOST} port {PORT}")
 
                 results = self.decode_file(FTOT) #get results from file
                 print("FINAL RESULT from stream: "+results)
@@ -120,12 +126,12 @@ class Decoder:
                 PORT = self.port
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                            self.try_connection(HOST, PORT, sock)
-                            sock.settimeout(TIMEOUT) # 10 second timeout
-                            size = 1
-                            while size > 0:
-                                sock.recv(1024) #just receive data and throw it away
-                        sock.close()
+                    self.try_connection(HOST, PORT, sock, "CLEAR SOCKET")
+                    sock.settimeout(TIMEOUT) # 10 second timeout
+                    size = 1
+                    while size > 0:
+                        sock.recv(1024) #just receive data and throw it away
+                    sock.close()
 
         def send_cnerr(self):
                 HOST = self.ip
@@ -133,7 +139,7 @@ class Decoder:
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                         print("sending connection error")
-                        self.try_connection(HOST, PORT, s)
+                        self.try_connection(HOST, PORT, sock, "SEND CNERR")
                         sock.sendall(b"CNERR\0")
                         sock.close()
 
@@ -143,7 +149,17 @@ class Decoder:
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                         print("sending good data")
-                        self.try_connection(HOST, PORT, s)
+                        self.try_connection(HOST, PORT, sock, "SEND GDATA")
+                        sock.sendall(b"GDATA\0")
+                        sock.close()
+
+        def send_nodat(self): #we got no data from that
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending no data")
+                        self.try_connection(HOST, PORT, sock, "SEND GDATA")
                         sock.sendall(b"GDATA\0")
                         sock.close()
 
@@ -173,10 +189,10 @@ class Decoder:
                 return temp
 
 
-        def try_connection(self, HOST, PORT, s):
+        def try_connection(self, HOST, PORT, s, funcName):
                 print("trying to connect "+HOST+ " " +str(PORT)) 
                 while True:
-                        input("press enter to connect to front-end")
+                        input(f"{funcName} press enter to connect to front-end")
                         try:
                                 s.connect((HOST, PORT))
                                 break

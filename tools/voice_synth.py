@@ -56,7 +56,7 @@ class VoiceSynth:
                 server_address = (self.ip, self.port)
                 print ('voice synth connecting to {} port {}\n'.format(self.ip, self.port))
                 sock.connect(server_address)
-                #sock.send(b"APCKT\0")
+                sock.send(b"VOICE\0")
                 size = 1
                 while size > 0:
                         read = f.read(SIZE)
