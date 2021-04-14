@@ -55,14 +55,13 @@ class VoiceSynth:
 
                 # Connect the socket to the port where the server is listening
                 server_address = (self.ip, self.port)
-                input('voice synth connecting to {} port {}\n'.format(self.ip, self.port))
+                print('voice synth connecting to {} port {} : Press enter to connect'.format(self.ip, self.port))
                 sock.connect(server_address)
-                sock.send(b"APCKT\0")
                 time.sleep(2)
                 size = 1
                 while size > 0:
                         read = f.read(SIZE)
-                        if size == 1:
+                        if size == 1: #first loop we append audio 
                             read = b"APCKT\0" + read
                         size = len(read)
                         sock.sendall(read)

@@ -60,7 +60,6 @@ class Decoder:
                 HOST = self.ip
                 PORT = self.port
                 CHUNK = 32768
-                LOOP = True
                 TIMEOUT = 10
 
                 while True:
@@ -69,69 +68,33 @@ class Decoder:
 
                                 self.try_connection(HOST, PORT, s, "send CNRDY")
                                 print("connected")
-                                s.sendall(b"CNRDY\0") #might need to check for bad data here
-                                data = s.recv(CHUNK)
+                                s.sendall(b"CNRDY\0") #sending connection ready 
+                                data = b""
                                 while b"YEETO" not in data: #getting rid of bad data
                                     data = s.recv(CHUNK)
-                                s.sendall(b"FLUSH\0")
+                                s.sendall(b"FLUSH\0") #letting front know bad data has been flushed
                                 FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
-                                while LOOP:
-                                        temp = self.open_temp_wave(FTEMP)
-                                        data = None
-                                        '''
-                                        try:
-                                                data = s.recv(CHUNK)
-                                        except: #connection timed out
-                                                print(f"{TIMEOUT} second timeout")
-                                                #need to figure out how to clean out the pipe
-                                                s.sendall(b"HANND\0")
-                                                s.settimeout(TIMEOUT)
-                                                try:
-                                                        print("waiting for SHAKE")
-                                                        data = s.recv(chunk)
-                                                        if b"SHAKE" in data: #shake in data
-                                                            continue
-                                                        #if not shake but we got data, it should be audio data
-                                                except: #connection time out again. try an reconnece
-                                                    s.close()
-                                                    self.send_cnerr()
-                                                    continue
-                                                
-                                                going to leave this for maybe clearing 
-                                                the socket server side on the back-end
-
-                                                self.clear_socket()
-                                                badData = False
-                                                
-                                                if data == None:
-                                                        break
-                                                        '''
+                                while True:
+                                        temp = self.open_temp_wave(FTEMP) #get temorary wave file
                                         data = s.recv(CHUNK)
-                                        if data == None:
-                                                break
-
                                         size = len(data)
                                         totData += size
-                                        if size == 0: #check for when we receive packets of zero size
+                                        if data == None or size == 0:#check for when we 
+                                                #receive packets of zero size
                                                 print("connection from front-end closed")
                                                 print(f"FRONT CLOSE tot data received : {totData}")
                                                 break
-                                       
                                         print(f"got data: {len(data)}")
                                         temp.writeframesraw(data)
                                         temp.close()
                                         self.combine_files([FTOT, FTEMP]) #combining wave file data
-                                        if(self.detectSilence(FTOT)): #2 seconds of silence detected
+                                        if(self.detect_silence(FTOT)): #2 seconds of silence detected
                                                 break
 
                         try:
                                 s.close()
                                 print(f"BACK CLOSE tot data received : {totData}")
-                                if totData == 0: #we got zero data from the connection
-                                        #for some reason. Might not need to do this.
-                                        continue
-                                        self.send_nodat()
-                                else:
+                                if totData != 0: #we got zero data from the connection
                                         self.send_gdata()
                                         break
                         except BrokenPipeError:
@@ -172,17 +135,6 @@ class Decoder:
                         self.try_connection(HOST, PORT, sock, "SEND GDATA")
                         sock.sendall(b"GDATA\0")
                         sock.close()
-
-        def send_nodat(self): #we got no data from that
-                HOST = self.ip
-                PORT = self.port
-
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                        print("sending no data")
-                        self.try_connection(HOST, PORT, sock, "SEND GDATA")
-                        sock.sendall(b"GDATA\0")
-                        sock.close()
-
 
         def init_temp_tot_wave(self):
                 FTOT = "./temp/recv.wav"
@@ -263,7 +215,7 @@ class Decoder:
                 output.writeframes(data[1][0])
                 output.close()
                                                 
-        def detectSilence(self, fileName):
+        def detect_silence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
                 pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-0)

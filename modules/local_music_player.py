@@ -56,7 +56,7 @@ def commands():
         ]
     return coms, comp_types
 
-def playSong(songName):
+def playSong(songName, info):
         songName = songName.strip()
         songs = []
         highDis = 0
@@ -105,7 +105,9 @@ def playSong(songName):
                     func = None
                     return msg, func
                 while True:
-                    option = input("send to front-end? ")
+#                    option = input("send to front-end? ")
+                    option = "yes" 
+
                     if option == "yes" or option == "y":
                         def send():
                             sendToFront(song, info)
@@ -135,10 +137,11 @@ def sendToFront(songName, info):
     server_address = (ip, port)
     print ('connecting to %s port %s' % server_address)
     sock.connect(server_address)
-    sock.send(b"APCKT\0")
     size = 1
     while size > 0:
             read = f.read(SIZE)
+            if size == 1:
+                read = b"APCKT\0" + read
             size = len(read)
             sock.send(read)
     sock.close()

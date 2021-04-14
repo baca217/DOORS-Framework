@@ -55,8 +55,6 @@ def main():
                         send_error(info)
                         continue
                     run_results(msg, func, mod, classes, voice)
-                    print("4 sec")
-                    time.sleep(4)
             elif record == "reuse": #reuse previous recording
                 sentence = decoder.decode_file(filename)
             else:
