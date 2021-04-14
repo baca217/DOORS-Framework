@@ -16,7 +16,6 @@ import time
 def main():
     info = fi.get_fe_info()
     voice = vs.VoiceSynth(info)
-    voice.disable()
     decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
     filename = "./temp/downSamp.wav"
@@ -75,7 +74,7 @@ def main():
 
 def run_results(msg, func, mod, classes, voice):
     print(msg)
-    #voice.sendToFront(msg)
+    voice.sendToFront(msg)
     if func: #we got a func back
         if mod in classes.keys(): #classes funcs should manipulate themselves
             func(classes[mod])

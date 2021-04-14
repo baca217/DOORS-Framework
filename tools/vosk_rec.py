@@ -67,29 +67,49 @@ class Decoder:
                         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                                 totData = 0
 
-                                self.try_connection(HOST, PORT, s, "send AOKAY")
-                                s.settimeout(TIMEOUT) # 10 second timeout
+                                self.try_connection(HOST, PORT, s, "send CNRDY")
                                 print("connected")
-                                s.sendall(b"AOKAY\0") #might need to check for bad data here
+                                s.sendall(b"CNRDY\0") #might need to check for bad data here
+                                data = s.recv(CHUNK)
+                                while b"YEETO" not in data: #getting rid of bad data
+                                    data = s.recv(CHUNK)
+                                s.sendall(b"FLUSH\0")
                                 FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
                                 while LOOP:
                                         temp = self.open_temp_wave(FTEMP)
                                         data = None
+                                        '''
                                         try:
                                                 data = s.recv(CHUNK)
                                         except: #connection timed out
-                                                print(f"{TIMEOUT} second timeout. Killing Connection")
+                                                print(f"{TIMEOUT} second timeout")
                                                 #need to figure out how to clean out the pipe
-                                                self.send_cnerr()
-                                                '''
+                                                s.sendall(b"HANND\0")
+                                                s.settimeout(TIMEOUT)
+                                                try:
+                                                        print("waiting for SHAKE")
+                                                        data = s.recv(chunk)
+                                                        if b"SHAKE" in data: #shake in data
+                                                            continue
+                                                        #if not shake but we got data, it should be audio data
+                                                except: #connection time out again. try an reconnece
+                                                    s.close()
+                                                    self.send_cnerr()
+                                                    continue
+                                                
                                                 going to leave this for maybe clearing 
                                                 the socket server side on the back-end
 
                                                 self.clear_socket()
                                                 badData = False
-                                                '''
+                                                
                                                 if data == None:
                                                         break
+                                                        '''
+                                        data = s.recv(CHUNK)
+                                        if data == None:
+                                                break
+
                                         size = len(data)
                                         totData += size
                                         if size == 0: #check for when we receive packets of zero size
