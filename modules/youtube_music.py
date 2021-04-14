@@ -146,10 +146,11 @@ def sendToFront(info):
     server_address = (ip, port)
     print (sys.stderr, 'connecting to %s port %s' % server_address)
     sock.connect(server_address)
-    sock.send(b"APCKT\0")
     size = 1
     while size > 0:
             read = f.read(SIZE)
+            if size == 1:
+                    read = b"APCKT\0" + read
             size = len(read)
             print(size)
             sock.send(read)

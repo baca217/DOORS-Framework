@@ -60,79 +60,144 @@ class Decoder:
                 HOST = self.ip
                 PORT = self.port
                 CHUNK = 32768
+                TIMEOUT = 10
+
+                while True:
+                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                                totData = 0
+
+                                self.try_connection(HOST, PORT, s, "send CNRDY")
+                                print("connected")
+                                s.sendall(b"CNRDY\0") #sending connection ready 
+                                data = b""
+                                while b"YEETO" not in data: #getting rid of bad data
+                                    data = s.recv(CHUNK)
+                                s.sendall(b"FLUSH\0") #letting front know bad data has been flushed
+                                FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
+                                while True:
+                                        temp = self.open_temp_wave(FTEMP) #get temorary wave file
+                                        data = s.recv(CHUNK)
+                                        size = len(data)
+                                        totData += size
+                                        if data == None or size == 0:#check for when we 
+                                                #receive packets of zero size
+                                                print("connection from front-end closed")
+                                                print(f"FRONT CLOSE tot data received : {totData}")
+                                                break
+                                        print(f"got data: {len(data)}")
+                                        temp.writeframesraw(data)
+                                        temp.close()
+                                        self.combine_files([FTOT, FTEMP]) #combining wave file data
+                                        if(self.detect_silence(FTOT)): #2 seconds of silence detected
+                                                break
+
+                        try:
+                                s.close()
+                                print(f"BACK CLOSE tot data received : {totData}")
+                                if totData != 0: #we got zero data from the connection
+                                        self.send_gdata()
+                                        break
+                        except BrokenPipeError:
+                                print(f"connection died with {HOST} port {PORT}")
+
+                results = self.decode_file(FTOT) #get results from file
+                print("FINAL RESULT from stream: "+results)
+                return results
+
+        def clear_socket(self): #prototype for clearing socket data
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    self.try_connection(HOST, PORT, sock, "CLEAR SOCKET")
+                    sock.settimeout(TIMEOUT) # 10 second timeout
+                    size = 1
+                    while size > 0:
+                        sock.recv(1024) #just receive data and throw it away
+                    sock.close()
+
+        def send_cnerr(self):
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending connection error")
+                        self.try_connection(HOST, PORT, sock, "SEND CNERR")
+                        sock.sendall(b"CNERR\0")
+                        sock.close()
+
+        def send_gdata(self):
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending good data")
+                        self.try_connection(HOST, PORT, sock, "SEND GDATA")
+                        sock.sendall(b"GDATA\0")
+                        sock.close()
+
+        def init_temp_tot_wave(self):
                 FTOT = "./temp/recv.wav"
                 FTEMP = "./temp/temp.wav"
-                LOOP = True
-                zCount = 0 #keeping track of zero packets
+
+                tot = wave.open(FTOT, 'wb')
+                tot.setnchannels(1) #mono
+                tot.setsampwidth(2)
+                tot.setframerate(8000)
+                tot.close()
+
+                temp = wave.open(FTEMP, 'wb')
+                temp.setnchannels(1) #mono
+                temp.setsampwidth(2)
+                temp.setframerate(8000)
+                temp.close()
+                return FTOT, FTEMP
+
+        def open_temp_wave(self, FTEMP):
+                temp = wave.open(FTEMP, 'wb')
+                temp.setnchannels(1) #mono
+                temp.setsampwidth(2)
+                temp.setframerate(8000)
+                return temp
 
 
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        print("trying to connect "+HOST+ " " +str(PORT))
-                        
+        def try_connection(self, HOST, PORT, s, funcName):
+                print("trying to connect "+HOST+ " " +str(PORT)) 
+                while True:
+                        input(f"{funcName} press enter to connect to front-end")
+                        try:
+                                s.connect((HOST, PORT))
+                                break
+                        except ConnectionRefusedError:
+                                print("connection to {} on port {} refused.".format(HOST, PORT))
+                                print("will try again in 5 seconds\n")
+                                time.sleep(5)
+                        except OSError:
+                                print("couldn't find {} on port {}".format(HOST, PORT))
+                                print("wil try again in 5 seconds")
+                                time.sleep(5)
+
+
+        def send_mstop(self):
+                HOST = self.ip
+                PORT = self.port
+
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                        print("sending MSTOP")
                         while True:
                                 try:
-                                        s.connect((HOST, PORT))
+                                        sock.connect((HOST, PORT))
                                         break
                                 except ConnectionRefusedError:
                                         print("connection to {} on port {} refused.".format(HOST, PORT))
                                         print("will try again in 5 seconds\n")
                                         time.sleep(5)
-
-                        s.settimeout(5) # 5 second timeout
-                        print("connected")
-                        tot = wave.open(FTOT, 'wb')
-                        tot.setnchannels(1) #mono
-                        tot.setsampwidth(2)
-                        tot.setframerate(8000)
-                        tot.close()
-
-                        temp = wave.open(FTEMP, 'wb')
-                        temp.setnchannels(1) #mono
-                        temp.setsampwidth(2)
-                        temp.setframerate(8000)
-
-                        try:
-                                while LOOP:
-                                        data = None
-                                        try:
-                                                data = s.recv(CHUNK)
-                                        except:
-                                                print("5 second timeout. Assuming end of audio")
-                                                LOOP = False
-                                                if data == None:
-                                                        break
-                                        size = len(data)
-                                        if size == 0:
-                                                zCount += 1
-                                                if zCount == 5:
-                                                        print("received 5 zero data packets. Assuming end of audio")
-                                                        break
-                                        else:
-                                                zCount = 0
-                                        print("got data: "+str(len(data)))
-                                        temp.writeframesraw(data)
-                                        temp.close()
-                                        self.combine_files([FTOT, FTEMP])
-                                        if(self.detectSilence(FTOT)): #2 seconds of silence detected
-                                                break
-                                        temp = wave.open(FTEMP, "wb")
-                                        temp.setnchannels(1) #mono
-                                        temp.setsampwidth(2)
-                                        temp.setframerate(8000)
-                                
-                        except KeyboardInterrupt:
-                                print("keyboard stop")
-                        time.sleep(1)
-                        try:
-                                s.send(b"MSTOP\0")
-                                time.sleep(1)
-                                s.close()
-                        except BrokenPipeError:
-                                print("connection died with {} port {}".format(HOST, PORT))
-
-                results = self.decode_file(FTOT) #get results from file
-                print("FINAL RESULT from stream: "+results)
-                return results
+                                except OSError:
+                                        print("couldn't find {} on port {}".format(HOST, PORT))
+                                        print("wil try again in 5 seconds")
+                                        time.sleep(5)
+                        sock.sendall(b"MSTOP\0")
+                        sock.close()
 
         def combine_files(self, files):
                 data = []
@@ -150,7 +215,7 @@ class Decoder:
                 output.writeframes(data[1][0])
                 output.close()
                                                 
-        def detectSilence(self, fileName):
+        def detect_silence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
                 pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-0)

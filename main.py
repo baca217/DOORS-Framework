@@ -20,7 +20,6 @@ import time
 def main():
     info = fi.get_fe_info()
     voice = vs.VoiceSynth(info)
-    voice.disable()
     decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
     filename = "./temp/downSamp.wav"
@@ -33,7 +32,8 @@ def main():
 
     while True:
         print()
-        record = input(menu)
+        #record = input(menu)
+        record = "wifi"
         print()
         record = record.strip().lower()
         msg = ""
@@ -48,19 +48,17 @@ def main():
             elif record == "wifi": #test using wifi capability
                 while True:
                     sentence = decoder.listen_stream()
-                    #if sentence == "":
-                    #    send_error(info)
-                    #    continue
-                    #elif sentence == "stop":
-                    #    send_stop(info)
-                    #    continue
+                    if sentence == "":
+                        send_error(info)
+                        continue
+                    elif sentence == "stop":
+                        send_stop(info)
+                        continue
                     msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
-                    #if "no match for" in msg:
-                    #    send_error(info)
-                    #    continue
+                    if "no match for" in msg:
+                        send_error(info)
+                        continue
                     run_results(msg, func, mod, classes, voice)
-                    print("4 sec")
-                    time.sleep(4)
             elif record == "reuse": #reuse previous recording
                 sentence = decoder.decode_file(filename)
             else:
@@ -78,7 +76,7 @@ def main():
 
 def run_results(msg, func, mod, classes, voice):
     print(msg)
-    #voice.sendToFront(msg)
+    voice.sendToFront(msg)
     if func: #we got a func back
         if mod in classes.keys(): #classes funcs should manipulate themselves
             func(classes[mod])
