@@ -143,7 +143,16 @@ def sendToFront(songName, info):
             if size == 1:
                 read = b"APCKT\0" + read
             size = len(read)
-            sock.send(read)
+            try:
+                sock.send(read)
+            except KeyboardInterrupt:
+                print("got keyboard interrupt for local music player")
+                break
+    while True:
+        data = sock.recv(SIZE)
+        if b"ADONE" in data:
+            break
+    print("RECEIVED ADONE FOR LOCAL MUSIC PLAYER") 
     sock.close()
     f.close()
 

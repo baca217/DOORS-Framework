@@ -77,6 +77,7 @@ def run_results(msg, func, mod, classes, voice):
         if mod in classes.keys(): #classes funcs should manipulate themselves
             func(classes[mod])
         else:
+            time.sleep(2)
             func()
 
 def local(): #function for recording and testing locally

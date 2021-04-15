@@ -85,10 +85,11 @@ def commands():
                 "using youtube play the song {}",
                 "using youtube look for the song {}",
                 "using youtube look for and play the song {}",
+                "using youtube play {}",
                 "using you tube look for and play the song {}",
                 "using you tube play the song {}",
                 "using you tube look for the song {}",
-
+                "using you tube play {}",
             ]
             ]
     classify = [
@@ -153,7 +154,18 @@ def sendToFront(info):
                     read = b"APCKT\0" + read
             size = len(read)
             print(size)
-            sock.send(read)
+            try:
+                    sock.send(read)
+            except KeyboardInterrupt:
+                    print("keyboard interrupt in youtube music")
+                    break
+
+    while True:
+        data = sock.recv(SIZE)
+        if b"ADONE" in data:
+            break
+    print("RECEIVED ADONE FOR YOUTUBE MUSIC")
+    f.close()
     sock.close()
 
 

@@ -65,13 +65,30 @@ class Decoder:
                 while True:
                         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                                 totData = 0
+                                connDied = False
 
                                 self.try_connection(HOST, PORT, s, "send CNRDY")
                                 print("connected")
                                 s.sendall(b"CNRDY\0") #sending connection ready 
                                 data = b""
+                                s.settimeout(2)
                                 while b"YEETO" not in data: #getting rid of bad data
-                                    data = s.recv(CHUNK)
+                                    try:
+                                            data = s.recv(CHUNK)
+                                            print("bad data : {}".format(len(data)))
+                                            if len(data) == 0:
+                                                print("conn died during handshake")
+                                                time.sleep(2)
+                                                connDied = True
+                                                break
+
+                                    except:
+                                            print("timed out from connection and didn't get YEETO")
+                                            connDied = True
+                                            break
+                                if connDied:
+                                    continue
+                                s.settimeout(None)
                                 s.sendall(b"FLUSH\0") #letting front know bad data has been flushed
                                 FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
                                 while True:
@@ -165,6 +182,7 @@ class Decoder:
                 print("trying to connect "+HOST+ " " +str(PORT)) 
                 while True:
                         input(f"{funcName} press enter to connect to front-end")
+                        time.sleep(2)
                         try:
                                 s.connect((HOST, PORT))
                                 break
@@ -218,7 +236,8 @@ class Decoder:
         def detect_silence(self, fileName):
                 myaudio = intro = AudioSegment.from_wav(fileName)
                 dBFS = myaudio.dBFS
-                pieces = silence.detect_silence(myaudio, min_silence_len=1000, silence_thresh=dBFS-0)
+                print(dBFS)
+                pieces = silence.detect_silence(myaudio, 1000, dBFS-0)
                 pieces = [((start/1000),(stop/1000)) for start,stop in pieces] #convert to sec
 
                 for i in pieces:
