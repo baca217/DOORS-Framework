@@ -83,13 +83,16 @@ def commands():
     coms = [
             [
                 "using youtube play the song {}",
+                "using you to play the song {}",
                 "using youtube look for the song {}",
+                "using you to look for the song {}",
                 "using youtube look for and play the song {}",
                 "using youtube play {}",
                 "using you tube look for and play the song {}",
                 "using you tube play the song {}",
                 "using you tube look for the song {}",
                 "using you tube play {}",
+                "using you to play {}",
             ]
             ]
     classify = [

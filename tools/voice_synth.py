@@ -55,6 +55,7 @@ class VoiceSynth:
 
                 # Connect the socket to the port where the server is listening
                 server_address = (self.ip, self.port)
+                print("msg to send {}".format(sentence))
                 print('voice synth connecting to {} port {}'.format(self.ip, self.port))
                 time.sleep(2)
                 sock.connect(server_address)
@@ -74,7 +75,7 @@ class VoiceSynth:
                         data = sock.recv(SIZE)
                         if b"ADONE" in data:
                             break
-                input("ADONE RECEIVED FOR VOICE SYNTH. Press enter to continue") 
+                print("ADONE RECEIVED FOR VOICE SYNTH") 
                 f.close()
                 sock.close()
 

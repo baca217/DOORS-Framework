@@ -67,7 +67,10 @@ class Decoder:
                                 totData = 0
                                 connDied = False
 
-                                self.try_connection(HOST, PORT, s, "send CNRDY")
+                                ret = self.try_connection(HOST, PORT, s, "send CNRDY")
+                                if ret == False:
+                                    s.close()
+                                    continue
                                 print("connected")
                                 s.sendall(b"CNRDY\0") #sending connection ready 
                                 data = b""
@@ -179,21 +182,29 @@ class Decoder:
 
 
         def try_connection(self, HOST, PORT, s, funcName):
-                print("trying to connect "+HOST+ " " +str(PORT)) 
-                while True:
-                        input(f"{funcName} press enter to connect to front-end")
-                        time.sleep(2)
-                        try:
-                                s.connect((HOST, PORT))
-                                break
-                        except ConnectionRefusedError:
-                                print("connection to {} on port {} refused.".format(HOST, PORT))
-                                print("will try again in 5 seconds\n")
-                                time.sleep(5)
-                        except OSError:
-                                print("couldn't find {} on port {}".format(HOST, PORT))
-                                print("wil try again in 5 seconds")
-                                time.sleep(5)
+                print("trying to connect "+HOST+ " " +str(PORT))
+                print(f"{funcName} connecting to front-end")
+                time.sleep(2)
+                s.settimeout(5)
+                try:
+                        s.connect((HOST, PORT))
+                        s.settimeout(None)
+                        return True
+                except ConnectionRefusedError:
+                        print("connection to {} on port {} refused.".format(HOST, PORT))
+                        print("will try again in 5 seconds\n")
+                        time.sleep(5)
+                        return False
+                except OSError:
+                        print("couldn't find {} on port {}".format(HOST, PORT))
+                        print("wil try again in 5 seconds")
+                        time.sleep(5)
+                        return False
+                except TimeoutError:
+                        print("connection timed out for {} port {}".format(HOST, PORT))
+                        print("will try again in 5 seconds\n")
+                        time.sleep(5)
+                        return False
 
 
         def send_mstop(self):
