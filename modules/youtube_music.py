@@ -26,7 +26,10 @@ and the new sampled file is what's left.
 def download_song(songName, info):
     videosSearch = VideosSearch(songName, limit = 2) #searching information about song
     result = (videosSearch.result())
-    video = pafy.new(result["result"][0]["link"])
+    try:
+        video = pafy.new(result["result"][0]["link"])
+    except KeyError: #for some reason like counts breaks the program
+        print("", end = "")
     url = result["result"][0]["link"]
     convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 temp/yt_song.wav" #downsampling command 
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import sys
+sys.path.append("temp")
 
 from subprocess import call
 from os import system

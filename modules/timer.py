@@ -1,9 +1,12 @@
+import sys
+sys.path.append("../tools")
+
 from word2number import w2n
 import signal
 from parse import *
 import socket
-import tools.front_info as fe
-import tools.voice_synth as vs
+import front_info as fe
+import voice_synth as vs
 
 def command_handler(sentence, info):
     msg = sentence+" is not a known command"
