@@ -55,7 +55,8 @@ class VoiceSynth:
 
                 # Connect the socket to the port where the server is listening
                 server_address = (self.ip, self.port)
-                print('voice synth connecting to {} port {} : Press enter to connect'.format(self.ip, self.port))
+                print('voice synth connecting to {} port {}'.format(self.ip, self.port))
+                time.sleep(2)
                 sock.connect(server_address)
                 time.sleep(2)
                 size = 1
@@ -64,7 +65,17 @@ class VoiceSynth:
                         if size == 1: #first loop we append audio 
                             read = b"APCKT\0" + read
                         size = len(read)
-                        sock.sendall(read)
+                        try:
+                                sock.sendall(read)
+                        except BrokenPipeError:
+                                print("connection to IP {} PORT {} died".format(self.ip, self.port))
+                                break
+                while True:
+                        data = sock.recv(SIZE)
+                        if b"ADONE" in data:
+                            break
+                input("ADONE RECEIVED FOR VOICE SYNTH. Press enter to continue") 
+                f.close()
                 sock.close()
 
         def enable(self):
