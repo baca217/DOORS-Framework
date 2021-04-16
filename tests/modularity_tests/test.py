@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-import modules.module_loader as ml
-import tools.sklearn_sims as sk
+import sys
+sys.path.append('tools')
+sys.path.append('modules')
+
+import module_loader as ml
+import sklearn_sims as sk
+import front_info as fi
 import flux_test as flux
 import plug_test as plug
 import clock_test as clock
 import time
+
 
 def main():
     classes = ml.class_builder()
@@ -12,8 +18,8 @@ def main():
     #sw_test(classes)
     #timer_test(classes)
     #weather_test(classes)
-    #yt_music_test(classes)
-    flux.tests(classes)
+    yt_music_test(classes)
+    #flux.tests(classes)
     #plug.tests(classes)
     #clock.tests(classes)
     #secret_test(classes)
@@ -53,7 +59,7 @@ def weather_test(classes): #test for weather feature
 
 def yt_music_test(classes):
     sent = [
-                "using youtube play the song swear by casio pea",
+                "using youtube play the song terminal sex by pouya",
         ]
     run_stuff(sent, classes, 0)
 
@@ -64,8 +70,9 @@ def secret_test(classes):
     run_stuff(sent, classes, 0)
 
 def run_stuff(sentences, classes, delay):
+    info = fi.get_fe_info() 
     for i in sentences:
-        msg, func, mod = sk.compare_command(i, classes)
+        msg, func, mod = sk.compare_command(i, classes, info)
         print(msg)
         if func: #we got a function back
                 if mod in classes.keys(): #classes functions should manipulate themselves

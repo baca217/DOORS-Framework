@@ -24,17 +24,24 @@ to 8000 samples, converted to mono if necessary and saved to "Song.wav". The old
 and the new sampled file is what's left.
 '''
 def download_song(songName, info):
-    videosSearch = VideosSearch(songName, limit = 2) #searching information about song
+    try:
+        videosSearch = VideosSearch(songName, limit = 2) #searching information about song
+    except:
+        return None
     result = (videosSearch.result())
     try:
         video = pafy.new(result["result"][0]["link"])
     except KeyError: #for some reason like counts breaks the program
-        print("", end = "")
+        pass
+    try: #remove the youtube holder song when possible
+        os.system("rm temp/yt_song.wav")
+    except:
+        pass
     url = result["result"][0]["link"]
     convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 temp/yt_song.wav" #downsampling command 
 
     ydl_opts = { #downloads options for youtube dl
-            "outmpl": "temp.wav",
+            "outmpl": "temp/yt_temp.wav",
             "format": "bestaudio/best",
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
@@ -53,7 +60,8 @@ def download_song(songName, info):
     os.system("rm \'"+latest+"\'")
 
     while True:
-        option = input("send to front end?: ")
+#        option = input("send to front end?: ")
+        option = "yes"
         if option == "yes" or option == "y":
             def callSend():
                 sendToFront(info)
@@ -123,7 +131,10 @@ def command_handler(sentence, info):
             result = parse(j, sentence)
             if result: #was able to parse sentence using a command format
                 function = download_song(result[0], info)
-                msg = "going to play the song "+result[0]
+                if function = None:
+                    msg = "error looking up song " + result[0]
+                else:
+                    msg = "going to play the song "+result[0]
                 break
         if function: #function was set, break and return
             break

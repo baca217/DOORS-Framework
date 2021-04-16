@@ -66,9 +66,6 @@ def main():
                 exit()
             print("vosk sentence: "+sentence)
             run_results(msg, func, mod, classes, voice)
-#code below is for serial communication
-#        elif(record == "serial"):
-#            serial_comm.rec_data()
         elif(record == "test"):
             run_tests(decoder, voice, classes)
         else:
