@@ -156,8 +156,14 @@ def sendToFront(songName, info):
             except socket.error as ex:
                 print("something went wrong with connection to {} port {}".format(ip,port))
                 print("ERROR: {}".format(ex))
-                f.close()
-                return
+                while True:
+                    try:
+                        sock.connect(server_address)
+                        break
+                    except:
+                        print("connection to {} port {} refused. Can't send song".format(ip,port))
+                print ('connecting to %s port %s' % server_address)
+                continue
     while True:
         data = sock.recv(SIZE)
         if b"ADONE" in data:
