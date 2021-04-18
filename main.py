@@ -16,13 +16,15 @@ from pygame import mixer
 from parse import *
 import socket
 import time
+import pathlib
 
 def main():
     info = fi.get_fe_info()
+    info["path"] = pathlib.Path().absolute()
     voice = vs.VoiceSynth(info)
     decoder = vosk_rec.Decoder(info)
     classes = ml.class_builder()
-    filename = "./temp/downSamp.wav"
+    filename = "{}/temp/downSamp.wav".format(info["path"])
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n"
@@ -84,9 +86,9 @@ def run_results(msg, func, mod, classes, voice):
 def local(): #function for recording and testing locally
     rec_com = [ #commands for recording audio
         "echo \"recording for 10 seconds\"",
-        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 ./temp/temp.wav",
-        "ffmpeg -i ./temp/temp.wav -isr 48000 -ar 8000 ./temp/downSamp.wav",
-        "rm ./temp/temp.wav",
+        "arecord -t wav -D \"hw:2,0\" -d 10 -f S16_LE -r 48000 {}/temp/temp.wav".format(info["path"]),
+        "ffmpeg -i {}/temp/temp.wav -isr 48000 -ar 8000 {}/temp/downSamp.wav".format(info["path"],info["path"]),
+        "rm {}/temp/temp.wav".format(info["path"]),
         "clear",
         "echo \"done recording\"",
         ]

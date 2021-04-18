@@ -87,8 +87,8 @@ def playSong(songName, info):
                                 highPath = i
         if(highPath):
                 totPath = path+highPath
-                tmp = "temp/tmpSend.wav"
-                song = "temp/songSend.wav"
+                tmp = "{}/temp/tmpSend.wav".format(info["path"])
+                song = "{}/temp/songSend.wav".format(info["path"])
                 msg = "Song "+highTitle+" will be played"
                 convert = "ffmpeg -i "+ totPath + " -ar 16k -ac 1 "+ song
                 rmFile = "rm "+song
@@ -113,11 +113,11 @@ def playSong(songName, info):
                             sendToFront(song, info)
                         return msg, send
                     elif option == "no" or option == "n":
-                        def playSong():
+                        def play():
                             mixer.init(16000, -16, 1)
                             mixer.music.load(song)
                             mixer.music.play()
-                        return msg, playSong
+                        return msg, play
                 
         else:
                 msg = "No songs in the local library matched "+songName

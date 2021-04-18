@@ -34,11 +34,11 @@ def download_song(songName, info):
     except KeyError: #for some reason like counts breaks the program
         pass
     try: #remove the youtube holder song when possible
-        os.system("rm temp/yt_song.wav")
+        os.system("rm {}/temp/yt_song.wav".format(info["path"]))
     except:
         pass
     url = result["result"][0]["link"]
-    convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 temp/yt_song.wav" #downsampling command 
+    convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 "+info["path"]+"/temp/yt_song.wav" #downsampling command 
 
     ydl_opts = { #downloads options for youtube dl
             "outmpl": "temp/yt_temp.wav",
@@ -53,7 +53,7 @@ def download_song(songName, info):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url]) #downloading video using youtube-dl
     
-    files = glob.glob("./*.wav") #getting the latest wave file
+    files = glob.glob("{}/*.wav".format(info["path"])) #getting the latest wave file
     latest = max(files, key=os.path.getctime)
 
     os.system(convert.format(latest))
@@ -73,10 +73,10 @@ def download_song(songName, info):
         else:
             print(option+" is not an option")
     
-def play_song():
+def play_song(info):
     if not mixer.get_init():
         mixer.init(16000, -16, 1)
-    mixer.music.load("./temp/yt_song.wav")
+    mixer.music.load("{}/temp/yt_song.wav".format(info["path"]))
     mixer.music.play()
 
     input("wait")
@@ -131,7 +131,7 @@ def command_handler(sentence, info):
             result = parse(j, sentence)
             if result: #was able to parse sentence using a command format
                 function = download_song(result[0], info)
-                if function = None:
+                if function == None:
                     msg = "error looking up song " + result[0]
                 else:
                     msg = "going to play the song "+result[0]
@@ -139,9 +139,6 @@ def command_handler(sentence, info):
         if function: #function was set, break and return
             break
     return msg, function
-
-
-
 
 '''
 FUNCTION:sendToFront
@@ -155,7 +152,7 @@ def sendToFront(info):
     ip, port = info["front"]
     SIZE = int(65536/2)
     #open file for sending
-    f = open("./temp/yt_song.wav", "rb")
+    f = open("{}/temp/yt_song.wav".format(info["path"]), "rb")
     binaryHeader = f.read(44) #remove .wav header info for raw format
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
