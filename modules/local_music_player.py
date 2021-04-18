@@ -135,8 +135,12 @@ def sendToFront(songName, info):
 
     # Connect the socket to the port where the server is listening
     server_address = (ip, port)
+    try:
+        sock.connect(server_address)
+    except:
+        print("connection to {} port {} refused. Can't send song".format(ip,port))
+        return
     print ('connecting to %s port %s' % server_address)
-    sock.connect(server_address)
     size = 1
     while size > 0:
             read = f.read(SIZE)
@@ -148,6 +152,11 @@ def sendToFront(songName, info):
             except KeyboardInterrupt:
                 print("got keyboard interrupt for local music player")
                 break
+            except socket.error as ex:
+                print("something went wrong with connection to {} port {}".format(ip,port))
+                print("ERROR: {}".format(ex))
+                f.close()
+                return
     while True:
         data = sock.recv(SIZE)
         if b"ADONE" in data:

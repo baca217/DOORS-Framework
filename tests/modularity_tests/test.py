@@ -8,21 +8,20 @@ import sklearn_sims as sk
 import front_info as fi
 import flux_test as flux
 import plug_test as plug
-import clock_test as clock
 import time
+import pathlib
 
 
 def main():
     classes = ml.class_builder()
-    #lmp_test(classes)
-    #sw_test(classes)
-    #timer_test(classes)
-    #weather_test(classes)
+    lmp_test(classes)
+    sw_test(classes)
+    timer_test(classes)
+    weather_test(classes)
     yt_music_test(classes)
-    #flux.tests(classes)
-    #plug.tests(classes)
-    #clock.tests(classes)
-    #secret_test(classes)
+    flux.tests(classes)
+    plug.tests(classes)
+    secret_test(classes)
 
 
 def lmp_test(classes): #test for local music player
@@ -70,7 +69,8 @@ def secret_test(classes):
     run_stuff(sent, classes, 0)
 
 def run_stuff(sentences, classes, delay):
-    info = fi.get_fe_info() 
+    info = fi.get_fe_info()
+    info["path"] = pathlib.Path(__file__).parent.absolute()
     for i in sentences:
         msg, func, mod = sk.compare_command(i, classes, info)
         print(msg)

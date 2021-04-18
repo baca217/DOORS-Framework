@@ -2,6 +2,8 @@
 import time
 import modules.module_loader as ml
 import tools.sklearn_sims as sk
+import pathlib
+import front_info as fi
 
 def main():
     classes = ml.class_builder()
@@ -38,8 +40,10 @@ def info_test(classes):
     run_stuff(sent, classes, 0)
 
 def run_stuff(sentences, classes, delay):
+    info = fi.get_fe_info()
+    info["path"] = pathlib.Path(__file__).parent.absolute()
     for i in sentences:
-        msg, func, mod = sk.compare_command(i, classes)
+        msg, func, mod = sk.compare_command(i, classes, info)
         print(msg)
         if func: #we got a function back
                 if mod in classes.keys(): #classes functions should manipulate themselves

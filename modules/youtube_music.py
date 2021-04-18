@@ -38,7 +38,7 @@ def download_song(songName, info):
     except:
         pass
     url = result["result"][0]["link"]
-    convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 "+info["path"]+"/temp/yt_song.wav" #downsampling command 
+    convert = "ffmpeg -i \"{}\" -ar 16000 -ac 1 "+"{}/temp/yt_song.wav".format(info["path"]) #downsampling command 
 
     ydl_opts = { #downloads options for youtube dl
             "outmpl": "temp/yt_temp.wav",
@@ -159,8 +159,12 @@ def sendToFront(info):
 
     # Connect the socket to the port where the server is listening
     server_address = (ip, port)
-    print (sys.stderr, 'connecting to %s port %s' % server_address)
-    sock.connect(server_address)
+    try:
+        sock.connect(server_address)
+    except:
+        print("connection to {} port {} refused. Can't send song".format(ip, port))
+        return
+    print ('connected to {} port {}'.format(ip, port))
     size = 1
     while size > 0:
             read = f.read(SIZE)
@@ -173,7 +177,11 @@ def sendToFront(info):
             except KeyboardInterrupt:
                     print("keyboard interrupt in youtube music")
                     break
-
+            except socket.error as ex:
+                    print("something went wrong with connection to {} port {}".format(ip,port))
+                    print("ERROR: {}".format(ex))
+                    f.close()
+                    return
     while True:
         data = sock.recv(SIZE)
         if b"ADONE" in data:

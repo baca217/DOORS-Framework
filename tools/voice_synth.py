@@ -60,7 +60,11 @@ class VoiceSynth:
                 print("msg to send {}".format(sentence))
                 print('voice synth connecting to {} port {}'.format(self.ip, self.port))
                 time.sleep(2)
-                sock.connect(server_address)
+                try:
+                    sock.connect(server_address)
+                except:
+                    print("connection to {} port {} refused".format(self.ip, self.port))
+                    return
                 time.sleep(2)
                 size = 1
                 while size > 0:
@@ -73,6 +77,8 @@ class VoiceSynth:
                         except BrokenPipeError:
                                 print("connection to IP {} PORT {} died".format(self.ip, self.port))
                                 break
+                                f.close()
+                                return
                 while True:
                         data = sock.recv(SIZE)
                         if b"ADONE" in data:

@@ -33,7 +33,7 @@ def conn_stuff():
                         data = conn.recv(CHUNK)
                         while b"FLUSH\0" not in data:
                             data = conn.recv(CHUNK)
-                        print("received YEETO!!!")
+                        print("received flush!!!")
                         send_stuff(conn)
                     elif b"CNERR\0" in code:
                         print("got a CNERR, need to clear out buffer")
@@ -42,6 +42,7 @@ def conn_stuff():
                     elif b"APCKT\0" in code:
                         print("got a APCKT, assuming the rest of the data is audio")
                         receive_stuff(conn, msg, len(msg))
+                        conn.sendall(b"ADONE");
                     else:
                         print("code didn't match anything")
 
@@ -102,7 +103,7 @@ def receive_stuff(conn, recv, size):
             size = len(recv)
 
         except KeyboardInterrupt:
-            temp.close()
+            break
     temp.close()
     print("going to play the audio real quick")
     system("play temp.wav")
