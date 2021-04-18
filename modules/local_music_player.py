@@ -135,11 +135,12 @@ def sendToFront(songName, info):
 
     # Connect the socket to the port where the server is listening
     server_address = (ip, port)
-    try:
-        sock.connect(server_address)
-    except:
-        print("connection to {} port {} refused. Can't send song".format(ip,port))
-        return
+    while True:
+        try:
+            sock.connect(server_address)
+            break
+        except:
+            print("connection to {} port {} refused. Can't send song".format(ip,port))
     print ('connecting to %s port %s' % server_address)
     size = 1
     while size > 0:

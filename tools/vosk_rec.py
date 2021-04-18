@@ -96,7 +96,12 @@ class Decoder:
                                 FTOT, FTEMP = self.init_temp_tot_wave() #init FTOT and FTEMP files
                                 while True:
                                         temp = self.open_temp_wave(FTEMP) #get temorary wave file
-                                        data = s.recv(CHUNK)
+                                        try:
+                                            data = s.recv(CHUNK)
+                                        except:
+                                            print("connection with {} {} died".format(HOST, PORT))
+                                            connDied = True
+                                            break
                                         size = len(data)
                                         totData += size
                                         if data == None or size == 0:#check for when we 
@@ -107,10 +112,13 @@ class Decoder:
                                         print(f"got data: {len(data)}")
                                         temp.writeframesraw(data)
                                         temp.close()
-                                        self.combine_files([FTOT, FTEMP]) #combining wave file data
-                                        if(self.detect_silence(FTOT)): #2 seconds of silence detected
+                                        self.combine_files([FTOT, FTEMP]) 
+                                        #combining wave file data
+                                        if(self.detect_silence(FTOT)): 
+                                                #2 seconds of silence detected
                                                 break
-
+                                if connDied:
+                                        break
                         try:
                                 s.close()
                                 print(f"BACK CLOSE tot data received : {totData}")
