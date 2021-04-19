@@ -187,7 +187,7 @@ def sendToFront(info):
                                 break
                             except:
                                 print("connection to {} port {} refused. Can't send song".format(ip, port))
-                        print ('connected to {} port {}'.format(ip, port))
+                    print ('connected to {} port {}'.format(ip, port))
                     continue
     while True:
         data = sock.recv(SIZE)

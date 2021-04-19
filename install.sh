@@ -32,7 +32,8 @@ pip3 install tinytag #music tag detection
 pip3 install python-kasa --pre #for hs103 smartplug
 pip3 install pytz
 sudo apt-get update
-sudo apt-get install espeak
-sudo apt-get install libgfortran5
-sudo apt-get install libgfortran3
-sudo apt-get install libatlas-base-dev
+sudo apt-get install espeak #for generating voice synth file
+sudo apt-get install libgfortran5 #for some linux distros neading audio support
+sudo apt-get install libgfortran3 #for some linux distros neading audio support
+sudo apt-get install libatlas-base-dev #for some linux distros neading audio support
+sudo apt-get install ffmpeg
