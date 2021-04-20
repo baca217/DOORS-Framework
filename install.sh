@@ -16,6 +16,7 @@ fi
 pip3 install vosk #voice recognition
 pip3 install sklearn #comparing spoken commans to known commands
 pip3 install scikit-learn #comparing spoken commands to known commands
+pip3 install 'scipy==1.6.2' #making sure scipy and numpy are compatible
 pip3 install fuzzywuzzy #music title comparison
 pip3 install eyed3 #checking tags for music
 pip3 install word2number #coverting words to ints
