@@ -1,10 +1,17 @@
-Run the script install.sh by giving it execution permission and sudo priviliges.
+Run the script install.sh by giving it execution permission and sudo privilege's.
 command: chmod +x install.sh; sudo ./install.sh
 
-The install script should work for most linux systems. There might be a warning where the path '/home/pi/.local/bin' is not included within the main PATH environment vairable. You can simply add it within your .bashrc file which should be lcoated within your home directory. Just add this line to the top of the file or wherever you set your PATH enviornment variable.
+The install script should work for most Linux systems. There might be a warning where the
+path '/home/pi/.local/bin' is not included within the main PATH environment variable. You
+can simply add it within your .bashrc file which should be located within your home directory.
+Just add this line to the top of the file or wherever you set your PATH environment variable.
 .bashrc addition: export PATH="$PATH:/home/pi/.local/bin"
 
-Another problem that may occur is that KALDI may not be installed on your system. This is highly unlikely unless you have a very stripped down version of linux. If this is the case please follow the instructions on how to install kaldi on there official github, and also how to get it working with vosk on their official github. They do a much better job at explaining the process than I ever could.
+Another problem that may occur is that KALDI may not be installed on your system. This is highly
+unlikely unless you have a very stripped down version of Linux. If this is the case please follow
+the instructions on how to install kaldi on there official GitHub, and also how to get it working
+with Vosk on their official GitHub. They do a much better job at explaining the process than I ever
+could.
 Kaldi github : https://github.com/kaldi-asr/kaldi
 Kaldi website : https://kaldi-asr.org/
 Vosk github : https://github.com/alphacep/vosk-api
