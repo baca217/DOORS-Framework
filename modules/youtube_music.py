@@ -189,10 +189,16 @@ def sendToFront(info):
                                 print("connection to {} port {} refused. Can't send song".format(ip, port))
                     print ('connected to {} port {}'.format(ip, port))
                     continue
+    sock.settimeout(5)
     while True:
-        data = sock.recv(SIZE)
-        if b"ADONE" in data:
-            break
+        try:
+                data = sock.recv(SIZE)
+                if b"ADONE" in data:
+                        break
+        except:
+                print("connection timed out on youtube music receive")
+                f.close()
+                return
     print("RECEIVED ADONE FOR YOUTUBE MUSIC")
     f.close()
     sock.close()

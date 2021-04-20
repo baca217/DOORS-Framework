@@ -164,10 +164,16 @@ def sendToFront(songName, info):
                         print("connection to {} port {} refused. Can't send song".format(ip,port))
                 print ('connecting to %s port %s' % server_address)
                 continue
+    sock.settimeout(5)
     while True:
-        data = sock.recv(SIZE)
-        if b"ADONE" in data:
-            break
+        try:
+            data = sock.recv(SIZE)
+            if b"ADONE" in data:
+                break
+        except:
+            print("connection timed out in local music connection receive")
+            f.close()
+            return
     print("RECEIVED ADONE FOR LOCAL MUSIC PLAYER") 
     sock.close()
     f.close()
