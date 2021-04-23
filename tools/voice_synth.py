@@ -10,8 +10,7 @@ import time
 
 class VoiceSynth:
         
-        def __init__(self, info):
-                self.ip, self.port = info["front"]
+        def __init__(self):
                 self.enabled = True
 
         def speak(self, sentence):
@@ -41,54 +40,6 @@ class VoiceSynth:
                         system(i)
                     except:
                         continue
-                SIZE = int(65536/2)
-                #open file for sending
-                f = open(fName, "rb")
-                binaryHeader = f.read(44) #remove .wav header info for raw format
-                # Create a TCP/IP socket
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                # Connect the socket to the port where the server is listening
-                server_address = (self.ip, self.port)
-                print("msg to send {}".format(sentence))
-                print('voice synth connecting to {} port {}'.format(self.ip, self.port))
-                time.sleep(2)
-                try:
-                    sock.connect(server_address)
-                except:
-                    print("connection to {} port {} refused".format(self.ip, self.port))
-                    return
-                time.sleep(2)
-                size = 1
-                while size > 0:
-                        read = f.read(SIZE)
-                        if size == 1: #first loop we append audio 
-                            read = b"APCKT\0" + read
-                        size = len(read)
-                        try:
-                                sock.sendall(read)
-                        except KeyboardInterrupt:
-                                print("received keyboard itnerrupt in voice synth send")
-                                f.close()
-                                sock.close()
-                                return
-                        except BrokenPipeError:
-                                print("connection to IP {} PORT {} died".format(self.ip, self.port))
-                                f.close()
-                                return
-                sock.settimeout(5)
-                while True:
-                        try:
-                                data = sock.recv(SIZE)
-                                if b"ADONE" in data:
-                                        break
-                        except:
-                                print("connection timed out for voice synth receive")
-                                f.close()
-                                return
-                print("ADONE RECEIVED FOR VOICE SYNTH") 
-                f.close()
-                sock.close()
 
         def enable(self):
                 self.enabled = True

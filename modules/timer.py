@@ -59,7 +59,7 @@ def setTimer(timeStr): #only going to focus on time for now
                 msg = "no time format was detected for setting a timer"
                 return msg, None
 
-        if(timeFormat[-1] is "s"): #removing trailing s. EX: seconds, minutes
+        if(timeFormat[-1] == "s"): #removing trailing s. EX: seconds, minutes
                 timeFormat = timeFormat[:-1]
 
         for f in range(len(arr),0,-1): #pulling time amount out of string

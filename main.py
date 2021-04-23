@@ -19,23 +19,18 @@ import time
 import pathlib
 
 def main():
-    info = fi.get_fe_info()
-    info["path"] = pathlib.Path().absolute()
-    voice = vs.VoiceSynth(info)
-    decoder = vosk_rec.Decoder(info)
+    voice = vs.VoiceSynth()
+    decoder = vosk_rec.Decoder()
     classes = ml.class_builder()
-    filename = "{}/temp/downSamp.wav".format(info["path"])
     os.system("clear") #clearing out text from vosk intialization
     menu = ("enter \"reuse\" to use previous recording\n"
             "enter \"r\" to record for 10 seconds\n"
-            "enter \"wifi\" to test the wifi functionality\n"
             "enter \"test\" to enter the testing menu\n"
             "enter \"exit\" to exit the program: ")
 
     while True:
         print()
-        #record = input(menu)
-        record = "wifi"
+        record = input(menu)
         print()
         record = record.strip().lower()
         msg = ""
@@ -47,20 +42,6 @@ def main():
             if record == "r": #do a local recording
                 local()
                 sentence = decoder.decode_file(filename)
-            elif record == "wifi": #test using wifi capability
-                while True:
-                    sentence = decoder.listen_stream()
-                    if sentence == "":
-                        send_error(info)
-                        continue
-                    elif sentence == "stop":
-                        send_stop(info)
-                        continue
-                    msg, func, mod = sklearn_sims.compare_command(sentence, classes, info)
-                    if "no match for" in msg:
-                        send_error(info)
-                        continue
-                    run_results(msg, func, mod, classes, voice)
             elif record == "reuse": #reuse previous recording
                 sentence = decoder.decode_file(filename)
             else:
@@ -99,38 +80,6 @@ def local(): #function for recording and testing locally
         print(end = "")
     for i in rec_com:
         os.system(i)
-
-def send_error(info): #send error for
-    CHUNK = int(65536/2)
-    IP, PORT = info["front"]
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (IP, PORT)
-    print ('sending error to {} port {}\n'.format(IP, PORT))
-    time.sleep(1)
-    try:
-        sock.connect(server_address)
-    except:
-        print("connection to {} on port {} died. Couldn't send error packet".format(IP, PORT))
-        return
-    print("sending error")
-    sock.sendall(b"VRERR\0")
-    sock.close()
-
-def send_stop(info):
-    CHUNK = int(65536/2)
-    IP, PORT = info["front"]
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (IP, PORT)
-    time.sleep(1)
-    print ('connecting to {} port {}\n'.format(IP, PORT))
-    try:
-        sock.connect(server_address)
-    except:
-        print("connection to {} on port {} died. Couldn't send stop packet".format(IP, PORT))
-        return
-    print("sending cancel")
-    sock.sendall(b"CANCL\0")
-    sock.close()
                 
 if __name__ == "__main__":
         main()
