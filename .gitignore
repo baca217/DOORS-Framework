@@ -1,6 +1,5 @@
-/ignore_files/*
 *.sw*
 /modules/__pycache__/*
-modules/model/*
+tools/model/*
 tests/voice_synth_tests/model
 *.pyc
