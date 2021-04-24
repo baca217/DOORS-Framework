@@ -18,10 +18,9 @@ def command_handler(sentence, info):
     for i in comms[0]:
         res = parse(i, sentence)
         if res:
-            msg, function = playSong(res[0], info)
+            msg, function = playSong(res[0])
             if len(msg) > 0:
                 break
-
     if len(msg) > 0:
         return msg, function
     elif sentence in comms[1]:
@@ -56,7 +55,7 @@ def commands():
         ]
     return coms, comp_types
 
-def playSong(songName, info):
+def playSong(songName):
         songName = songName.strip()
         songs = []
         highDis = 0
@@ -87,8 +86,8 @@ def playSong(songName, info):
                                 highPath = i
         if(highPath):
                 totPath = path+highPath
-                tmp = "{}/temp/tmpSend.wav".format(info["path"])
-                song = "{}/temp/songSend.wav".format(info["path"])
+                tmp = "{}/temp/tmpSend.wav".format()
+                song = "{}/temp/songSend.wav".format()
                 msg = "Song "+highTitle+" will be played"
                 convert = "ffmpeg -i "+ totPath + " -ar 16k -ac 1 "+ song
                 rmFile = "rm "+song
@@ -97,86 +96,16 @@ def playSong(songName, info):
                     os.system(rmFile)
                 except:
                     print(end = "")
-
-                try:
-                    os.system(convert)
-                except:
-                    msg = "couldn't convert file for song "+songName
-                    func = None
-                    return msg, func
-                while True:
-#                    option = input("send to front-end? ")
-                    option = "yes" 
-
-                    if option == "yes" or option == "y":
-                        def send():
-                            sendToFront(song, info)
-                        return msg, send
-                    elif option == "no" or option == "n":
-                        def play():
-                            mixer.init(16000, -16, 1)
-                            mixer.music.load(song)
-                            mixer.music.play()
-                        return msg, play
-                
+            
+                def play():
+                    mixer.init(16000, -16, 1)
+                    mixer.music.load(song)
+                    mixer.music.play()
+                return msg, play 
         else:
                 msg = "No songs in the local library matched "+songName
                 return msg, None
         return 0
-
-def sendToFront(songName, info):
-    ip, port = info["front"]
-    SIZE = int(65536/2)
-    #open file for sending
-    f = open(songName, "rb")
-    binaryHeader = f.read(44) #remove .wav header info for raw format
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect the socket to the port where the server is listening
-    server_address = (ip, port)
-    while True:
-        try:
-            sock.connect(server_address)
-            break
-        except:
-            print("connection to {} port {} refused. Can't send song".format(ip,port))
-    print ('connecting to %s port %s' % server_address)
-    size = 1
-    while size > 0:
-            read = f.read(SIZE)
-            if size == 1:
-                read = b"APCKT\0" + read
-            size = len(read)
-            try:
-                sock.send(read)
-            except KeyboardInterrupt:
-                print("got keyboard interrupt for local music player")
-                break
-            except socket.error as ex:
-                print("something went wrong with connection to {} port {}".format(ip,port))
-                print("ERROR: {}".format(ex))
-                while True:
-                    try:
-                        sock.connect(server_address)
-                        break
-                    except:
-                        print("connection to {} port {} refused. Can't send song".format(ip,port))
-                print ('connecting to %s port %s' % server_address)
-                continue
-    sock.settimeout(5)
-    while True:
-        try:
-            data = sock.recv(SIZE)
-            if b"ADONE" in data:
-                break
-        except:
-            print("connection timed out in local music connection receive")
-            f.close()
-            return
-    print("RECEIVED ADONE FOR LOCAL MUSIC PLAYER") 
-    sock.close()
-    f.close()
 
 def stopSong():
         if mixer.get_init():

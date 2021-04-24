@@ -7,7 +7,6 @@ import vosk_rec as vosk_rec
 import sklearn_sims as sklearn_sims
 #import modules.serial_comm as serial_comm
 import voice_synth as vs
-import front_info as fi
 import module_loader as ml
 from tests.main_tests.main_test import run_tests
 import os #for recording, temporary usage
@@ -29,7 +28,6 @@ def main():
             "enter \"exit\" to exit the program: ")
 
     while True:
-        print()
         record = input(menu)
         print()
         record = record.strip().lower()
@@ -38,7 +36,7 @@ def main():
         
         if(record == "exit"):
             exit()
-        elif(record == "r" or record == "wifi" or record == "reuse"):
+        elif(record == "r" or record == "reuse"):
             if record == "r": #do a local recording
                 local()
                 sentence = decoder.decode_file(filename)

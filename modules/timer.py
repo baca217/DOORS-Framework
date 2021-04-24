@@ -5,7 +5,6 @@ from word2number import w2n
 import signal
 from parse import *
 import socket
-import front_info as fe
 import voice_synth as vs
 
 def command_handler(sentence, info):
@@ -33,12 +32,9 @@ def commands():
     return comm, classify
 
 def handler(signal, frame): #handler for timer
-        info = fe.get_fe_info()
-        voice = vs.VoiceSynth(info)
+        voice = vs.VoiceSynth()
         msg = "\n\nTime is up for timer!\n"
         print(msg)
-        voice.sendToFront(msg)
-        
 
 def setTimer(timeStr): #only going to focus on time for now
         temp = ""

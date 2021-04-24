@@ -161,9 +161,3 @@ def brightnessChanger(bulb, percent):
     else:
         funct = None
     return msg, funct
-
-def main():
-    print("flux main does nothing")
-        
-if __name__ == "__main__":
-    main()

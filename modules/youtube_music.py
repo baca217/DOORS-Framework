@@ -58,20 +58,9 @@ def download_song(songName, info):
 
     os.system(convert.format(latest))
     os.system("rm \'"+latest+"\'")
-
-    while True:
-#        option = input("send to front end?: ")
-        option = "yes"
-        if option == "yes" or option == "y":
-            def callSend():
-                sendToFront(info)
-            return callSend
-        elif option == "no" or option == "n":
-            def call_play():
-                play_song()
-            return call_play
-        else:
-            print(option+" is not an option")
+    def call_play():
+        play_song()
+    return call_play
     
 def play_song(info):
     if not mixer.get_init():
@@ -114,17 +103,6 @@ def commands():
             ]
     return coms, classify
 
-def test(sentence):
-
-    for i in command_format(): #trying to pull arguments from string passed in
-        ret = parse(i, sentence)
-        if ret is not None:
-            vals = ret
-            break
-    if vals is not None:
-        print(vals[0])
-        download_song(vals[0])
-
 def command_handler(sentence, info):
     msg = "song name couldn't be derived"
     function = None
@@ -142,74 +120,3 @@ def command_handler(sentence, info):
         if function: #function was set, break and return
             break
     return msg, function
-
-'''
-FUNCTION:sendToFront
-ARGUMENTS: NONE
-FUNCTIONALITY: takes the downsampled audio file for music named "Song.wav" and sends it to some
-ip address on port 10000 in chunks of 32768 bytes. The message is preappended with "APCKT\n"
-for formatting which is how the front-end team wants it. After the whole file is sent the socket is
-closed.
-'''
-def sendToFront(info):
-    ip, port = info["front"]
-    SIZE = int(65536/2)
-    #open file for sending
-    f = open("{}/temp/yt_song.wav".format(info["path"]), "rb")
-    binaryHeader = f.read(44) #remove .wav header info for raw format
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect the socket to the port where the server is listening
-    server_address = (ip, port)
-    while True:
-        try:
-            sock.connect(server_address)
-            break
-        except:
-            print("connection to {} port {} refused. Can't send song".format(ip, port))
-    print ('connected to {} port {}'.format(ip, port))
-    size = 1
-    while size > 0:
-            read = f.read(SIZE)
-            if size == 1:
-                    read = b"APCKT\0" + read
-            size = len(read)
-            print(size)
-            try:
-                    sock.send(read)
-            except KeyboardInterrupt:
-                    print("keyboard interrupt in youtube music")
-                    break
-            except socket.error as ex:
-                    print("something went wrong with connection to {} port {}".format(ip,port))
-                    print("ERROR: {}".format(ex))
-                    while True:
-                            try:
-                                sock.connect(server_address)
-                                break
-                            except:
-                                print("connection to {} port {} refused. Can't send song".format(ip, port))
-                    print ('connected to {} port {}'.format(ip, port))
-                    continue
-    sock.settimeout(5)
-    while True:
-        try:
-                data = sock.recv(SIZE)
-                if b"ADONE" in data:
-                        break
-        except:
-                print("connection timed out on youtube music receive")
-                f.close()
-                return
-    print("RECEIVED ADONE FOR YOUTUBE MUSIC")
-    f.close()
-    sock.close()
-
-
-def main(): 
-    download_song("dance in the darkness joji")
-    sendToFront()
-
-if __name__ == "__main__":
-    main()
