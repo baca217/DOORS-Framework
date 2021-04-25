@@ -8,89 +8,51 @@ import vosk
 import sys
 import json
 
-def int_or_str(text):
-    """Helper function for argument parsing."""
-    try:
-        return int(text)
-    except ValueError:
-        return text
+class Decoder:
 
-def live_mic():
-    q = queue.Queue() 
-    parser = argparse.ArgumentParser(add_help=False) #checking command line for args
-    parser.add_argument(
-        '-l', '--list-devices', action='store_true',
-        help='show list of audio devices and exit')
-    args, remaining = parser.parse_known_args()
-    if args.list_devices:
-        print(sd.query_devices())
-        parser.exit(0)
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[parser])
-    parser.add_argument(
-        '-f', '--filename', type=str, metavar='FILENAME',
-        help='audio file to store recording to')
-    parser.add_argument(
-        '-m', '--model', type=str, metavar='MODEL_PATH',
-        help='Path to the model')
-    parser.add_argument(
-        '-d', '--device', type=int_or_str,
-        help='input device (numeric ID or substring)')
-    parser.add_argument(
-        '-r', '--samplerate', type=int, help='sampling rate')
-    args = parser.parse_args(remaining)
+    def __init__(self):
+        self.q = queue.Queue()
+        self.device = None
+        try:
+            model = "tools/model" #setting model location
+            if not os.path.exists(model):
+                print ("Please download a model for your language from https://alphacephei.com/vosk/models")
+                print ("and unpack as 'model' in the tools folder.")
+                exit(0)
+            device_info = sd.query_devices(self.device, 'input')
+            # soundfile expects an int, sound device provides a float:
+            self.samplerate = int(device_info['default_samplerate'])
+            model = vosk.Model(model)
+            self.rec = vosk.KaldiRecognizer(model, self.samplerate) 
+        except Exception as e:
+            print("EXCEPTION : {}".format(e))
+            exit(0)
 
-    def callback(indata, frames, time, status):
-        """This is called (from a separate thread) for each audio block."""
-        if status:
-            print(status, file=sys.stderr)
-        q.put(bytes(indata))
+    def callback(self, indata, frames, time, status):
+            """This is called (from a separate thread) for each audio block."""
+            if status:
+                print(status, file=sys.stderr)
+            self.q.put(bytes(indata))
 
-    try:
-        if args.model is None:
-            args.model = "model"
-        if not os.path.exists(args.model):
-            print ("Please download a model for your language from https://alphacephei.com/vosk/models")
-            print ("and unpack as 'model' in the current folder.")
-            parser.exit(0)
-        if args.samplerate is None:
-            device_info = sd.query_devices(args.device, 'input')
-            # soundfile expects an int, sounddevice provides a float:
-            args.samplerate = int(device_info['default_samplerate'])
+    def run(self):
+        with sd.RawInputStream(samplerate=self.samplerate, blocksize = 16000, device=self.device,
+                        dtype='int16',channels=1, callback=self.callback):
+            while True:
+                data = self.q.get()
+                if self.rec.AcceptWaveform(data):
+                    res = self.rec.Result()
+                    results = json.loads(res)
+                    size = len(results["text"])
+                    print("TEXT: {}\nLEN: {}".format(results["text"], size))
+                    if size > 0:
+                        return results["text"]
 
-        model = vosk.Model(args.model)
+        
 
-        if args.filename:
-            dump_fn = open(args.filename, "wb")
-        else:
-            dump_fn = None
-
-        with sd.RawInputStream(samplerate=args.samplerate, blocksize = 16000, device=args.device, 
-                    dtype='int16',channels=1, callback=callback):
-                print('#' * 80)
-                print('Press Ctrl+C to stop the recording')
-                print('#' * 80)
-
-                rec = vosk.KaldiRecognizer(model, args.samplerate)
-                while True:
-                    data = q.get()
-                    if rec.AcceptWaveform(data):
-                        res = rec.Result()
-                        results = json.loads(res)
-                        print("TEXT: {}".format(results["text"]))
-                    if dump_fn is not None:
-                        dump_fn.write(data)
-
-    except KeyboardInterrupt:
-        print('\nDone')
-        parser.exit(0)
-    except Exception as e:
-        parser.exit(type(e).__name__ + ': ' + str(e))
 
 def main():
-    live_mic()
+    test = Decoder()
+    test.run()
 
 if __name__ == "__main__":
     main()
